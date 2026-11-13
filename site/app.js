@@ -1,4 +1,5 @@
 import { t, isNewDevelopment, formatAgo, formatToday, formatClock } from "./lib.js";
+import { worldMap, detailMap } from "./map.js";
 
 const params = new URLSearchParams(location.search);
 const DATA = params.get("data") || "data";
@@ -92,12 +93,6 @@ function message(text) {
   return el("p", { class: "quiet", text });
 }
 
-const mapHooks = { world: null, detail: null };
-export function registerMaps(world, detail) {
-  mapHooks.world = world;
-  mapHooks.detail = detail;
-}
-
 async function viewToday() {
   const now = new Date();
   const data = await getJSON("today.json");
@@ -119,8 +114,8 @@ async function viewToday() {
       events.length ? `${t("end", lang)} ` : null,
       el("a", { href: "#/all", text: t("seeAll", lang) })),
     footer(data.generated_at));
-  if (events.length && mapHooks.world) {
-    mapHooks.world(mapBox, events, (id) => { location.hash = `#/e/${encodeURIComponent(id)}`; });
+  if (events.some((e) => e.location)) {
+    worldMap(mapBox, events, (id) => { location.hash = `#/e/${encodeURIComponent(id)}`; });
   }
 }
 
@@ -180,7 +175,7 @@ async function viewEvent(id) {
             el("span", { class: "src-title", text: s.title[lang] }),
             el("span", { class: "src-arrow", "aria-hidden": "true", text: "↗" })))))),
     footer(null));
-  if (ev.location && mapHooks.detail) mapHooks.detail(mapBox, ev.location);
+  if (ev.location) detailMap(mapBox, ev.location);
 }
 
 async function render() {

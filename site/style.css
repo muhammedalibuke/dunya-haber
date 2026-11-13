@@ -103,3 +103,17 @@ button { font: inherit; color: inherit; }
   main { animation: in 220ms ease-out; }
   @keyframes in { from { opacity: 0; } to { opacity: 1; } }
 }
+
+.map-svg { display: block; width: 100%; height: auto; overflow: hidden; }
+.map-detail { border-radius: 6px; background: color-mix(in srgb, var(--land) 35%, var(--bg)); }
+.m-land { fill: var(--land); stroke: var(--border-land); stroke-width: 0.5; stroke-linejoin: round; }
+.m-tint { fill: color-mix(in srgb, var(--red) 30%, var(--land)); }
+.m-admin { fill: none; stroke: var(--border-land); stroke-width: 0.5; stroke-dasharray: 2 2; opacity: 0.7; }
+.m-dot { fill: var(--red); }
+.m-ring { fill: none; stroke: var(--red); stroke-width: 2; }
+.m-halo { fill: var(--red-soft); }
+.m-hit { fill: transparent; }
+.m-num { fill: #fff; font: 600 10px/1 var(--serif); pointer-events: none; }
+.m-num-ring { fill: var(--red); }
+.m-point { cursor: pointer; outline: none; }
+.m-point:focus-visible .m-hit { stroke: var(--focus); stroke-width: 2; }
