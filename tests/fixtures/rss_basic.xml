@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0"><channel><title>Example</title>
+<item>
+  <title>Strong quake hits &lt;script&gt;alert(1)&lt;/script&gt;Kobe</title>
+  <link>https://example.com/world/quake?utm_source=rss&amp;utm_medium=feed</link>
+  <description>&lt;p&gt;A &lt;b&gt;strong&lt;/b&gt; earthquake struck western Japan on Thursday.&lt;/p&gt;&lt;img src="x.jpg"&gt;</description>
+  <pubDate>Fri, 13 Nov 2026 09:30:00 GMT</pubDate>
+  <category>World</category><category>Asia</category>
+</item>
+<item>
+  <title>No date story</title>
+  <link>https://example.com/world/nodate</link>
+  <description>Something happened.</description>
+</item>
+<item>
+  <title>Future story</title>
+  <link>https://example.com/world/future</link>
+  <description>From the future.</description>
+  <pubDate>Mon, 01 Jan 2035 00:00:00 GMT</pubDate>
+</item>
+<item>
+  <title></title>
+  <link>https://example.com/world/empty-title</link>
+</item>
+</channel></rss>
