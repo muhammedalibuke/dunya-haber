@@ -1,5 +1,5 @@
 import { t, isNewDevelopment, formatAgo, formatToday, formatUpdated, safeUrl, dataDir } from "./lib.js";
-import { worldMap, detailMap } from "./map.js";
+import { worldMap } from "./map.js";
 
 const params = new URLSearchParams(location.search);
 const DATA = dataDir(params.get("data"));
@@ -75,9 +75,45 @@ function langButton() {
   });
 }
 
+function placeName(ev) {
+  const country = ev.country.name[lang] || "";
+  const loc = ev.location;
+  if (loc && loc.level !== "country" && loc.name && loc.name !== country) return `${loc.name}, ${country}`;
+  return country;
+}
+
+function photos(images) {
+  const list = (images || []).filter((i) => safeUrl(i.url));
+  if (!list.length) return { hero: null, thumbs: null };
+  const img = el("img", { src: safeUrl(list[0].url), alt: "", referrerpolicy: "no-referrer" });
+  const cap = el("figcaption", { text: t("photo", lang, { s: list[0].source }) });
+  const hero = el("figure", { class: "photo" }, img, cap);
+  const buttons = [];
+  const show = (i) => {
+    img.src = safeUrl(list[i].url);
+    cap.textContent = t("photo", lang, { s: list[i].source });
+    buttons.forEach((b, j) => b.setAttribute("aria-pressed", String(j === i)));
+  };
+  img.addEventListener("error", () => {
+    const next = buttons.find((b) => b.isConnected && b.getAttribute("aria-pressed") !== "true");
+    if (next) next.click();
+    else hero.remove();
+  });
+  if (list.length > 1) {
+    list.forEach((im, i) => {
+      const b = el("button", { type: "button", class: "thumb", "aria-pressed": String(i === 0),
+        "aria-label": t("photo", lang, { s: im.source }), onclick: () => show(i) },
+        el("img", { src: safeUrl(im.url), alt: "", loading: "lazy", referrerpolicy: "no-referrer",
+          onerror: (e) => e.target.closest("button")?.remove() }));
+      buttons.push(b);
+    });
+  }
+  return { hero, thumbs: buttons.length ? el("div", { class: "thumbs" }, buttons) : null };
+}
+
 function eventRow(ev, rank, now, seen) {
   const meta = el("span", { class: "meta" },
-    el("span", { text: ev.country.name[lang] || "" }),
+    el("span", { text: placeName(ev) }),
     el("span", { text: formatAgo(ev.updated_at, now, lang) }),
     isNewDevelopment(ev, seen) ? el("span", { class: "new", text: t("newDev", lang) }) : null);
   return el("li", { class: "row" },
@@ -154,22 +190,19 @@ async function viewEvent(id) {
   seen[ev.id] = ev.updated_at;
   store.set("seen", seen);
 
-  const mapBox = el("div", { class: "map" });
+  const { hero, thumbs } = photos(ev.images);
   const summary = ev.summary[lang];
   app.replaceChildren(
     el("header", { class: "top" },
       el("a", { class: "back", href: "#/", text: `← ${t("back", lang)}` }),
       langButton()),
     el("article", { class: "detail" },
-      ev.image && safeUrl(ev.image.url) ? el("figure", { class: "photo" },
-        el("img", { src: safeUrl(ev.image.url), alt: "", loading: "lazy", referrerpolicy: "no-referrer",
-                    onerror: (e) => e.target.closest("figure")?.remove() }),
-        el("figcaption", { text: t("photo", lang, { s: ev.image.source }) })) : null,
+      hero,
       el("h1", { class: "detail-title", text: ev.title[lang] }),
       el("p", { class: "meta" },
-        el("span", { text: ev.country.name[lang] || "" }),
+        el("span", { text: placeName(ev) }),
         el("span", { text: formatAgo(ev.updated_at, now, lang) })),
-      mapBox,
+      thumbs,
       summary ? el("p", { class: "summary", text: summary }) : null,
       summary && ev.summary.ai ? el("p", { class: "ai", text: t("aiSummary", lang) }) : null,
       el("h2", { class: "section", text: t("sources", lang) }),
@@ -183,7 +216,6 @@ async function viewEvent(id) {
         ? el("p", { class: "src-total", text: t("sourceTotal", lang, { n: ev.source_total }) })
         : null),
     footer(null));
-  if (ev.location) detailMap(mapBox, ev.location);
 }
 
 async function render() {

@@ -35,7 +35,7 @@ def test_build_site_data_shapes():
     assert s["location"] == {"level": "city", "name": "Kobe", "lat": 34.69, "lon": 135.19, "country": "JP"}
     d = files["events/a1.json"]
     assert d["summary"] == {"tr": "Güçlü bir deprem.", "en": "A strong quake struck.", "ai": False}
-    assert d["image"] == {"url": "https://img.example/1.jpg", "source": "NHK"}
+    assert d["images"] == [{"url": "https://img.example/1.jpg", "source": "NHK"}]
     assert [x["name"] for x in d["sources"]] == ["NHK", "BBC"]
     assert d["sources"][0]["title"] == {"orig": "神戸で地震", "tr": "Kobe'de deprem", "en": "Earthquake in Kobe"}
     assert "description" not in str(d)
@@ -47,9 +47,28 @@ def test_all_lists_multi_source_events_only():
     assert files["today.json"]["events"] == []
 
 
-def test_event_without_image_has_null_image():
+def test_event_without_image_has_no_images():
     files = build_site_data(state_with_event(image=False), ["a1"], NOW)
-    assert files["events/a1.json"]["image"] is None
+    assert files["events/a1.json"]["images"] == []
+
+
+def test_images_up_to_4_one_per_source_popular_first():
+    from pipeline.publish import MAX_IMAGES
+    arts, ids = {}, []
+    for i in range(7):
+        a = art(f"p{i}", f"Story {i}", NOW - timedelta(hours=3, minutes=-i), source_id=f"s{i % 6}",
+                source_name=f"S{i % 6}", image_url=f"https://img.example/{i}.jpg")
+        a.source_tier = 1 if i == 4 else 3
+        arts[a.id] = a
+        ids.append(a.id)
+    arts["p2"].image_url = None
+    e = Event("p0", ids, np.zeros(4, np.float32), NOW - timedelta(hours=3), NOW)
+    d = build_site_data(State(articles=arts, events={"p0": e}), ["p0"], NOW)["events/p0.json"]
+    assert MAX_IMAGES == 4
+    assert d["images"] == [{"url": "https://img.example/4.jpg", "source": "S4"},
+                           {"url": "https://img.example/0.jpg", "source": "S0"},
+                           {"url": "https://img.example/1.jpg", "source": "S1"},
+                           {"url": "https://img.example/3.jpg", "source": "S3"}]
 
 
 def test_write_site_data_clears_old_event_files(tmp_path):

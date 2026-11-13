@@ -1,6 +1,8 @@
 """Write sample site data to site/dev-data/ for local previews (fictional examples).
 
-Usage: python scripts/make_dev_data.py   then open  /site/?data=dev-data
+Usage: python scripts/make_dev_data.py [IMG_BASE]   then open  /site/?data=dev-data
+IMG_BASE is where the sample photos are served (photos must be absolute http URLs),
+default http://localhost:8000/site/dev-data/
 """
 from __future__ import annotations
 
@@ -61,7 +63,7 @@ EVENTS = [
 
 def main() -> None:
     state = State()
-    img = "dev-data/sample.svg"
+    base = sys.argv[1] if len(sys.argv) > 1 else "http://localhost:8000/site/dev-data/"
     for eid, ttr, ten, hours, loc, srcs, has_img, (str_, sen) in EVENTS:
         t = NOW - timedelta(hours=hours)
         ids = []
@@ -71,17 +73,20 @@ def main() -> None:
                 id=aid, url=f"https://example.com/{eid}/{i}", title=ten if i else ttr, description="",
                 source_id=name.lower().replace(" ", "-"), source_name=name, country=cc,
                 lang="en" if i else "tr", published=t - timedelta(minutes=10 * (len(srcs) - i)),
-                image_url=img if has_img and i == 0 else None, tags=[], title_tr=ttr, title_en=ten)
+                image_url=f"{base}sample{i % 4}.svg" if has_img and i < 4 else None, tags=[],
+                title_tr=ttr, title_en=ten)
             ids.append(aid)
         state.events[eid] = Event(eid, ids, np.zeros(4, np.float32), t - timedelta(hours=1), t,
                                   location=loc, summary_tr=str_, summary_en=sen)
     out = ROOT / "site" / "dev-data"
     write_site_data(out, build_site_data(state, [e[0] for e in EVENTS], NOW))
-    (out / "sample.svg").write_text(
-        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450">'
-        '<rect width="800" height="450" fill="#9fb3c8"/><circle cx="560" cy="160" r="70" fill="#dfe7ef"/>'
-        '<path d="M0 330 L220 210 L380 300 L560 190 L800 320 L800 450 L0 450Z" fill="#5d7690"/></svg>',
-        encoding="utf-8")
+    for i, (sky, land) in enumerate([("#9fb3c8", "#5d7690"), ("#c8b59f", "#90745d"),
+                                     ("#a9c8a0", "#5d8a5a"), ("#b9a9c8", "#6f5d90")]):
+        (out / f"sample{i}.svg").write_text(
+            '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450">'
+            f'<rect width="800" height="450" fill="{sky}"/><circle cx="{200 + 120 * i}" cy="160" r="70" fill="#eef2f5"/>'
+            f'<path d="M0 330 L220 210 L380 300 L560 190 L800 320 L800 450 L0 450Z" fill="{land}"/></svg>',
+            encoding="utf-8")
     empty = ROOT / "site" / "dev-data-empty"
     write_site_data(empty, build_site_data(State(), [], NOW))
     print(f"wrote {out} and {empty}")

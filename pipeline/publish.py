@@ -13,6 +13,7 @@ from .models import Article, Event, State
 OPEN_WINDOW = timedelta(hours=48)
 ALL_MAX = 300
 MAX_SOURCES_SHOWN = 5  # most widely read outlets only; the rest still count toward ranking
+MAX_IMAGES = 4
 MIN_SOURCES_ALL = 2
 
 
@@ -59,6 +60,19 @@ def _source_rows(arts: list[Article]) -> list[dict]:
     return rows
 
 
+def _images(arts: list[Article]) -> list[dict]:
+    out, sources, urls = [], set(), set()
+    for a in sorted(arts, key=lambda a: (a.source_tier, a.published)):
+        if not a.image_url or a.source_id in sources or a.image_url in urls:
+            continue
+        sources.add(a.source_id)
+        urls.add(a.image_url)
+        out.append({"url": a.image_url, "source": a.source_name})
+        if len(out) >= MAX_IMAGES:
+            break
+    return out
+
+
 def _location(event: Event) -> dict | None:
     l = event.location
     return {"level": l.level, "name": l.name, "lat": l.lat, "lon": l.lon, "country": l.country} if l else None
@@ -81,7 +95,6 @@ def event_summary(event: Event, articles: dict[str, Article]) -> dict:
 def event_detail(event: Event, articles: dict[str, Article]) -> dict:
     arts = _arts(event, articles)
     s = event_summary(event, articles)
-    img = next((a for a in arts if a.image_url), None)
     return {
         "id": event.id,
         "title": s["title"],
@@ -89,7 +102,7 @@ def event_detail(event: Event, articles: dict[str, Article]) -> dict:
         "created_at": event.created_at.isoformat(),
         "updated_at": s["updated_at"],
         "summary": {"tr": event.summary_tr, "en": event.summary_en, "ai": event.summary_ai},
-        "image": {"url": img.image_url, "source": img.source_name} if img else None,
+        "images": _images(arts),
         "location": s["location"],
         "sources": _source_rows(arts),
         "source_total": s["source_count"],

@@ -60,7 +60,7 @@ def test_e2e_two_runs(tmp_path):
     detail = load(tmp_path, f"events/{ev['id']}.json")
     assert detail["summary"]["en"] == "A strong quake struck Kobe."
     assert detail["summary"]["tr"] == "[tr] A strong quake struck Kobe."
-    assert detail["image"]["source"] == "NHK"
+    assert detail["images"][0]["source"] == "NHK"
     first_updated = ev["updated_at"]
 
     pages = pages_run1()

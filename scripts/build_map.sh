@@ -5,7 +5,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 NE="${1:-$(mktemp -d)}"
 BASE=https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson
-for f in ne_110m_admin_0_countries ne_50m_admin_0_countries ne_10m_admin_1_states_provinces; do
+for f in ne_110m_admin_0_countries; do
   [ -f "$NE/$f.geojson" ] || curl -sSfL -o "$NE/$f.geojson" "$BASE/$f.geojson"
 done
 TOOLS="$(mktemp -d)"
@@ -17,13 +17,6 @@ mkdir -p "$ROOT/site/map" "$ROOT/site/vendor"
 "$MS" -i "$NE/ne_110m_admin_0_countries.geojson" name=countries \
   -each 'iso = ISO_A2_EH' -filter-fields iso \
   -o "$ROOT/site/map/world.topo.json" format=topojson quantization=1e5 precision=0.01
-
-# Detail: finer coastlines + first-level region borders (lines only), simplified for phones.
-"$MS" -i "$NE/ne_50m_admin_0_countries.geojson" name=countries \
-  -each 'iso = ISO_A2_EH' -filter-fields iso -simplify 40% keep-shapes \
-  -i "$NE/ne_10m_admin_1_states_provinces.geojson" name=admin1 \
-  -simplify 4% keep-shapes target=admin1 -innerlines target=admin1 \
-  -o "$ROOT/site/map/detail.topo.json" format=topojson target=countries,admin1 combine-layers quantization=1e5
 
 cp "$TOOLS/node_modules/d3-array/dist/d3-array.min.js" "$ROOT/site/vendor/"
 cp "$TOOLS/node_modules/d3-geo/dist/d3-geo.min.js" "$ROOT/site/vendor/"

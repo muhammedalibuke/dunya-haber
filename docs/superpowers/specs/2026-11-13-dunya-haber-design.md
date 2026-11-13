@@ -74,7 +74,8 @@ Bu uygulama haberleri **olay** etrafında birleştirir ve sakin, bitirilebilir b
 - **Türkiye:** Diğer ülkeler gibi işlenir. Sıralamada ek ağırlık almaz, ayrı bölümü olmaz.
 - **Harita (seçenek b):**
   - **"Bugün dünyada" haritası:** Günün özetindeki 5–10 olay dünya haritasında kırmızı noktalarla gösterilir. Noktaya dokununca o olayın detayı açılır.
-  - **Olay detayında küçük harita:** Fotoğrafın altında, olayın yerine yakınlaşmış halde, kırmızı noktayla.
+  - ~~Olay detayında küçük harita~~ (14 Kasım: kullanıcı isteğiyle kaldırıldı; yerine farklı kaynaklardan en fazla 4 fotoğraf: büyük fotoğraf + küçük kareler, dokununca büyüğün yerine geçer).
+  - Dünya haritasında noktaların yanında yer adı yazar, olayların ülkeleri hafifçe boyanır; listede "Kobe, Japonya" gibi yer adı görünür.
   - Arka plan ve sınır renkleri bizim seçimimizdir, sade tutulur.
 
 ### Ekran taslakları

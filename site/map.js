@@ -36,6 +36,35 @@ export function spreadPoints(points, minDist = 10) {
   return pts;
 }
 
+// Place name labels next to dots: right, else left, else nudged up/down; skipped if nothing fits.
+export function placeLabels(points, width, height, { charW = 6, gap = 11, lineH = 12, dotR = 8 } = {}) {
+  const placed = [];
+  const boxOf = (l) => {
+    const x0 = l.anchor === "end" ? l.x - l.w : l.x;
+    return { x0, x1: x0 + l.w, y0: l.y - lineH / 2, y1: l.y + lineH / 2 };
+  };
+  const hits = (a, b) => a.x0 < b.x1 && b.x0 < a.x1 && a.y0 < b.y1 && b.y0 < a.y1;
+  const dots = points.map((p) => ({ x0: p.x - dotR, x1: p.x + dotR, y0: p.y - dotR, y1: p.y + dotR }));
+  for (const p of points) {
+    if (!p.text) continue;
+    const w = p.text.length * charW;
+    const tries = [];
+    for (const dy of [0, -lineH, lineH]) {
+      tries.push({ x: p.x + gap, y: p.y + dy, anchor: "start" });
+      tries.push({ x: p.x - gap, y: p.y + dy, anchor: "end" });
+    }
+    for (const t of tries) {
+      const l = { id: p.id, text: p.text, w, ...t };
+      const b = boxOf(l);
+      if (b.x0 < 0 || b.x1 > width || b.y0 < 0 || b.y1 > height) continue;
+      if (placed.some((q) => hits(b, boxOf(q))) || dots.some((d) => hits(b, d))) continue;
+      placed.push(l);
+      break;
+    }
+  }
+  return placed;
+}
+
 // ---- browser-only below ----
 
 const libs = { ready: null };
@@ -90,7 +119,7 @@ export async function worldMap(container, events, onSelect) {
     const projection = d3.geoEqualEarth().fitSize([width, height], { type: "FeatureCollection", features: feats });
     const path = d3.geoPath(projection);
 
-    const tinted = new Set(events.filter((e) => e.location?.level === "country").map((e) => e.location.country));
+    const tinted = new Set(events.filter((e) => e.location).map((e) => e.location.country));
     const svg = svgEl("svg", { viewBox: `0 0 ${width} ${height}`, class: "map-svg", role: "group",
       "aria-label": "map" });
     for (const f of feats) {
@@ -105,6 +134,18 @@ export async function worldMap(container, events, onSelect) {
         return { id: e.id, x, y, e, rank };
       });
     const spread = spreadPoints(placed.map(({ id, x, y }) => ({ id, x, y })), 17);
+    const lang = document.documentElement.lang === "en" ? "en" : "tr";
+    const labelText = (e) => (e.location.level === "country" ? e.country.name[lang] : e.location.name) || "";
+    const labels = placeLabels(
+      spread.map((p, i) => ({ ...p, text: labelText(placed[i].e) })), width, height, { charW: 6.2, gap: 11 });
+    const labelLayer = svgEl("g", { class: "m-labels", "aria-hidden": "true" });
+    for (const l of labels) {
+      const tx = svgEl("text", { x: l.x, y: l.y, "text-anchor": l.anchor, "dominant-baseline": "central",
+        class: "m-label" });
+      tx.textContent = l.text;
+      labelLayer.append(tx);
+    }
+    svg.append(labelLayer);
     spread.forEach((p, i) => {
       const { e, rank } = placed[i];
       const country = e.location.level === "country";
@@ -120,39 +161,6 @@ export async function worldMap(container, events, onSelect) {
       g.addEventListener("keydown", (ev) => { if (ev.key === "Enter" || ev.key === " ") onSelect(e.id); });
       svg.append(g);
     });
-    container.replaceChildren(svg);
-  } catch (err) {
-    console.error(err);
-    container.replaceChildren();
-  }
-}
-
-export async function detailMap(container, location) {
-  if (!location) return;
-  try {
-    await ensureLibs();
-    const topo = await loadTopo("detail");
-    const width = Math.max(280, container.clientWidth || 360);
-    const height = Math.round(width * 0.56);
-    const feats = countries(topo);
-    const country = location.level === "country" ? feats.find((f) => f.properties.iso === location.country) : null;
-    const projection = d3.geoAzimuthalEqualArea().rotate([-location.lon, -location.lat]).clipAngle(40);
-    const focus = country || d3.geoCircle().center([location.lon, location.lat]).radius(300 / 111)();
-    projection.fitExtent([[12, 12], [width - 12, height - 12]], focus);
-    const path = d3.geoPath(projection);
-
-    const svg = svgEl("svg", { viewBox: `0 0 ${width} ${height}`, class: "map-svg map-detail", role: "img",
-      "aria-label": location.name });
-    for (const f of feats) {
-      const isFocus = country && f === country;
-      svg.append(svgEl("path", { d: path(f) || "", class: isFocus ? "m-land m-tint" : "m-land" }));
-    }
-    svg.append(svgEl("path", { d: path(topojson.mesh(topo, topo.objects.admin1)) || "", class: "m-admin" }));
-    if (!country) {
-      const [x, y] = projection([location.lon, location.lat]);
-      svg.append(svgEl("circle", { cx: x, cy: y, r: 14, class: "m-halo" }));
-      svg.append(svgEl("circle", { cx: x, cy: y, r: 6, class: "m-dot" }));
-    }
     container.replaceChildren(svg);
   } catch (err) {
     console.error(err);
