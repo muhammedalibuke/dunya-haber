@@ -12,7 +12,7 @@ from pathlib import Path
 from typing import Callable
 
 from .cluster import OPEN_WINDOW_HOURS, assign
-from .collect import fetch_all, http_get
+from .collect import ConditionalGetter, fetch_all
 from .embed import Embedder, embed_text
 from .geo import Gazetteer, locate_event
 from .models import Source
@@ -25,7 +25,7 @@ from .topics import TopicConfig, article_topic, event_topic, load_topic_config, 
 from .translate import Budget, Translator, translate_articles, translate_pair
 
 ROOT = Path(__file__).resolve().parents[1]
-TRANSLATE_BUDGET_S = 15 * 60  # leaves room for downloads, embedding and deploy in a 40-min job
+TRANSLATE_BUDGET_S = 8 * 60  # keeps a run inside the 10-minute schedule; leftovers wait for the next run
 
 
 @dataclass
@@ -134,18 +134,20 @@ def main() -> None:
     from .translate import ArgosTranslator
 
     argos_dir = os.environ.get("ARGOS_PACKAGES_DIR")
+    getter = ConditionalGetter(args.state / "http_cache.json.gz")
     report = run(
         state_dir=args.state,
         out_dir=args.out,
         now=datetime.now(timezone.utc),
         sources=load_sources(ROOT / "config" / "sources.yaml"),
-        get=http_get,
+        get=getter,
         embedder=SentenceEmbedder(),
         translator=ArgosTranslator(Path(argos_dir) if argos_dir else None),
         gaz=Gazetteer.load(ROOT / "data" / "gazetteer.json.gz", ROOT / "config" / "place_stoplist.txt"),
         topic_cfg=load_topic_config(ROOT / "config" / "topics.yaml"),
         gemini_key=os.environ.get("GEMINI_API_KEY") or None,
     )
+    getter.save()  # only after the state was saved: a failed run must refetch everything it saw
     print(report.line())
     for sid, err in sorted(report.failures.items()):
         print(f"  feed failed: {sid}: {err}")

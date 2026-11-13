@@ -2,9 +2,13 @@
 from __future__ import annotations
 
 import calendar
+import gzip
 import hashlib
 import html
+import json
 import re
+import time
+from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timedelta, timezone
 from typing import Callable
@@ -16,7 +20,8 @@ from .models import Article, Source
 
 USER_AGENT = "DunyaHaber/1.0 (+https://github.com/muhammedalibuke/dunya-haber)"
 MAX_BYTES = 5 * 1024 * 1024
-TIMEOUT_S = 15
+TIMEOUT_S = 10
+FEED_DEADLINE_S = 20  # a slow-drip server may hold a worker at most this long
 TRACKING_PARAMS = {"fbclid", "gclid", "ref"}
 FUTURE_TOLERANCE = timedelta(minutes=10)
 
@@ -117,6 +122,60 @@ def parse_feed(content: bytes, source: Source, fetched_at: datetime) -> list[Art
     return out
 
 
+class NotModified(Exception):
+    """The feed has not changed since the last run (HTTP 304)."""
+
+
+class ConditionalGetter:
+    """HTTP GET with ETag/Last-Modified memory, so unchanged feeds are not downloaded again."""
+
+    def __init__(self, path: Path, client=None, deadline_s: float = FEED_DEADLINE_S):
+        import httpx
+
+        self.path = Path(path)
+        self.deadline_s = deadline_s
+        self.client = client or httpx.Client(
+            headers={"User-Agent": USER_AGENT}, timeout=TIMEOUT_S, follow_redirects=True,
+            limits=httpx.Limits(max_connections=64))
+        self.cache: dict[str, dict] = {}
+        if self.path.exists():
+            with gzip.open(self.path, "rt", encoding="utf-8") as f:
+                self.cache = json.load(f)
+
+    def __call__(self, url: str) -> bytes:
+        start = time.monotonic()
+        headers = {}
+        known = self.cache.get(url, {})
+        if known.get("etag"):
+            headers["If-None-Match"] = known["etag"]
+        if known.get("last_modified"):
+            headers["If-Modified-Since"] = known["last_modified"]
+        with self.client.stream("GET", url, headers=headers) as r:
+            if r.status_code == 304:
+                raise NotModified()
+            r.raise_for_status()
+            buf = bytearray()
+            for chunk in r.iter_bytes():
+                buf.extend(chunk)
+                if len(buf) > MAX_BYTES:
+                    raise ValueError("feed larger than 5 MB")
+                if time.monotonic() - start > self.deadline_s:
+                    raise TimeoutError(f"feed slower than {self.deadline_s}s")
+            if time.monotonic() - start > self.deadline_s:
+                raise TimeoutError(f"feed slower than {self.deadline_s}s")
+            validators = {"etag": r.headers.get("ETag"), "last_modified": r.headers.get("Last-Modified")}
+            if any(validators.values()):
+                self.cache[url] = validators
+            else:
+                self.cache.pop(url, None)
+            return bytes(buf)
+
+    def save(self) -> None:
+        self.path.parent.mkdir(parents=True, exist_ok=True)
+        with gzip.open(self.path, "wt", encoding="utf-8") as f:
+            json.dump(self.cache, f)
+
+
 def http_get(url: str) -> bytes:
     import httpx
 
@@ -135,11 +194,13 @@ def fetch_all(
     sources: list[Source],
     get: Callable[[str], bytes],
     now: datetime,
-    workers: int = 16,
+    workers: int = 32,
 ) -> tuple[list[Article], dict[str, str]]:
     def one(src: Source):
         try:
             return src, parse_feed(get(src.url), src, now), None
+        except NotModified:
+            return src, [], None
         except Exception as exc:  # one bad feed must never stop the run
             return src, [], f"{type(exc).__name__}: {exc}"
 

@@ -1,3 +1,4 @@
+import pytest
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -120,3 +121,47 @@ def test_related_link_lists_removed_from_descriptions():
             "<p>Continue reading...</p>")
     assert clean_text(html).startswith("Microsoft outage affects Teams and Outlook.")
     assert "hospitals" not in clean_text(html)
+
+
+def test_not_modified_feed_is_skipped_quietly():
+    from pipeline.collect import NotModified
+
+    def get(url):
+        raise NotModified()
+    arts, failures = fetch_all([SRC], get, NOW)
+    assert arts == [] and failures == {}
+
+
+def test_conditional_getter_uses_and_stores_validators(tmp_path):
+    import httpx
+    from pipeline.collect import ConditionalGetter, NotModified
+    seen_headers = []
+
+    def handler(request):
+        seen_headers.append(dict(request.headers))
+        if request.headers.get("if-none-match") == '"v1"':
+            return httpx.Response(304)
+        return httpx.Response(200, content=b"<rss/>", headers={"ETag": '"v1"', "Last-Modified": "Fri, 13 Nov 2026 09:00:00 GMT"})
+
+    path = tmp_path / "http_cache.json.gz"
+    g = ConditionalGetter(path, client=httpx.Client(transport=httpx.MockTransport(handler)))
+    assert g("https://x.example/rss") == b"<rss/>"
+    g.save()
+    g2 = ConditionalGetter(path, client=httpx.Client(transport=httpx.MockTransport(handler)))
+    with pytest.raises(NotModified):
+        g2("https://x.example/rss")
+    assert seen_headers[1]["if-none-match"] == '"v1"'
+    assert seen_headers[1]["if-modified-since"] == "Fri, 13 Nov 2026 09:00:00 GMT"
+
+
+def test_conditional_getter_gives_up_on_slow_feeds(tmp_path):
+    import httpx
+    from pipeline.collect import ConditionalGetter
+
+    def handler(request):
+        return httpx.Response(200, content=b"x" * 10)
+
+    g = ConditionalGetter(tmp_path / "c.json.gz", client=httpx.Client(transport=httpx.MockTransport(handler)),
+                          deadline_s=0)
+    with pytest.raises(TimeoutError):
+        g("https://slow.example/rss")

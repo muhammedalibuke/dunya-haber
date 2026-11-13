@@ -6,7 +6,7 @@ Dünyada bugün olan önemli olayları tek, sade bir sayfada gösteren kişisel 
 - Ana ekranda günün en önemli **5–10 olayı** ve bir **dünya haritası** var. Liste bitirilebilir.
 - Her olayda kaynakların listesi ve **orijinal habere doğrudan bağlantı** bulunur.
 - Türkçe ve İngilizce. Spor ve magazin günün özetine girmez, "Tümünü gör" listesinde görünür.
-- **Ücretsiz:** GitHub Actions 30 dakikada bir haberleri toplar, site GitHub Pages'te yayınlanır.
+- **Ücretsiz:** GitHub Actions yaklaşık 10 dakikada bir haberleri toplar, site GitHub Pages'te yayınlanır.
 
 Adres: `https://muhammedalibuke.github.io/dunya-haber/`
 
@@ -14,9 +14,9 @@ Adres: `https://muhammedalibuke.github.io/dunya-haber/`
 
 1. **Settings → Pages → Build and deployment → Source: GitHub Actions** seç.
 2. **Actions → check-sources → Run workflow** ile kaynakların sağlığını kontrol et (rapor, çalışmanın "Artifacts" kısmında).
-3. **Actions → update → Run workflow** ile ilk çalıştırmayı başlat. Sonrasında her 30 dakikada bir kendiliğinden çalışır.
+3. **Actions → update → Run workflow** ile ilk çalıştırmayı başlat. Sonrasında yaklaşık 10 dakikada bir kendiliğinden çalışır (GitHub yoğun saatlerde birkaç dakika geciktirebilir).
 
-İlk çalıştırma çeviri ve vektör modellerini indirdiği için uzun sürer. Çeviri her çalıştırmada en fazla 15 dakika yapılır; yetişmeyen çeviriler bir sonraki çalıştırmaya kalır, bu yüzden ilk birkaç çalıştırmada bazı başlıklar özgün dilinde görünebilir.
+İlk çalıştırma çeviri ve vektör modellerini indirdiği için uzun sürer. Çeviri her çalıştırmada en fazla 8 dakika yapılır; yetişmeyen çeviriler bir sonraki çalıştırmaya kalır, bu yüzden ilk birkaç çalıştırmada bazı başlıklar özgün dilinde görünebilir.
 
 ## Nasıl çalışır
 
