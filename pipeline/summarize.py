@@ -11,7 +11,8 @@ _TAILS = [
                r"|leer más|lire la suite|weiterlesen|saiba mais)\W*$", re.I),
 ]
 _ELLIPSIS = re.compile(r"\s*(\[\s*(\.\.\.|…)\s*\]|\.\.\.|…)\s*$")
-_SENT_SPLIT = re.compile(r"(?<=[.!?。！？])\s+")
+_SENT_SPLIT = re.compile(r"(?:(?<=[.!?。！？])|(?<=[.!?。！？][\"'”’»)]))\s+")
+_COMPLETE = re.compile(r"[.!?。！？][\"'”’»)]*$")
 
 
 def _clean(description: str) -> tuple[str, bool]:
@@ -39,7 +40,7 @@ def default_summary(description: str, max_sentences: int = 4, max_chars: int = 4
     return out + "…" if truncated else out
 
 
-SUMMARY_VERSION = 2  # bump to rebuild stored summaries once
+SUMMARY_VERSION = 3  # bump to rebuild stored summaries once
 DUPLICATE_SIM = 0.8
 
 
@@ -50,7 +51,8 @@ def combined_summary(items: list[tuple[str, str]], embedder, max_sentences: int 
     cands: list[tuple[str, str]] = []
     for lang, desc in items:
         text, _ = _clean(desc)
-        cands += [(lang, s.strip()) for s in _SENT_SPLIT.split(text) if len(s.strip()) >= 3]
+        cands += [(lang, s.strip()) for s in _SENT_SPLIT.split(text)
+                  if len(s.strip()) >= 3 and _COMPLETE.search(s.strip())]  # cut-off fragments dropped
     if not cands:
         return []
     vecs = embedder.encode([s for _, s in cands])

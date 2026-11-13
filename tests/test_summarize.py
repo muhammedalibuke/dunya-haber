@@ -58,3 +58,12 @@ def test_combined_summary_empty():
     from pipeline.summarize import combined_summary
     from tests.fakes import FakeEmbedder
     assert combined_summary([("en", ""), ("tr", "   ")], FakeEmbedder({})) == []
+
+
+def test_combined_summary_drops_cut_off_sentences():
+    from pipeline.summarize import combined_summary
+    from tests.fakes import FakeEmbedder
+    items = [("en", "The board met on Wednesday. It was preparing to determine Huang’s"),
+             ("en", "He said “we will recover.” Officials agreed")]
+    out = combined_summary(items, FakeEmbedder({}))
+    assert out == [("en", "The board met on Wednesday."), ("en", "He said “we will recover.”")]

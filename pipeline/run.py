@@ -65,6 +65,9 @@ def run(state_dir: Path, out_dir: Path, now: datetime, sources: list[Source],
         gaz: Gazetteer, topic_cfg: TopicConfig, gemini_key: str | None = None,
         post=None, translate_budget_s: float = TRANSLATE_BUDGET_S) -> RunReport:
     state = load_state(state_dir)
+    tiers = {src.id: src.tier for src in sources}
+    for a in state.articles.values():  # popularity can be edited in sources.yaml at any time
+        a.source_tier = tiers.get(a.source_id, a.source_tier)
     fetched, failures = fetch_all(sources, get, now)
     too_old = now - timedelta(hours=OPEN_WINDOW_HOURS)
     today_n = epoch_day(now)

@@ -112,3 +112,16 @@ def test_old_short_summaries_are_rebuilt_once(tmp_path):
     go(tmp_path, pages, NOW + timedelta(minutes=30))
     d = json.loads(next((tmp_path / "out" / "events").iterdir()).read_text())
     assert d["summary"]["en"].startswith("A strong quake struck Kobe.")
+
+
+def test_stored_articles_get_current_source_tier(tmp_path):
+    from pipeline.models import Source
+    from pipeline.state import load_state
+    t = NOW - timedelta(hours=2)
+    pages = {GB.url: rss([item("Quake hits Kobe", "https://bbc.example/q", t, "A strong quake.")]),
+             TR.url: rss([]), JP.url: rss([])}
+    go(tmp_path, pages, NOW)
+    big = Source(GB.id, GB.name, GB.url, GB.country, GB.lang, GB.region, tier=1)
+    go(tmp_path, pages, NOW + timedelta(minutes=30), sources=(big, TR, JP))
+    [a] = load_state(tmp_path / "state").articles.values()
+    assert a.source_tier == 1
