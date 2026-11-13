@@ -20,7 +20,8 @@ TIMEOUT_S = 15
 TRACKING_PARAMS = {"fbclid", "gclid", "ref"}
 FUTURE_TOLERANCE = timedelta(minutes=10)
 
-_BLOCK_RE = re.compile(r"<(script|style)\b[^>]*>.*?</\1\s*>", re.I | re.S)
+# script/style, and <ul>/<ol> lists (in feed descriptions these are "related stories" links)
+_BLOCK_RE = re.compile(r"<(script|style|ul|ol)\b[^>]*>.*?</\1\s*>", re.I | re.S)
 _TAG_RE = re.compile(r"<[^>]+>")
 _WS_RE = re.compile(r"\s+")
 

@@ -111,3 +111,12 @@ def test_articles_carry_source_tier():
     src = Source("big", "Big", "https://big.example/rss", "GB", "en", "europe", tier=1)
     [a] = parse_feed(read("atom_basic.xml"), src, NOW)
     assert a.source_tier == 1
+
+
+def test_related_link_lists_removed_from_descriptions():
+    html = ("<p>Microsoft outage affects Teams and Outlook.</p>"
+            "<ul><li><a href='x'>Microsoft outage hits UK hospitals</a></li>"
+            "<li><a href='y'>Microsoft outage – live updates</a></li></ul>"
+            "<p>Continue reading...</p>")
+    assert clean_text(html).startswith("Microsoft outage affects Teams and Outlook.")
+    assert "hospitals" not in clean_text(html)
