@@ -107,10 +107,12 @@ def prune(state: State, now: datetime) -> None:
     keep = {aid for e in state.events.values() for aid in e.article_ids}
     for aid in [aid for aid in state.articles if aid not in keep]:
         del state.articles[aid]
+    from .summarize import default_summary
+
     needed = {
         cache_key(text, a.lang, tgt)
         for a in state.articles.values()
-        for text in (a.title, a.description)
+        for text in (a.title, a.description, default_summary(a.description))
         for tgt in TARGET_LANGS
     }
     for k in [k for k in state.translations if k not in needed]:

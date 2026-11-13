@@ -73,3 +73,14 @@ def test_prune_drops_orphan_translations_not_needed():
     )
     prune(s, NOW)
     assert list(s.translations) == [cache_key("Hello", "en", "tr")]
+
+
+def test_prune_keeps_translations_of_default_summaries():
+    from pipeline.summarize import default_summary
+    a = make_article("k1", desc="First sentence. Read more")
+    summary = default_summary(a.description)
+    key = cache_key(summary, "en", "tr")
+    s = State(articles={"k1": a}, events={"k1": make_event("k1", ["k1"])},
+              translations={key: {"text": "İlk cümle."}})
+    prune(s, NOW)
+    assert key in s.translations
