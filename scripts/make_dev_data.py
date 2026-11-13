@@ -23,10 +23,12 @@ EVENTS = [
     ("e1", "Japonya'nın Kobe kentinde 6,8 büyüklüğünde deprem", "6.8-magnitude earthquake hits Kobe, Japan", 1.5,
      Location("city", "Kobe", 34.69, 135.19, "JP"),
      [("NHK", "JP"), ("BBC", "GB"), ("AA", "TR"), ("DW", "DE"), ("Yonhap", "KR"), ("ABC", "AU")], True,
-     ("Batı Japonya'da sabah saatlerinde güçlü bir deprem meydana geldi. Tren seferleri geçici olarak durduruldu, "
-      "tsunami uyarısı bir saat sonra kaldırıldı.",
-      "A strong earthquake struck western Japan in the morning. Train services were briefly suspended and a "
-      "tsunami warning was lifted an hour later.")),
+     ("Batı Japonya'da sabah saatlerinde 6,8 büyüklüğünde güçlü bir deprem meydana geldi. Tren seferleri geçici "
+      "olarak durduruldu. Tsunami uyarısı bir saat sonra kaldırıldı. Yetkililer en az üç kişinin hayatını "
+      "kaybettiğini, onlarca kişinin yaralandığını açıkladı. Kobe'deki bazı eski binalarda hasar bildirildi.",
+      "A strong 6.8-magnitude earthquake struck western Japan in the morning. Train services were briefly "
+      "suspended. A tsunami warning was lifted an hour later. Officials said at least three people died and "
+      "dozens were injured. Damage was reported to several older buildings in Kobe.")),
     ("e2", "AB ülkeleri ortak enerji paketinde anlaştı", "EU states agree on joint energy package", 3,
      Location("city", "Brussels", 50.85, 4.35, "BE"),
      [("Brussels Times", "BE"), ("Le Monde", "FR"), ("tagesschau", "DE"), ("ANSA", "IT")], False,

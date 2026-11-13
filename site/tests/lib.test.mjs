@@ -63,3 +63,8 @@ test("formatUpdated shows the date when data is not from today", () => {
   assert.equal(formatUpdated("2026-11-13T19:30:00Z", now, "tr"), "13 Kasım 22:30");
   assert.equal(formatUpdated("2026-11-13T19:30:00Z", now, "en"), "13 November 22:30");
 });
+
+test("sourceTotal copy", () => {
+  assert.equal(t("sourceTotal", "tr", { n: 42 }), "Bu olayı toplam 42 kaynak haberleştirdi.");
+  assert.equal(t("sourceTotal", "en", { n: 42 }), "42 outlets covered this event in total.");
+});

@@ -51,3 +51,18 @@ def test_real_list_coverage():
     for r in REGIONS:
         assert per_region[r] >= 10, (r, per_region[r])
     assert "TR" in countries
+
+
+def test_tier_defaults_to_3_and_is_validated(tmp_path):
+    [s] = load_sources(write(tmp_path, GOOD))
+    assert s.tier == 3
+    [s] = load_sources(write(tmp_path, GOOD.replace("region: europe}", "region: europe, tier: 1}")))
+    assert s.tier == 1
+    with pytest.raises(ValueError, match="bbc"):
+        load_sources(write(tmp_path, GOOD.replace("region: europe}", "region: europe, tier: 7}")))
+
+
+def test_real_list_has_tier_1_sources():
+    sources = load_sources(ROOT / "config" / "sources.yaml")
+    tier1 = {s.id for s in sources if s.tier == 1}
+    assert {"bbc-world", "cnn-world", "nyt-world", "aljazeera"} <= tier1

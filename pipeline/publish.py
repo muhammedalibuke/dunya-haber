@@ -12,6 +12,7 @@ from .models import Article, Event, State
 
 OPEN_WINDOW = timedelta(hours=48)
 ALL_MAX = 300
+MAX_SOURCES_SHOWN = 5  # most widely read outlets only; the rest still count toward ranking
 MIN_SOURCES_ALL = 2
 
 
@@ -43,7 +44,9 @@ def _title(a: Article) -> dict:
 
 def _source_rows(arts: list[Article]) -> list[dict]:
     seen, rows = set(), []
-    for a in arts:
+    for a in sorted(arts, key=lambda a: (a.source_tier, a.published)):
+        if len(rows) >= MAX_SOURCES_SHOWN:
+            break
         if a.source_id in seen:
             continue
         seen.add(a.source_id)
@@ -89,6 +92,7 @@ def event_detail(event: Event, articles: dict[str, Article]) -> dict:
         "image": {"url": img.image_url, "source": img.source_name} if img else None,
         "location": s["location"],
         "sources": _source_rows(arts),
+        "source_total": s["source_count"],
     }
 
 

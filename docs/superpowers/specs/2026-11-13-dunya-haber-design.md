@@ -65,7 +65,7 @@ Bu uygulama haberleri **olay** etrafında birleştirir ve sakin, bitirilebilir b
 - **Ana ekran "Günün özeti":** O günün en önemli 5–10 olayı, numaralı ve tek satır başlık halinde. Altında ülke ve kaynak sayısı. Sonda "Bugünlük bu kadar · Tümünü gör" yazar.
 - **"Tümünü gör" sakin liste:** Bütün olaylar alt alta. Sadece küçük meta satırı (ülke · zaman), başlık ve kaynak sayısı. Bol boşluk, ince ayraçlar, görsel yok.
 - **Kartlı tasarım (iki satır özetli kartlar) kesinlikle yok.** Kullanıcı bunu açıkça reddetti.
-- **Olay detayı:** En üstte tek bir büyük fotoğraf. Altında başlık, ülke ve zaman, 3–4 cümlelik özet. En altta kaynak listesi: her kaynak için kaynak adı, o kaynağın kendi başlığı ve yanında orijinal habere giden bağlantı (↗). Bağlantı doğrudan kaynağın sitesini açar.
+- **Olay detayı:** En üstte tek bir büyük fotoğraf. Altında başlık, ülke ve zaman, birkaç kaynaktan derlenmiş 5–6 cümlelik özet. En altta kaynak listesi: en çok okunan en fazla 5 kaynak (popülerlik sırası `sources.yaml` içindeki `tier` alanıyla, 1–3), her biri için kaynak adı, o kaynağın kendi başlığı ve orijinal habere giden bağlantı (↗). Altında "Bu olayı toplam N kaynak haberleştirdi" satırı. (13 Kasım güncellemesi, kullanıcı isteği.)
 - **Fotoğraf:** Listelerde yok, sadece detay ekranında. "Bir deneyelim, olmazsa değiştiririz."
 - **Diller:** Türkçe ve İngilizce.
 - **Kapsam:** Bütün dünya ülkeleri.

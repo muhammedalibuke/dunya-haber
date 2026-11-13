@@ -3,6 +3,8 @@ from __future__ import annotations
 
 import re
 
+import numpy as np
+
 _TAILS = [
     re.compile(r"\s*The post .{0,200} appeared first on .{0,100}$", re.I | re.S),
     re.compile(r"\s*(read more|continue reading|devamı için tıklayın|devamını oku|haberin devamı"
@@ -12,13 +14,17 @@ _ELLIPSIS = re.compile(r"\s*(\[\s*(\.\.\.|…)\s*\]|\.\.\.|…)\s*$")
 _SENT_SPLIT = re.compile(r"(?<=[.!?。！？])\s+")
 
 
-def default_summary(description: str, max_sentences: int = 4, max_chars: int = 420) -> str:
+def _clean(description: str) -> tuple[str, bool]:
     text = (description or "").strip()
     for _ in range(2):
         for pat in _TAILS:
             text = pat.sub("", text).strip()
     truncated = bool(_ELLIPSIS.search(text))
-    text = _ELLIPSIS.sub("", text).strip()
+    return _ELLIPSIS.sub("", text).strip(), truncated
+
+
+def default_summary(description: str, max_sentences: int = 4, max_chars: int = 420) -> str:
+    text, truncated = _clean(description)
     if not text:
         return ""
     out = ""
@@ -33,6 +39,37 @@ def default_summary(description: str, max_sentences: int = 4, max_chars: int = 4
     return out + "…" if truncated else out
 
 
+SUMMARY_VERSION = 2  # bump to rebuild stored summaries once
+DUPLICATE_SIM = 0.8
+
+
+def combined_summary(items: list[tuple[str, str]], embedder, max_sentences: int = 6,
+                     max_chars: int = 750) -> list[tuple[str, str]]:
+    """Pick sentences from several outlets' descriptions (given in priority order),
+    skipping sentences that say the same thing as one already picked (any language)."""
+    cands: list[tuple[str, str]] = []
+    for lang, desc in items:
+        text, _ = _clean(desc)
+        cands += [(lang, s.strip()) for s in _SENT_SPLIT.split(text) if len(s.strip()) >= 3]
+    if not cands:
+        return []
+    vecs = embedder.encode([s for _, s in cands])
+    chosen: list[tuple[str, str]] = []
+    kept: list[np.ndarray] = []
+    total = 0
+    for (lang, sent), v in zip(cands, vecs):
+        if any(float(np.dot(v, k)) >= DUPLICATE_SIM for k in kept):
+            continue
+        if total + len(sent) + 1 > max_chars + 1:
+            break
+        chosen.append((lang, sent))
+        kept.append(v)
+        total += len(sent) + 1
+        if len(chosen) >= max_sentences:
+            break
+    return chosen
+
+
 # ---- optional AI summaries (off unless GEMINI_API_KEY is set) ----
 
 GEMINI_MODEL = "gemini-2.5-flash-lite"  # cheapest model with a free tier
@@ -42,7 +79,7 @@ GEMINI_TIMEOUT_S = 20
 _PROMPT = (
     "You summarize one news event for a calm news reader. Below are headlines and short "
     "descriptions from several outlets about the same event. Write a neutral, factual summary "
-    "of 2-3 sentences using only these facts. Return JSON: {{\"tr\": \"<Turkish>\", \"en\": \"<English>\"}}.\n\n"
+    "of 4-5 sentences using only these facts. Return JSON: {{\"tr\": \"<Turkish>\", \"en\": \"<English>\"}}.\n\n"
     "{items}"
 )
 

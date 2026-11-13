@@ -28,3 +28,33 @@ def test_read_more_tails_removed():
     assert default_summary("Büyük haber. Devamı için tıklayın") == "Büyük haber."
     assert default_summary("Big news today. The post Big news appeared first on Example.") == "Big news today."
     assert default_summary("Big news [...]") == "Big news…"
+
+
+def test_combined_summary_merges_sources_and_skips_repeats():
+    from pipeline.summarize import combined_summary
+    from tests.fakes import FakeEmbedder
+    emb = FakeEmbedder({})
+    items = [
+        ("en", "A strong quake struck Kobe. Trains were halted. Read more"),
+        ("en", "A strong quake struck Kobe. A tsunami warning was lifted an hour later."),
+        ("ja", "死者は3人。"),
+    ]
+    out = combined_summary(items, emb)
+    assert out == [("en", "A strong quake struck Kobe."), ("en", "Trains were halted."),
+                   ("en", "A tsunami warning was lifted an hour later."), ("ja", "死者は3人。")]
+
+
+def test_combined_summary_respects_limits():
+    from pipeline.summarize import combined_summary
+    from tests.fakes import FakeEmbedder
+    items = [("en", " ".join(f"Fact number {i} about the event." for i in range(20)))]
+    out = combined_summary(items, FakeEmbedder({}), max_sentences=6, max_chars=750)
+    assert len(out) == 6
+    out = combined_summary(items, FakeEmbedder({}), max_sentences=50, max_chars=200)
+    assert sum(len(s) + 1 for _, s in out) <= 201
+
+
+def test_combined_summary_empty():
+    from pipeline.summarize import combined_summary
+    from tests.fakes import FakeEmbedder
+    assert combined_summary([("en", ""), ("tr", "   ")], FakeEmbedder({})) == []

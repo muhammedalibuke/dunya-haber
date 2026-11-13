@@ -1,237 +1,239 @@
 # Feed list. Fields: id, name, url, country (ISO-3166 alpha-2), lang (ISO-639-1), region.
+# tier = popularity: 1 very widely read worldwide, 2 major national outlet, 3 other.
+# Only the 5 most popular sources of an event are listed on its page (all still count for ranking).
 # Health of every feed is checked by scripts/check_sources.py (GitHub Actions → check-sources).
-- {id: "bbc-world", name: "BBC News", url: "https://feeds.bbci.co.uk/news/world/rss.xml", country: "GB", lang: "en", region: "europe"}
-- {id: "guardian-world", name: "The Guardian", url: "https://www.theguardian.com/world/rss", country: "GB", lang: "en", region: "europe"}
-- {id: "sky-world", name: "Sky News", url: "https://feeds.skynews.com/feeds/rss/world.xml", country: "GB", lang: "en", region: "europe"}
-- {id: "aljazeera", name: "Al Jazeera", url: "https://www.aljazeera.com/xml/rss/all.xml", country: "QA", lang: "en", region: "middle_east"}
-- {id: "dw-en", name: "DW", url: "https://rss.dw.com/rdf/rss-en-all", country: "DE", lang: "en", region: "europe"}
-- {id: "tagesschau", name: "tagesschau", url: "https://www.tagesschau.de/xml/rss2/", country: "DE", lang: "de", region: "europe"}
-- {id: "spiegel", name: "DER SPIEGEL", url: "https://www.spiegel.de/schlagzeilen/index.rss", country: "DE", lang: "de", region: "europe"}
-- {id: "france24-en", name: "France 24", url: "https://www.france24.com/en/rss", country: "FR", lang: "en", region: "europe"}
-- {id: "lemonde", name: "Le Monde", url: "https://www.lemonde.fr/rss/une.xml", country: "FR", lang: "fr", region: "europe"}
-- {id: "rte", name: "RTÉ News", url: "https://www.rte.ie/feeds/rss/?index=/news/", country: "IE", lang: "en", region: "europe"}
-- {id: "irishtimes", name: "The Irish Times", url: "https://www.irishtimes.com/arc/outboundfeeds/feed-irish-news/", country: "IE", lang: "en", region: "europe"}
-- {id: "elpais", name: "El País", url: "https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/portada", country: "ES", lang: "es", region: "europe"}
-- {id: "publico-pt", name: "Público", url: "https://feeds.feedburner.com/PublicoRSS", country: "PT", lang: "pt", region: "europe"}
-- {id: "ansa-en", name: "ANSA English", url: "https://www.ansa.it/english/news/english_nr_rss.xml", country: "IT", lang: "en", region: "europe"}
-- {id: "ansa", name: "ANSA", url: "https://www.ansa.it/sito/notizie/topnews/topnews_rss.xml", country: "IT", lang: "it", region: "europe"}
-- {id: "nos", name: "NOS", url: "https://feeds.nos.nl/nosnieuwsalgemeen", country: "NL", lang: "nl", region: "europe"}
-- {id: "nltimes", name: "NL Times", url: "https://nltimes.nl/rss", country: "NL", lang: "en", region: "europe"}
-- {id: "brusselstimes", name: "The Brussels Times", url: "https://www.brusselstimes.com/feed", country: "BE", lang: "en", region: "europe"}
-- {id: "swissinfo", name: "SWI swissinfo.ch", url: "https://www.swissinfo.ch/eng/rss/latest-news", country: "CH", lang: "en", region: "europe"}
-- {id: "orf", name: "ORF", url: "https://rss.orf.at/news.xml", country: "AT", lang: "de", region: "europe"}
-- {id: "notesfrompoland", name: "Notes from Poland", url: "https://notesfrompoland.com/feed/", country: "PL", lang: "en", region: "europe"}
-- {id: "radio-prague", name: "Radio Prague International", url: "https://english.radio.cz/rss", country: "CZ", lang: "en", region: "europe"}
-- {id: "spectator-sk", name: "The Slovak Spectator", url: "https://spectator.sme.sk/rss-title", country: "SK", lang: "en", region: "europe"}
-- {id: "hungarytoday", name: "Hungary Today", url: "https://hungarytoday.hu/feed/", country: "HU", lang: "en", region: "europe"}
-- {id: "romania-insider", name: "Romania Insider", url: "https://www.romania-insider.com/feed", country: "RO", lang: "en", region: "europe"}
-- {id: "novinite", name: "Novinite", url: "https://www.novinite.com/services/news_rdf.php", country: "BG", lang: "en", region: "europe"}
-- {id: "sloveniatimes", name: "The Slovenia Times", url: "https://sloveniatimes.com/feed/", country: "SI", lang: "en", region: "europe"}
-- {id: "sarajevotimes", name: "Sarajevo Times", url: "https://sarajevotimes.com/feed/", country: "BA", lang: "en", region: "europe"}
-- {id: "exit-al", name: "Exit News", url: "https://exit.al/en/feed/", country: "AL", lang: "en", region: "europe"}
-- {id: "prishtinainsight", name: "Prishtina Insight", url: "https://prishtinainsight.com/feed/", country: "XK", lang: "en", region: "europe"}
-- {id: "balkaninsight", name: "Balkan Insight", url: "https://balkaninsight.com/feed/", country: "RS", lang: "en", region: "europe"}
-- {id: "total-croatia", name: "Total Croatia News", url: "https://total-croatia-news.com/feed/", country: "HR", lang: "en", region: "europe"}
-- {id: "kyivindependent", name: "The Kyiv Independent", url: "https://kyivindependent.com/news-archive/rss/", country: "UA", lang: "en", region: "europe"}
-- {id: "ukrinform", name: "Ukrinform", url: "https://www.ukrinform.net/rss/block-lastnews", country: "UA", lang: "en", region: "europe"}
-- {id: "tass", name: "TASS", url: "https://tass.com/rss/v2.xml", country: "RU", lang: "en", region: "europe"}
-- {id: "meduza", name: "Meduza", url: "https://meduza.io/rss/en/all", country: "RU", lang: "en", region: "europe"}
-- {id: "lsm", name: "LSM English", url: "https://eng.lsm.lv/rss/", country: "LV", lang: "en", region: "europe"}
-- {id: "err", name: "ERR News", url: "https://news.err.ee/rss", country: "EE", lang: "en", region: "europe"}
-- {id: "lrt", name: "LRT English", url: "https://www.lrt.lt/en/news-in-english?rss", country: "LT", lang: "en", region: "europe"}
-- {id: "yle", name: "Yle News", url: "https://yle.fi/rss/uutiset/tuoreimmat", country: "FI", lang: "fi", region: "europe"}
-- {id: "nrk", name: "NRK", url: "https://www.nrk.no/toppsaker.rss", country: "NO", lang: "no", region: "europe"}
-- {id: "svt", name: "SVT Nyheter", url: "https://www.svt.se/nyheter/rss.xml", country: "SE", lang: "sv", region: "europe"}
-- {id: "thelocal-se", name: "The Local Sweden", url: "https://feeds.thelocal.com/rss/se", country: "SE", lang: "en", region: "europe"}
-- {id: "dr", name: "DR", url: "https://www.dr.dk/nyheder/service/feeds/allenyheder", country: "DK", lang: "da", region: "europe"}
-- {id: "ruv-en", name: "RÚV English", url: "https://www.ruv.is/rss/english", country: "IS", lang: "en", region: "europe"}
-- {id: "cyprus-mail", name: "Cyprus Mail", url: "https://cyprus-mail.com/feed/", country: "CY", lang: "en", region: "europe"}
-- {id: "keeptalkinggreece", name: "Keep Talking Greece", url: "https://www.keeptalkinggreece.com/feed/", country: "GR", lang: "en", region: "europe"}
-- {id: "ekathimerini", name: "eKathimerini", url: "https://www.ekathimerini.com/infeeds/rss/nx-rss-feed.xml", country: "GR", lang: "en", region: "europe"}
-- {id: "timesofmalta", name: "Times of Malta", url: "https://timesofmalta.com/rss/latest", country: "MT", lang: "en", region: "europe"}
-- {id: "civil-ge", name: "Civil Georgia", url: "https://civil.ge/feed", country: "GE", lang: "en", region: "europe"}
-- {id: "oc-media", name: "OC Media", url: "https://oc-media.org/feed/", country: "AM", lang: "en", region: "europe"}
-- {id: "newsaz", name: "News.az", url: "https://news.az/rss", country: "AZ", lang: "en", region: "europe"}
-- {id: "belsat", name: "Belsat", url: "https://belsat.eu/en/feed", country: "BY", lang: "en", region: "europe"}
-- {id: "newsmaker-md", name: "NewsMaker", url: "https://newsmaker.md/en/feed/", country: "MD", lang: "en", region: "europe"}
-- {id: "aa-tr", name: "Anadolu Ajansı", url: "https://www.aa.com.tr/tr/rss/default?cat=guncel", country: "TR", lang: "tr", region: "europe"}
-- {id: "aa-en", name: "Anadolu Agency", url: "https://www.aa.com.tr/en/rss/default?cat=guncel", country: "TR", lang: "en", region: "europe"}
-- {id: "bbc-turkce", name: "BBC Türkçe", url: "https://feeds.bbci.co.uk/turkce/rss.xml", country: "TR", lang: "tr", region: "europe"}
-- {id: "dw-turkce", name: "DW Türkçe", url: "https://rss.dw.com/xml/rss-tur-all", country: "TR", lang: "tr", region: "europe"}
-- {id: "trthaber", name: "TRT Haber", url: "https://www.trthaber.com/manset_articles.rss", country: "TR", lang: "tr", region: "europe"}
-- {id: "ntv", name: "NTV", url: "https://www.ntv.com.tr/gundem.rss", country: "TR", lang: "tr", region: "europe"}
-- {id: "hurriyetdailynews", name: "Hürriyet Daily News", url: "https://www.hurriyetdailynews.com/rss", country: "TR", lang: "en", region: "europe"}
-- {id: "nyt-world", name: "The New York Times", url: "https://rss.nytimes.com/services/xml/rss/nyt/World.xml", country: "US", lang: "en", region: "americas"}
-- {id: "nyt-us", name: "The New York Times (US)", url: "https://rss.nytimes.com/services/xml/rss/nyt/US.xml", country: "US", lang: "en", region: "americas"}
-- {id: "npr-world", name: "NPR", url: "https://feeds.npr.org/1004/rss.xml", country: "US", lang: "en", region: "americas"}
-- {id: "npr-news", name: "NPR News", url: "https://feeds.npr.org/1001/rss.xml", country: "US", lang: "en", region: "americas"}
-- {id: "cnn-world", name: "CNN", url: "http://rss.cnn.com/rss/edition_world.rss", country: "US", lang: "en", region: "americas"}
-- {id: "pbs", name: "PBS NewsHour", url: "https://www.pbs.org/newshour/feeds/rss/headlines", country: "US", lang: "en", region: "americas"}
-- {id: "abcnews-intl", name: "ABC News", url: "https://abcnews.go.com/abcnews/internationalheadlines", country: "US", lang: "en", region: "americas"}
-- {id: "latimes", name: "Los Angeles Times", url: "https://www.latimes.com/world-nation/rss2.0.xml", country: "US", lang: "en", region: "americas"}
-- {id: "cbc-world", name: "CBC News", url: "https://www.cbc.ca/webfeed/rss/rss-world", country: "CA", lang: "en", region: "americas"}
-- {id: "cbc-canada", name: "CBC Canada", url: "https://www.cbc.ca/webfeed/rss/rss-canada", country: "CA", lang: "en", region: "americas"}
-- {id: "globalnews", name: "Global News", url: "https://globalnews.ca/feed/", country: "CA", lang: "en", region: "americas"}
-- {id: "mexiconewsdaily", name: "Mexico News Daily", url: "https://mexiconewsdaily.com/feed/", country: "MX", lang: "en", region: "americas"}
-- {id: "prensalibre", name: "Prensa Libre", url: "https://www.prensalibre.com/feed/", country: "GT", lang: "es", region: "americas"}
-- {id: "ticotimes", name: "The Tico Times", url: "https://ticotimes.net/feed", country: "CR", lang: "en", region: "americas"}
-- {id: "confidencial", name: "Confidencial", url: "https://confidencial.digital/feed/", country: "NI", lang: "es", region: "americas"}
-- {id: "elfaro", name: "El Faro", url: "https://elfaro.net/es/rss", country: "SV", lang: "es", region: "americas"}
-- {id: "criterio-hn", name: "Criterio.hn", url: "https://criterio.hn/feed/", country: "HN", lang: "es", region: "americas"}
-- {id: "newsroompanama", name: "Newsroom Panama", url: "https://newsroompanama.com/feed/", country: "PA", lang: "en", region: "americas"}
-- {id: "cubadebate", name: "Cubadebate", url: "http://www.cubadebate.cu/feed/", country: "CU", lang: "es", region: "americas"}
-- {id: "14ymedio", name: "14ymedio", url: "https://www.14ymedio.com/rss/", country: "CU", lang: "es", region: "americas"}
-- {id: "dominicantoday", name: "Dominican Today", url: "https://dominicantoday.com/feed/", country: "DO", lang: "en", region: "americas"}
-- {id: "haitiantimes", name: "The Haitian Times", url: "https://haitiantimes.com/feed/", country: "HT", lang: "en", region: "americas"}
-- {id: "gleaner", name: "The Gleaner", url: "https://jamaica-gleaner.com/feed/rss.xml", country: "JM", lang: "en", region: "americas"}
-- {id: "jamaicaobserver", name: "Jamaica Observer", url: "https://www.jamaicaobserver.com/feed/", country: "JM", lang: "en", region: "americas"}
-- {id: "newsday-tt", name: "Trinidad and Tobago Newsday", url: "https://newsday.co.tt/feed/", country: "TT", lang: "en", region: "americas"}
-- {id: "barbadostoday", name: "Barbados Today", url: "https://barbadostoday.bb/feed/", country: "BB", lang: "en", region: "americas"}
-- {id: "stabroek", name: "Stabroek News", url: "https://www.stabroeknews.com/feed/", country: "GY", lang: "en", region: "americas"}
-- {id: "breakingbelize", name: "Breaking Belize News", url: "https://www.breakingbelizenews.com/feed/", country: "BZ", lang: "en", region: "americas"}
-- {id: "colombiaone", name: "Colombia One", url: "https://colombiaone.com/feed/", country: "CO", lang: "en", region: "americas"}
-- {id: "elespectador", name: "El Espectador", url: "https://www.elespectador.com/arc/outboundfeeds/rss/?outputType=xml", country: "CO", lang: "es", region: "americas"}
-- {id: "efectococuyo", name: "Efecto Cocuyo", url: "https://efectococuyo.com/feed/", country: "VE", lang: "es", region: "americas"}
-- {id: "primicias", name: "Primicias", url: "https://www.primicias.ec/feed/", country: "EC", lang: "es", region: "americas"}
-- {id: "andina", name: "Andina", url: "https://andina.pe/agencia/rss/0.xml", country: "PE", lang: "es", region: "americas"}
-- {id: "larazon-bo", name: "La Razón", url: "https://www.la-razon.com/feed/", country: "BO", lang: "es", region: "americas"}
-- {id: "agenciabrasil", name: "Agência Brasil", url: "https://agenciabrasil.ebc.com.br/rss/ultimasnoticias/feed.xml", country: "BR", lang: "pt", region: "americas"}
-- {id: "g1", name: "g1", url: "https://g1.globo.com/rss/g1/", country: "BR", lang: "pt", region: "americas"}
-- {id: "riotimes", name: "The Rio Times", url: "https://www.riotimesonline.com/feed/", country: "BR", lang: "en", region: "americas"}
-- {id: "batimes", name: "Buenos Aires Times", url: "https://www.batimes.com.ar/feed", country: "AR", lang: "en", region: "americas"}
-- {id: "clarin", name: "Clarín", url: "https://www.clarin.com/rss/lo-ultimo/", country: "AR", lang: "es", region: "americas"}
-- {id: "infobae", name: "Infobae", url: "https://www.infobae.com/feeds/rss/", country: "AR", lang: "es", region: "americas"}
-- {id: "latercera", name: "La Tercera", url: "https://www.latercera.com/arc/outboundfeeds/rss/?outputType=xml", country: "CL", lang: "es", region: "americas"}
-- {id: "ladiaria", name: "la diaria", url: "https://ladiaria.com.uy/feeds/articulos/", country: "UY", lang: "es", region: "americas"}
-- {id: "ultimahora-py", name: "Última Hora", url: "https://www.ultimahora.com/rss", country: "PY", lang: "es", region: "americas"}
-- {id: "starnieuws", name: "Starnieuws", url: "https://www.starnieuws.com/rss/starnieuws.rss", country: "SR", lang: "nl", region: "americas"}
-- {id: "arabnews", name: "Arab News", url: "https://www.arabnews.com/rss.xml", country: "SA", lang: "en", region: "middle_east"}
-- {id: "thenational", name: "The National", url: "https://www.thenationalnews.com/arc/outboundfeeds/rss/?outputType=xml", country: "AE", lang: "en", region: "middle_east"}
-- {id: "gulfnews", name: "Gulf News", url: "https://gulfnews.com/feed", country: "AE", lang: "en", region: "middle_east"}
-- {id: "peninsula", name: "The Peninsula", url: "https://thepeninsulaqatar.com/rss", country: "QA", lang: "en", region: "middle_east"}
-- {id: "kuwaittimes", name: "Kuwait Times", url: "https://kuwaittimes.com/feed/", country: "KW", lang: "en", region: "middle_east"}
-- {id: "newsofbahrain", name: "News of Bahrain", url: "https://www.newsofbahrain.com/rss.xml", country: "BH", lang: "en", region: "middle_east"}
-- {id: "muscatdaily", name: "Muscat Daily", url: "https://www.muscatdaily.com/feed/", country: "OM", lang: "en", region: "middle_east"}
-- {id: "southyemen-24", name: "South24 Center", url: "https://south24.net/news/rss.php", country: "YE", lang: "ar", region: "middle_east"}
-- {id: "timesofisrael", name: "The Times of Israel", url: "https://www.timesofisrael.com/feed/", country: "IL", lang: "en", region: "middle_east"}
-- {id: "wafa-en", name: "WAFA", url: "https://english.wafa.ps/rss", country: "PS", lang: "en", region: "middle_east"}
-- {id: "jordantimes", name: "The Jordan Times", url: "https://jordantimes.com/rss.xml", country: "JO", lang: "en", region: "middle_east"}
-- {id: "roya-en", name: "Roya News", url: "https://en.royanews.tv/rss", country: "JO", lang: "en", region: "middle_east"}
-- {id: "naharnet", name: "Naharnet", url: "https://www.naharnet.com/stories/en/rss", country: "LB", lang: "en", region: "middle_east"}
-- {id: "lorienttoday", name: "L'Orient Today", url: "https://today.lorientlejour.com/rss", country: "LB", lang: "en", region: "middle_east"}
-- {id: "enabbaladi", name: "Enab Baladi", url: "https://english.enabbaladi.net/feed/", country: "SY", lang: "en", region: "middle_east"}
-- {id: "rudaw", name: "Rudaw", url: "https://www.rudaw.net/rss/english", country: "IQ", lang: "en", region: "middle_east"}
-- {id: "shafaq", name: "Shafaq News", url: "https://shafaq.com/en/rss", country: "IQ", lang: "en", region: "middle_east"}
-- {id: "tehrantimes", name: "Tehran Times", url: "https://www.tehrantimes.com/rss", country: "IR", lang: "en", region: "middle_east"}
-- {id: "iranintl", name: "Iran International", url: "https://www.iranintl.com/en/feed", country: "IR", lang: "en", region: "middle_east"}
-- {id: "egyptindependent", name: "Egypt Independent", url: "https://www.egyptindependent.com/feed/", country: "EG", lang: "en", region: "middle_east"}
-- {id: "ahram", name: "Ahram Online", url: "https://english.ahram.org.eg/UI/Front/Rss.aspx", country: "EG", lang: "en", region: "middle_east"}
-- {id: "middleeasteye", name: "Middle East Eye", url: "https://www.middleeasteye.net/rss", country: "GB", lang: "en", region: "middle_east"}
-- {id: "tolonews", name: "TOLOnews", url: "https://tolonews.com/rss.xml", country: "AF", lang: "en", region: "middle_east"}
-- {id: "amu-tv", name: "Amu TV", url: "https://amu.tv/feed/", country: "AF", lang: "en", region: "middle_east"}
-- {id: "timesofindia", name: "The Times of India", url: "https://timesofindia.indiatimes.com/rssfeedstopstories.cms", country: "IN", lang: "en", region: "asia"}
-- {id: "thehindu", name: "The Hindu", url: "https://www.thehindu.com/news/national/feeder/default.rss", country: "IN", lang: "en", region: "asia"}
-- {id: "ndtv", name: "NDTV", url: "https://feeds.feedburner.com/ndtvnews-top-stories", country: "IN", lang: "en", region: "asia"}
-- {id: "dawn", name: "Dawn", url: "https://www.dawn.com/feeds/home", country: "PK", lang: "en", region: "asia"}
-- {id: "tribune-pk", name: "The Express Tribune", url: "https://tribune.com.pk/feed/home", country: "PK", lang: "en", region: "asia"}
-- {id: "dailystar-bd", name: "The Daily Star", url: "https://www.thedailystar.net/frontpage/rss.xml", country: "BD", lang: "en", region: "asia"}
-- {id: "kathmandupost", name: "The Kathmandu Post", url: "https://kathmandupost.com/rss", country: "NP", lang: "en", region: "asia"}
-- {id: "economynext", name: "EconomyNext", url: "https://economynext.com/feed/", country: "LK", lang: "en", region: "asia"}
-- {id: "kuensel", name: "Kuensel", url: "https://kuenselonline.com/feed/", country: "BT", lang: "en", region: "asia"}
-- {id: "edition-mv", name: "The Edition", url: "https://edition.mv/feed", country: "MV", lang: "en", region: "asia"}
-- {id: "globaltimes", name: "Global Times", url: "https://www.globaltimes.cn/rss/outbrain.xml", country: "CN", lang: "en", region: "asia"}
-- {id: "chinadaily", name: "China Daily", url: "http://www.chinadaily.com.cn/rss/world_rss.xml", country: "CN", lang: "en", region: "asia"}
-- {id: "sixthtone", name: "Sixth Tone", url: "https://www.sixthtone.com/rss", country: "CN", lang: "en", region: "asia"}
-- {id: "scmp", name: "South China Morning Post", url: "https://www.scmp.com/rss/91/feed", country: "HK", lang: "en", region: "asia"}
-- {id: "hkfp", name: "Hong Kong Free Press", url: "https://hongkongfp.com/feed/", country: "HK", lang: "en", region: "asia"}
-- {id: "taipeitimes", name: "Taipei Times", url: "https://www.taipeitimes.com/xml/index.rss", country: "TW", lang: "en", region: "asia"}
-- {id: "focustaiwan", name: "Focus Taiwan", url: "https://focustaiwan.tw/rss/aall.xml", country: "TW", lang: "en", region: "asia"}
-- {id: "japantimes", name: "The Japan Times", url: "https://www.japantimes.co.jp/feed/", country: "JP", lang: "en", region: "asia"}
-- {id: "nhk", name: "NHK", url: "https://www3.nhk.or.jp/rss/news/cat0.xml", country: "JP", lang: "ja", region: "asia"}
-- {id: "yonhap", name: "Yonhap", url: "https://en.yna.co.kr/RSS/news.xml", country: "KR", lang: "en", region: "asia"}
-- {id: "koreaherald", name: "The Korea Herald", url: "https://www.koreaherald.com/rss/newsAll", country: "KR", lang: "en", region: "asia"}
-- {id: "nknews", name: "NK News", url: "https://www.nknews.org/feed/", country: "KP", lang: "en", region: "asia"}
-- {id: "montsame", name: "Montsame", url: "https://montsame.mn/en/rss", country: "MN", lang: "en", region: "asia"}
-- {id: "astanatimes", name: "The Astana Times", url: "https://astanatimes.com/feed/", country: "KZ", lang: "en", region: "asia"}
-- {id: "gazeta-uz", name: "Gazeta.uz", url: "https://www.gazeta.uz/en/rss/", country: "UZ", lang: "en", region: "asia"}
-- {id: "kun-uz", name: "Kun.uz", url: "https://kun.uz/en/news/rss", country: "UZ", lang: "en", region: "asia"}
-- {id: "24kg", name: "24.kg", url: "https://24.kg/english/rss/", country: "KG", lang: "en", region: "asia"}
-- {id: "asiaplus", name: "Asia-Plus", url: "https://asiaplustj.info/en/rss", country: "TJ", lang: "en", region: "asia"}
-- {id: "turkmen-news", name: "Turkmen.news", url: "https://turkmen.news/feed/", country: "TM", lang: "en", region: "asia"}
-- {id: "straitstimes", name: "The Straits Times", url: "https://www.straitstimes.com/news/world/rss.xml", country: "SG", lang: "en", region: "asia"}
-- {id: "cna", name: "CNA", url: "https://www.channelnewsasia.com/api/v1/rss-outbound-feed?_format=xml", country: "SG", lang: "en", region: "asia"}
-- {id: "thestar-my", name: "The Star", url: "https://www.thestar.com.my/rss/News", country: "MY", lang: "en", region: "asia"}
-- {id: "fmt", name: "Free Malaysia Today", url: "https://www.freemalaysiatoday.com/feed/", country: "MY", lang: "en", region: "asia"}
-- {id: "antara", name: "Antara", url: "https://en.antaranews.com/rss/news.xml", country: "ID", lang: "en", region: "asia"}
-- {id: "jakartaglobe", name: "Jakarta Globe", url: "https://jakartaglobe.id/feed", country: "ID", lang: "en", region: "asia"}
-- {id: "rappler", name: "Rappler", url: "https://www.rappler.com/feed/", country: "PH", lang: "en", region: "asia"}
-- {id: "inquirer", name: "Inquirer.net", url: "https://newsinfo.inquirer.net/feed", country: "PH", lang: "en", region: "asia"}
-- {id: "vnexpress", name: "VnExpress International", url: "https://e.vnexpress.net/rss/news.rss", country: "VN", lang: "en", region: "asia"}
-- {id: "bangkokpost", name: "Bangkok Post", url: "https://www.bangkokpost.com/rss/data/topstories.xml", country: "TH", lang: "en", region: "asia"}
-- {id: "khmertimes", name: "Khmer Times", url: "https://www.khmertimeskh.com/feed/", country: "KH", lang: "en", region: "asia"}
-- {id: "laotiantimes", name: "Laotian Times", url: "https://laotiantimes.com/feed/", country: "LA", lang: "en", region: "asia"}
-- {id: "irrawaddy", name: "The Irrawaddy", url: "https://www.irrawaddy.com/feed", country: "MM", lang: "en", region: "asia"}
-- {id: "borneobulletin", name: "Borneo Bulletin", url: "https://borneobulletin.com.bn/feed/", country: "BN", lang: "en", region: "asia"}
-- {id: "tatoli", name: "Tatoli", url: "https://en.tatoli.tl/feed/", country: "TL", lang: "en", region: "asia"}
-- {id: "premiumtimes", name: "Premium Times", url: "https://www.premiumtimesng.com/feed", country: "NG", lang: "en", region: "africa"}
-- {id: "punch", name: "Punch", url: "https://punchng.com/feed/", country: "NG", lang: "en", region: "africa"}
-- {id: "vanguard", name: "Vanguard", url: "https://www.vanguardngr.com/feed/", country: "NG", lang: "en", region: "africa"}
-- {id: "myjoyonline", name: "MyJoyOnline", url: "https://www.myjoyonline.com/feed/", country: "GH", lang: "en", region: "africa"}
-- {id: "citinewsroom", name: "Citi Newsroom", url: "https://citinewsroom.com/feed/", country: "GH", lang: "en", region: "africa"}
-- {id: "capitalfm-ke", name: "Capital FM Kenya", url: "https://www.capitalfm.co.ke/news/feed/", country: "KE", lang: "en", region: "africa"}
-- {id: "kenyans", name: "Kenyans.co.ke", url: "https://www.kenyans.co.ke/feeds/news", country: "KE", lang: "en", region: "africa"}
-- {id: "news24", name: "News24", url: "https://feeds.news24.com/articles/news24/TopStories/rss", country: "ZA", lang: "en", region: "africa"}
-- {id: "mg", name: "Mail & Guardian", url: "https://mg.co.za/feed/", country: "ZA", lang: "en", region: "africa"}
-- {id: "dailymaverick", name: "Daily Maverick", url: "https://www.dailymaverick.co.za/dmrss/", country: "ZA", lang: "en", region: "africa"}
-- {id: "addisstandard", name: "Addis Standard", url: "https://addisstandard.com/feed/", country: "ET", lang: "en", region: "africa"}
-- {id: "nilepost", name: "Nile Post", url: "https://nilepost.co.ug/feed/", country: "UG", lang: "en", region: "africa"}
-- {id: "thecitizen-tz", name: "The Citizen", url: "https://www.thecitizen.co.tz/rss", country: "TZ", lang: "en", region: "africa"}
-- {id: "ktpress", name: "KT Press", url: "https://www.ktpress.rw/feed/", country: "RW", lang: "en", region: "africa"}
-- {id: "iwacu", name: "Iwacu", url: "https://www.iwacu-burundi.org/englishnews/feed/", country: "BI", lang: "en", region: "africa"}
-- {id: "newzimbabwe", name: "NewZimbabwe", url: "https://www.newzimbabwe.com/feed/", country: "ZW", lang: "en", region: "africa"}
-- {id: "zimlive", name: "ZimLive", url: "https://www.zimlive.com/feed/", country: "ZW", lang: "en", region: "africa"}
-- {id: "lusakatimes", name: "Lusaka Times", url: "https://www.lusakatimes.com/feed/", country: "ZM", lang: "en", region: "africa"}
-- {id: "nyasatimes", name: "Nyasa Times", url: "https://www.nyasatimes.com/feed/", country: "MW", lang: "en", region: "africa"}
-- {id: "clubofmozambique", name: "Club of Mozambique", url: "https://clubofmozambique.com/feed/", country: "MZ", lang: "en", region: "africa"}
-- {id: "namibian", name: "The Namibian", url: "https://www.namibian.com.na/feed/", country: "NA", lang: "en", region: "africa"}
-- {id: "mmegi", name: "Mmegi", url: "https://www.mmegi.bw/rss", country: "BW", lang: "en", region: "africa"}
-- {id: "lexpress-mu", name: "L'Express Maurice", url: "https://lexpress.mu/rss.xml", country: "MU", lang: "fr", region: "africa"}
-- {id: "moroccoworldnews", name: "Morocco World News", url: "https://www.moroccoworldnews.com/feed/", country: "MA", lang: "en", region: "africa"}
-- {id: "hespress-en", name: "Hespress English", url: "https://en.hespress.com/feed", country: "MA", lang: "en", region: "africa"}
-- {id: "tsa", name: "TSA Algérie", url: "https://www.tsa-algerie.com/feed/", country: "DZ", lang: "fr", region: "africa"}
-- {id: "businessnews-tn", name: "Business News", url: "https://www.businessnews.com.tn/rss.xml", country: "TN", lang: "fr", region: "africa"}
-- {id: "libyaherald", name: "Libya Herald", url: "https://libyaherald.com/feed/", country: "LY", lang: "en", region: "africa"}
-- {id: "libyaobserver", name: "The Libya Observer", url: "https://libyaobserver.ly/rss.xml", country: "LY", lang: "en", region: "africa"}
-- {id: "sudantribune", name: "Sudan Tribune", url: "https://sudantribune.com/feed/", country: "SD", lang: "en", region: "africa"}
-- {id: "dabanga", name: "Radio Dabanga", url: "https://www.dabangasudan.org/en/feed", country: "SD", lang: "en", region: "africa"}
-- {id: "radiotamazuj", name: "Radio Tamazuj", url: "https://www.radiotamazuj.org/en/rss", country: "SS", lang: "en", region: "africa"}
-- {id: "hiiraan", name: "Hiiraan Online", url: "https://www.hiiraan.com/rss/news.xml", country: "SO", lang: "en", region: "africa"}
-- {id: "garowe", name: "Garowe Online", url: "https://www.garoweonline.com/en/rss", country: "SO", lang: "en", region: "africa"}
-- {id: "senego", name: "Senego", url: "https://senego.com/feed", country: "SN", lang: "fr", region: "africa"}
-- {id: "lefaso", name: "Lefaso.net", url: "https://lefaso.net/spip.php?page=backend", country: "BF", lang: "fr", region: "africa"}
-- {id: "maliweb", name: "Maliweb", url: "https://www.maliweb.net/feed", country: "ML", lang: "fr", region: "africa"}
-- {id: "journalducameroun", name: "Journal du Cameroun", url: "https://www.journalducameroun.com/feed/", country: "CM", lang: "fr", region: "africa"}
-- {id: "actualite-cd", name: "Actualite.cd", url: "https://actualite.cd/feed", country: "CD", lang: "fr", region: "africa"}
-- {id: "radiookapi", name: "Radio Okapi", url: "https://www.radiookapi.net/rss.xml", country: "CD", lang: "fr", region: "africa"}
-- {id: "frontpageafrica", name: "FrontPage Africa", url: "https://frontpageafricaonline.com/feed/", country: "LR", lang: "en", region: "africa"}
-- {id: "awoko", name: "Awoko", url: "https://awokonewspaper.sl/feed/", country: "SL", lang: "en", region: "africa"}
-- {id: "foroyaa", name: "Foroyaa", url: "https://foroyaa.net/feed/", country: "GM", lang: "en", region: "africa"}
-- {id: "verangola", name: "Ver Angola", url: "https://www.verangola.net/va/rss", country: "AO", lang: "pt", region: "africa"}
-- {id: "koaci", name: "Koaci", url: "https://www.koaci.com/rss", country: "CI", lang: "fr", region: "africa"}
-- {id: "africanews", name: "Africanews", url: "https://www.africanews.com/feed/rss", country: "CG", lang: "en", region: "africa"}
-- {id: "aplus-ne", name: "ActuNiger", url: "https://www.actuniger.com/feed", country: "NE", lang: "fr", region: "africa"}
-- {id: "alwihda", name: "Alwihda Info", url: "https://www.alwihdainfo.com/xml/syndication.rss", country: "TD", lang: "fr", region: "africa"}
-- {id: "madagascar-tribune", name: "Madagascar Tribune", url: "https://www.madagascar-tribune.com/spip.php?page=backend", country: "MG", lang: "fr", region: "africa"}
-- {id: "abc-au", name: "ABC News", url: "https://www.abc.net.au/news/feed/51120/rss.xml", country: "AU", lang: "en", region: "oceania"}
-- {id: "sbs", name: "SBS News", url: "https://www.sbs.com.au/news/feed", country: "AU", lang: "en", region: "oceania"}
-- {id: "guardian-au", name: "The Guardian Australia", url: "https://www.theguardian.com/australia-news/rss", country: "AU", lang: "en", region: "oceania"}
-- {id: "rnz-world", name: "RNZ", url: "https://www.rnz.co.nz/rss/world.xml", country: "NZ", lang: "en", region: "oceania"}
-- {id: "rnz-nz", name: "RNZ New Zealand", url: "https://www.rnz.co.nz/rss/national.xml", country: "NZ", lang: "en", region: "oceania"}
-- {id: "rnz-pacific", name: "RNZ Pacific", url: "https://www.rnz.co.nz/rss/pacific.xml", country: "NZ", lang: "en", region: "oceania"}
-- {id: "fijitimes", name: "The Fiji Times", url: "https://www.fijitimes.com.fj/feed/", country: "FJ", lang: "en", region: "oceania"}
-- {id: "islandsbusiness", name: "Islands Business", url: "https://islandsbusiness.com/feed/", country: "FJ", lang: "en", region: "oceania"}
-- {id: "postcourier", name: "Post-Courier", url: "https://www.postcourier.com.pg/feed/", country: "PG", lang: "en", region: "oceania"}
-- {id: "solomonstar", name: "Solomon Star", url: "https://www.solomonstarnews.com/feed/", country: "SB", lang: "en", region: "oceania"}
-- {id: "samoaobserver", name: "Samoa Observer", url: "https://www.samoaobserver.ws/rss", country: "WS", lang: "en", region: "oceania"}
-- {id: "matangitonga", name: "Matangi Tonga", url: "https://matangitonga.to/rss.xml", country: "TO", lang: "en", region: "oceania"}
-- {id: "dailypost-vu", name: "Vanuatu Daily Post", url: "https://www.dailypost.vu/search/?f=rss", country: "VU", lang: "en", region: "oceania"}
+- {id: "bbc-world", name: "BBC News", url: "https://feeds.bbci.co.uk/news/world/rss.xml", country: "GB", lang: "en", region: "europe", tier: 1}
+- {id: "guardian-world", name: "The Guardian", url: "https://www.theguardian.com/world/rss", country: "GB", lang: "en", region: "europe", tier: 1}
+- {id: "sky-world", name: "Sky News", url: "https://feeds.skynews.com/feeds/rss/world.xml", country: "GB", lang: "en", region: "europe", tier: 1}
+- {id: "aljazeera", name: "Al Jazeera", url: "https://www.aljazeera.com/xml/rss/all.xml", country: "QA", lang: "en", region: "middle_east", tier: 1}
+- {id: "dw-en", name: "DW", url: "https://rss.dw.com/rdf/rss-en-all", country: "DE", lang: "en", region: "europe", tier: 1}
+- {id: "tagesschau", name: "tagesschau", url: "https://www.tagesschau.de/xml/rss2/", country: "DE", lang: "de", region: "europe", tier: 2}
+- {id: "spiegel", name: "DER SPIEGEL", url: "https://www.spiegel.de/schlagzeilen/index.rss", country: "DE", lang: "de", region: "europe", tier: 1}
+- {id: "france24-en", name: "France 24", url: "https://www.france24.com/en/rss", country: "FR", lang: "en", region: "europe", tier: 1}
+- {id: "lemonde", name: "Le Monde", url: "https://www.lemonde.fr/rss/une.xml", country: "FR", lang: "fr", region: "europe", tier: 1}
+- {id: "rte", name: "RTÉ News", url: "https://www.rte.ie/feeds/rss/?index=/news/", country: "IE", lang: "en", region: "europe", tier: 2}
+- {id: "irishtimes", name: "The Irish Times", url: "https://www.irishtimes.com/arc/outboundfeeds/feed-irish-news/", country: "IE", lang: "en", region: "europe", tier: 2}
+- {id: "elpais", name: "El País", url: "https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/portada", country: "ES", lang: "es", region: "europe", tier: 1}
+- {id: "publico-pt", name: "Público", url: "https://feeds.feedburner.com/PublicoRSS", country: "PT", lang: "pt", region: "europe", tier: 2}
+- {id: "ansa-en", name: "ANSA English", url: "https://www.ansa.it/english/news/english_nr_rss.xml", country: "IT", lang: "en", region: "europe", tier: 2}
+- {id: "ansa", name: "ANSA", url: "https://www.ansa.it/sito/notizie/topnews/topnews_rss.xml", country: "IT", lang: "it", region: "europe", tier: 2}
+- {id: "nos", name: "NOS", url: "https://feeds.nos.nl/nosnieuwsalgemeen", country: "NL", lang: "nl", region: "europe", tier: 2}
+- {id: "nltimes", name: "NL Times", url: "https://nltimes.nl/rss", country: "NL", lang: "en", region: "europe", tier: 3}
+- {id: "brusselstimes", name: "The Brussels Times", url: "https://www.brusselstimes.com/feed", country: "BE", lang: "en", region: "europe", tier: 3}
+- {id: "swissinfo", name: "SWI swissinfo.ch", url: "https://www.swissinfo.ch/eng/rss/latest-news", country: "CH", lang: "en", region: "europe", tier: 3}
+- {id: "orf", name: "ORF", url: "https://rss.orf.at/news.xml", country: "AT", lang: "de", region: "europe", tier: 2}
+- {id: "notesfrompoland", name: "Notes from Poland", url: "https://notesfrompoland.com/feed/", country: "PL", lang: "en", region: "europe", tier: 3}
+- {id: "radio-prague", name: "Radio Prague International", url: "https://english.radio.cz/rss", country: "CZ", lang: "en", region: "europe", tier: 3}
+- {id: "spectator-sk", name: "The Slovak Spectator", url: "https://spectator.sme.sk/rss-title", country: "SK", lang: "en", region: "europe", tier: 3}
+- {id: "hungarytoday", name: "Hungary Today", url: "https://hungarytoday.hu/feed/", country: "HU", lang: "en", region: "europe", tier: 3}
+- {id: "romania-insider", name: "Romania Insider", url: "https://www.romania-insider.com/feed", country: "RO", lang: "en", region: "europe", tier: 3}
+- {id: "novinite", name: "Novinite", url: "https://www.novinite.com/services/news_rdf.php", country: "BG", lang: "en", region: "europe", tier: 3}
+- {id: "sloveniatimes", name: "The Slovenia Times", url: "https://sloveniatimes.com/feed/", country: "SI", lang: "en", region: "europe", tier: 3}
+- {id: "sarajevotimes", name: "Sarajevo Times", url: "https://sarajevotimes.com/feed/", country: "BA", lang: "en", region: "europe", tier: 3}
+- {id: "exit-al", name: "Exit News", url: "https://exit.al/en/feed/", country: "AL", lang: "en", region: "europe", tier: 3}
+- {id: "prishtinainsight", name: "Prishtina Insight", url: "https://prishtinainsight.com/feed/", country: "XK", lang: "en", region: "europe", tier: 3}
+- {id: "balkaninsight", name: "Balkan Insight", url: "https://balkaninsight.com/feed/", country: "RS", lang: "en", region: "europe", tier: 3}
+- {id: "total-croatia", name: "Total Croatia News", url: "https://total-croatia-news.com/feed/", country: "HR", lang: "en", region: "europe", tier: 3}
+- {id: "kyivindependent", name: "The Kyiv Independent", url: "https://kyivindependent.com/news-archive/rss/", country: "UA", lang: "en", region: "europe", tier: 2}
+- {id: "ukrinform", name: "Ukrinform", url: "https://www.ukrinform.net/rss/block-lastnews", country: "UA", lang: "en", region: "europe", tier: 2}
+- {id: "tass", name: "TASS", url: "https://tass.com/rss/v2.xml", country: "RU", lang: "en", region: "europe", tier: 2}
+- {id: "meduza", name: "Meduza", url: "https://meduza.io/rss/en/all", country: "RU", lang: "en", region: "europe", tier: 2}
+- {id: "lsm", name: "LSM English", url: "https://eng.lsm.lv/rss/", country: "LV", lang: "en", region: "europe", tier: 3}
+- {id: "err", name: "ERR News", url: "https://news.err.ee/rss", country: "EE", lang: "en", region: "europe", tier: 3}
+- {id: "lrt", name: "LRT English", url: "https://www.lrt.lt/en/news-in-english?rss", country: "LT", lang: "en", region: "europe", tier: 3}
+- {id: "yle", name: "Yle News", url: "https://yle.fi/rss/uutiset/tuoreimmat", country: "FI", lang: "fi", region: "europe", tier: 2}
+- {id: "nrk", name: "NRK", url: "https://www.nrk.no/toppsaker.rss", country: "NO", lang: "no", region: "europe", tier: 2}
+- {id: "svt", name: "SVT Nyheter", url: "https://www.svt.se/nyheter/rss.xml", country: "SE", lang: "sv", region: "europe", tier: 2}
+- {id: "thelocal-se", name: "The Local Sweden", url: "https://feeds.thelocal.com/rss/se", country: "SE", lang: "en", region: "europe", tier: 3}
+- {id: "dr", name: "DR", url: "https://www.dr.dk/nyheder/service/feeds/allenyheder", country: "DK", lang: "da", region: "europe", tier: 2}
+- {id: "ruv-en", name: "RÚV English", url: "https://www.ruv.is/rss/english", country: "IS", lang: "en", region: "europe", tier: 3}
+- {id: "cyprus-mail", name: "Cyprus Mail", url: "https://cyprus-mail.com/feed/", country: "CY", lang: "en", region: "europe", tier: 3}
+- {id: "keeptalkinggreece", name: "Keep Talking Greece", url: "https://www.keeptalkinggreece.com/feed/", country: "GR", lang: "en", region: "europe", tier: 3}
+- {id: "ekathimerini", name: "eKathimerini", url: "https://www.ekathimerini.com/infeeds/rss/nx-rss-feed.xml", country: "GR", lang: "en", region: "europe", tier: 3}
+- {id: "timesofmalta", name: "Times of Malta", url: "https://timesofmalta.com/rss/latest", country: "MT", lang: "en", region: "europe", tier: 3}
+- {id: "civil-ge", name: "Civil Georgia", url: "https://civil.ge/feed", country: "GE", lang: "en", region: "europe", tier: 3}
+- {id: "oc-media", name: "OC Media", url: "https://oc-media.org/feed/", country: "AM", lang: "en", region: "europe", tier: 3}
+- {id: "newsaz", name: "News.az", url: "https://news.az/rss", country: "AZ", lang: "en", region: "europe", tier: 3}
+- {id: "belsat", name: "Belsat", url: "https://belsat.eu/en/feed", country: "BY", lang: "en", region: "europe", tier: 3}
+- {id: "newsmaker-md", name: "NewsMaker", url: "https://newsmaker.md/en/feed/", country: "MD", lang: "en", region: "europe", tier: 3}
+- {id: "aa-tr", name: "Anadolu Ajansı", url: "https://www.aa.com.tr/tr/rss/default?cat=guncel", country: "TR", lang: "tr", region: "europe", tier: 2}
+- {id: "aa-en", name: "Anadolu Agency", url: "https://www.aa.com.tr/en/rss/default?cat=guncel", country: "TR", lang: "en", region: "europe", tier: 2}
+- {id: "bbc-turkce", name: "BBC Türkçe", url: "https://feeds.bbci.co.uk/turkce/rss.xml", country: "TR", lang: "tr", region: "europe", tier: 2}
+- {id: "dw-turkce", name: "DW Türkçe", url: "https://rss.dw.com/xml/rss-tur-all", country: "TR", lang: "tr", region: "europe", tier: 2}
+- {id: "trthaber", name: "TRT Haber", url: "https://www.trthaber.com/manset_articles.rss", country: "TR", lang: "tr", region: "europe", tier: 2}
+- {id: "ntv", name: "NTV", url: "https://www.ntv.com.tr/gundem.rss", country: "TR", lang: "tr", region: "europe", tier: 2}
+- {id: "hurriyetdailynews", name: "Hürriyet Daily News", url: "https://www.hurriyetdailynews.com/rss", country: "TR", lang: "en", region: "europe", tier: 2}
+- {id: "nyt-world", name: "The New York Times", url: "https://rss.nytimes.com/services/xml/rss/nyt/World.xml", country: "US", lang: "en", region: "americas", tier: 1}
+- {id: "nyt-us", name: "The New York Times (US)", url: "https://rss.nytimes.com/services/xml/rss/nyt/US.xml", country: "US", lang: "en", region: "americas", tier: 1}
+- {id: "npr-world", name: "NPR", url: "https://feeds.npr.org/1004/rss.xml", country: "US", lang: "en", region: "americas", tier: 1}
+- {id: "npr-news", name: "NPR News", url: "https://feeds.npr.org/1001/rss.xml", country: "US", lang: "en", region: "americas", tier: 1}
+- {id: "cnn-world", name: "CNN", url: "http://rss.cnn.com/rss/edition_world.rss", country: "US", lang: "en", region: "americas", tier: 1}
+- {id: "pbs", name: "PBS NewsHour", url: "https://www.pbs.org/newshour/feeds/rss/headlines", country: "US", lang: "en", region: "americas", tier: 2}
+- {id: "abcnews-intl", name: "ABC News", url: "https://abcnews.go.com/abcnews/internationalheadlines", country: "US", lang: "en", region: "americas", tier: 1}
+- {id: "latimes", name: "Los Angeles Times", url: "https://www.latimes.com/world-nation/rss2.0.xml", country: "US", lang: "en", region: "americas", tier: 1}
+- {id: "cbc-world", name: "CBC News", url: "https://www.cbc.ca/webfeed/rss/rss-world", country: "CA", lang: "en", region: "americas", tier: 2}
+- {id: "cbc-canada", name: "CBC Canada", url: "https://www.cbc.ca/webfeed/rss/rss-canada", country: "CA", lang: "en", region: "americas", tier: 2}
+- {id: "globalnews", name: "Global News", url: "https://globalnews.ca/feed/", country: "CA", lang: "en", region: "americas", tier: 2}
+- {id: "mexiconewsdaily", name: "Mexico News Daily", url: "https://mexiconewsdaily.com/feed/", country: "MX", lang: "en", region: "americas", tier: 2}
+- {id: "prensalibre", name: "Prensa Libre", url: "https://www.prensalibre.com/feed/", country: "GT", lang: "es", region: "americas", tier: 3}
+- {id: "ticotimes", name: "The Tico Times", url: "https://ticotimes.net/feed", country: "CR", lang: "en", region: "americas", tier: 3}
+- {id: "confidencial", name: "Confidencial", url: "https://confidencial.digital/feed/", country: "NI", lang: "es", region: "americas", tier: 3}
+- {id: "elfaro", name: "El Faro", url: "https://elfaro.net/es/rss", country: "SV", lang: "es", region: "americas", tier: 3}
+- {id: "criterio-hn", name: "Criterio.hn", url: "https://criterio.hn/feed/", country: "HN", lang: "es", region: "americas", tier: 3}
+- {id: "newsroompanama", name: "Newsroom Panama", url: "https://newsroompanama.com/feed/", country: "PA", lang: "en", region: "americas", tier: 3}
+- {id: "cubadebate", name: "Cubadebate", url: "http://www.cubadebate.cu/feed/", country: "CU", lang: "es", region: "americas", tier: 3}
+- {id: "14ymedio", name: "14ymedio", url: "https://www.14ymedio.com/rss/", country: "CU", lang: "es", region: "americas", tier: 3}
+- {id: "dominicantoday", name: "Dominican Today", url: "https://dominicantoday.com/feed/", country: "DO", lang: "en", region: "americas", tier: 3}
+- {id: "haitiantimes", name: "The Haitian Times", url: "https://haitiantimes.com/feed/", country: "HT", lang: "en", region: "americas", tier: 3}
+- {id: "gleaner", name: "The Gleaner", url: "https://jamaica-gleaner.com/feed/rss.xml", country: "JM", lang: "en", region: "americas", tier: 3}
+- {id: "jamaicaobserver", name: "Jamaica Observer", url: "https://www.jamaicaobserver.com/feed/", country: "JM", lang: "en", region: "americas", tier: 3}
+- {id: "newsday-tt", name: "Trinidad and Tobago Newsday", url: "https://newsday.co.tt/feed/", country: "TT", lang: "en", region: "americas", tier: 3}
+- {id: "barbadostoday", name: "Barbados Today", url: "https://barbadostoday.bb/feed/", country: "BB", lang: "en", region: "americas", tier: 3}
+- {id: "stabroek", name: "Stabroek News", url: "https://www.stabroeknews.com/feed/", country: "GY", lang: "en", region: "americas", tier: 3}
+- {id: "breakingbelize", name: "Breaking Belize News", url: "https://www.breakingbelizenews.com/feed/", country: "BZ", lang: "en", region: "americas", tier: 3}
+- {id: "colombiaone", name: "Colombia One", url: "https://colombiaone.com/feed/", country: "CO", lang: "en", region: "americas", tier: 3}
+- {id: "elespectador", name: "El Espectador", url: "https://www.elespectador.com/arc/outboundfeeds/rss/?outputType=xml", country: "CO", lang: "es", region: "americas", tier: 2}
+- {id: "efectococuyo", name: "Efecto Cocuyo", url: "https://efectococuyo.com/feed/", country: "VE", lang: "es", region: "americas", tier: 3}
+- {id: "primicias", name: "Primicias", url: "https://www.primicias.ec/feed/", country: "EC", lang: "es", region: "americas", tier: 3}
+- {id: "andina", name: "Andina", url: "https://andina.pe/agencia/rss/0.xml", country: "PE", lang: "es", region: "americas", tier: 3}
+- {id: "larazon-bo", name: "La Razón", url: "https://www.la-razon.com/feed/", country: "BO", lang: "es", region: "americas", tier: 3}
+- {id: "agenciabrasil", name: "Agência Brasil", url: "https://agenciabrasil.ebc.com.br/rss/ultimasnoticias/feed.xml", country: "BR", lang: "pt", region: "americas", tier: 2}
+- {id: "g1", name: "g1", url: "https://g1.globo.com/rss/g1/", country: "BR", lang: "pt", region: "americas", tier: 1}
+- {id: "riotimes", name: "The Rio Times", url: "https://www.riotimesonline.com/feed/", country: "BR", lang: "en", region: "americas", tier: 3}
+- {id: "batimes", name: "Buenos Aires Times", url: "https://www.batimes.com.ar/feed", country: "AR", lang: "en", region: "americas", tier: 2}
+- {id: "clarin", name: "Clarín", url: "https://www.clarin.com/rss/lo-ultimo/", country: "AR", lang: "es", region: "americas", tier: 1}
+- {id: "infobae", name: "Infobae", url: "https://www.infobae.com/feeds/rss/", country: "AR", lang: "es", region: "americas", tier: 1}
+- {id: "latercera", name: "La Tercera", url: "https://www.latercera.com/arc/outboundfeeds/rss/?outputType=xml", country: "CL", lang: "es", region: "americas", tier: 2}
+- {id: "ladiaria", name: "la diaria", url: "https://ladiaria.com.uy/feeds/articulos/", country: "UY", lang: "es", region: "americas", tier: 3}
+- {id: "ultimahora-py", name: "Última Hora", url: "https://www.ultimahora.com/rss", country: "PY", lang: "es", region: "americas", tier: 3}
+- {id: "starnieuws", name: "Starnieuws", url: "https://www.starnieuws.com/rss/starnieuws.rss", country: "SR", lang: "nl", region: "americas", tier: 3}
+- {id: "arabnews", name: "Arab News", url: "https://www.arabnews.com/rss.xml", country: "SA", lang: "en", region: "middle_east", tier: 2}
+- {id: "thenational", name: "The National", url: "https://www.thenationalnews.com/arc/outboundfeeds/rss/?outputType=xml", country: "AE", lang: "en", region: "middle_east", tier: 2}
+- {id: "gulfnews", name: "Gulf News", url: "https://gulfnews.com/feed", country: "AE", lang: "en", region: "middle_east", tier: 2}
+- {id: "peninsula", name: "The Peninsula", url: "https://thepeninsulaqatar.com/rss", country: "QA", lang: "en", region: "middle_east", tier: 3}
+- {id: "kuwaittimes", name: "Kuwait Times", url: "https://kuwaittimes.com/feed/", country: "KW", lang: "en", region: "middle_east", tier: 3}
+- {id: "newsofbahrain", name: "News of Bahrain", url: "https://www.newsofbahrain.com/rss.xml", country: "BH", lang: "en", region: "middle_east", tier: 3}
+- {id: "muscatdaily", name: "Muscat Daily", url: "https://www.muscatdaily.com/feed/", country: "OM", lang: "en", region: "middle_east", tier: 3}
+- {id: "southyemen-24", name: "South24 Center", url: "https://south24.net/news/rss.php", country: "YE", lang: "ar", region: "middle_east", tier: 3}
+- {id: "timesofisrael", name: "The Times of Israel", url: "https://www.timesofisrael.com/feed/", country: "IL", lang: "en", region: "middle_east", tier: 2}
+- {id: "wafa-en", name: "WAFA", url: "https://english.wafa.ps/rss", country: "PS", lang: "en", region: "middle_east", tier: 3}
+- {id: "jordantimes", name: "The Jordan Times", url: "https://jordantimes.com/rss.xml", country: "JO", lang: "en", region: "middle_east", tier: 3}
+- {id: "roya-en", name: "Roya News", url: "https://en.royanews.tv/rss", country: "JO", lang: "en", region: "middle_east", tier: 3}
+- {id: "naharnet", name: "Naharnet", url: "https://www.naharnet.com/stories/en/rss", country: "LB", lang: "en", region: "middle_east", tier: 3}
+- {id: "lorienttoday", name: "L'Orient Today", url: "https://today.lorientlejour.com/rss", country: "LB", lang: "en", region: "middle_east", tier: 3}
+- {id: "enabbaladi", name: "Enab Baladi", url: "https://english.enabbaladi.net/feed/", country: "SY", lang: "en", region: "middle_east", tier: 3}
+- {id: "rudaw", name: "Rudaw", url: "https://www.rudaw.net/rss/english", country: "IQ", lang: "en", region: "middle_east", tier: 3}
+- {id: "shafaq", name: "Shafaq News", url: "https://shafaq.com/en/rss", country: "IQ", lang: "en", region: "middle_east", tier: 3}
+- {id: "tehrantimes", name: "Tehran Times", url: "https://www.tehrantimes.com/rss", country: "IR", lang: "en", region: "middle_east", tier: 2}
+- {id: "iranintl", name: "Iran International", url: "https://www.iranintl.com/en/feed", country: "IR", lang: "en", region: "middle_east", tier: 2}
+- {id: "egyptindependent", name: "Egypt Independent", url: "https://www.egyptindependent.com/feed/", country: "EG", lang: "en", region: "middle_east", tier: 2}
+- {id: "ahram", name: "Ahram Online", url: "https://english.ahram.org.eg/UI/Front/Rss.aspx", country: "EG", lang: "en", region: "middle_east", tier: 3}
+- {id: "middleeasteye", name: "Middle East Eye", url: "https://www.middleeasteye.net/rss", country: "GB", lang: "en", region: "middle_east", tier: 2}
+- {id: "tolonews", name: "TOLOnews", url: "https://tolonews.com/rss.xml", country: "AF", lang: "en", region: "middle_east", tier: 2}
+- {id: "amu-tv", name: "Amu TV", url: "https://amu.tv/feed/", country: "AF", lang: "en", region: "middle_east", tier: 3}
+- {id: "timesofindia", name: "The Times of India", url: "https://timesofindia.indiatimes.com/rssfeedstopstories.cms", country: "IN", lang: "en", region: "asia", tier: 1}
+- {id: "thehindu", name: "The Hindu", url: "https://www.thehindu.com/news/national/feeder/default.rss", country: "IN", lang: "en", region: "asia", tier: 1}
+- {id: "ndtv", name: "NDTV", url: "https://feeds.feedburner.com/ndtvnews-top-stories", country: "IN", lang: "en", region: "asia", tier: 1}
+- {id: "dawn", name: "Dawn", url: "https://www.dawn.com/feeds/home", country: "PK", lang: "en", region: "asia", tier: 2}
+- {id: "tribune-pk", name: "The Express Tribune", url: "https://tribune.com.pk/feed/home", country: "PK", lang: "en", region: "asia", tier: 2}
+- {id: "dailystar-bd", name: "The Daily Star", url: "https://www.thedailystar.net/frontpage/rss.xml", country: "BD", lang: "en", region: "asia", tier: 2}
+- {id: "kathmandupost", name: "The Kathmandu Post", url: "https://kathmandupost.com/rss", country: "NP", lang: "en", region: "asia", tier: 2}
+- {id: "economynext", name: "EconomyNext", url: "https://economynext.com/feed/", country: "LK", lang: "en", region: "asia", tier: 3}
+- {id: "kuensel", name: "Kuensel", url: "https://kuenselonline.com/feed/", country: "BT", lang: "en", region: "asia", tier: 3}
+- {id: "edition-mv", name: "The Edition", url: "https://edition.mv/feed", country: "MV", lang: "en", region: "asia", tier: 3}
+- {id: "globaltimes", name: "Global Times", url: "https://www.globaltimes.cn/rss/outbrain.xml", country: "CN", lang: "en", region: "asia", tier: 2}
+- {id: "chinadaily", name: "China Daily", url: "http://www.chinadaily.com.cn/rss/world_rss.xml", country: "CN", lang: "en", region: "asia", tier: 2}
+- {id: "sixthtone", name: "Sixth Tone", url: "https://www.sixthtone.com/rss", country: "CN", lang: "en", region: "asia", tier: 3}
+- {id: "scmp", name: "South China Morning Post", url: "https://www.scmp.com/rss/91/feed", country: "HK", lang: "en", region: "asia", tier: 2}
+- {id: "hkfp", name: "Hong Kong Free Press", url: "https://hongkongfp.com/feed/", country: "HK", lang: "en", region: "asia", tier: 2}
+- {id: "taipeitimes", name: "Taipei Times", url: "https://www.taipeitimes.com/xml/index.rss", country: "TW", lang: "en", region: "asia", tier: 2}
+- {id: "focustaiwan", name: "Focus Taiwan", url: "https://focustaiwan.tw/rss/aall.xml", country: "TW", lang: "en", region: "asia", tier: 3}
+- {id: "japantimes", name: "The Japan Times", url: "https://www.japantimes.co.jp/feed/", country: "JP", lang: "en", region: "asia", tier: 2}
+- {id: "nhk", name: "NHK", url: "https://www3.nhk.or.jp/rss/news/cat0.xml", country: "JP", lang: "ja", region: "asia", tier: 2}
+- {id: "yonhap", name: "Yonhap", url: "https://en.yna.co.kr/RSS/news.xml", country: "KR", lang: "en", region: "asia", tier: 2}
+- {id: "koreaherald", name: "The Korea Herald", url: "https://www.koreaherald.com/rss/newsAll", country: "KR", lang: "en", region: "asia", tier: 2}
+- {id: "nknews", name: "NK News", url: "https://www.nknews.org/feed/", country: "KP", lang: "en", region: "asia", tier: 3}
+- {id: "montsame", name: "Montsame", url: "https://montsame.mn/en/rss", country: "MN", lang: "en", region: "asia", tier: 3}
+- {id: "astanatimes", name: "The Astana Times", url: "https://astanatimes.com/feed/", country: "KZ", lang: "en", region: "asia", tier: 3}
+- {id: "gazeta-uz", name: "Gazeta.uz", url: "https://www.gazeta.uz/en/rss/", country: "UZ", lang: "en", region: "asia", tier: 3}
+- {id: "kun-uz", name: "Kun.uz", url: "https://kun.uz/en/news/rss", country: "UZ", lang: "en", region: "asia", tier: 3}
+- {id: "24kg", name: "24.kg", url: "https://24.kg/english/rss/", country: "KG", lang: "en", region: "asia", tier: 3}
+- {id: "asiaplus", name: "Asia-Plus", url: "https://asiaplustj.info/en/rss", country: "TJ", lang: "en", region: "asia", tier: 3}
+- {id: "turkmen-news", name: "Turkmen.news", url: "https://turkmen.news/feed/", country: "TM", lang: "en", region: "asia", tier: 3}
+- {id: "straitstimes", name: "The Straits Times", url: "https://www.straitstimes.com/news/world/rss.xml", country: "SG", lang: "en", region: "asia", tier: 2}
+- {id: "cna", name: "CNA", url: "https://www.channelnewsasia.com/api/v1/rss-outbound-feed?_format=xml", country: "SG", lang: "en", region: "asia", tier: 2}
+- {id: "thestar-my", name: "The Star", url: "https://www.thestar.com.my/rss/News", country: "MY", lang: "en", region: "asia", tier: 2}
+- {id: "fmt", name: "Free Malaysia Today", url: "https://www.freemalaysiatoday.com/feed/", country: "MY", lang: "en", region: "asia", tier: 2}
+- {id: "antara", name: "Antara", url: "https://en.antaranews.com/rss/news.xml", country: "ID", lang: "en", region: "asia", tier: 2}
+- {id: "jakartaglobe", name: "Jakarta Globe", url: "https://jakartaglobe.id/feed", country: "ID", lang: "en", region: "asia", tier: 3}
+- {id: "rappler", name: "Rappler", url: "https://www.rappler.com/feed/", country: "PH", lang: "en", region: "asia", tier: 2}
+- {id: "inquirer", name: "Inquirer.net", url: "https://newsinfo.inquirer.net/feed", country: "PH", lang: "en", region: "asia", tier: 1}
+- {id: "vnexpress", name: "VnExpress International", url: "https://e.vnexpress.net/rss/news.rss", country: "VN", lang: "en", region: "asia", tier: 2}
+- {id: "bangkokpost", name: "Bangkok Post", url: "https://www.bangkokpost.com/rss/data/topstories.xml", country: "TH", lang: "en", region: "asia", tier: 2}
+- {id: "khmertimes", name: "Khmer Times", url: "https://www.khmertimeskh.com/feed/", country: "KH", lang: "en", region: "asia", tier: 3}
+- {id: "laotiantimes", name: "Laotian Times", url: "https://laotiantimes.com/feed/", country: "LA", lang: "en", region: "asia", tier: 3}
+- {id: "irrawaddy", name: "The Irrawaddy", url: "https://www.irrawaddy.com/feed", country: "MM", lang: "en", region: "asia", tier: 3}
+- {id: "borneobulletin", name: "Borneo Bulletin", url: "https://borneobulletin.com.bn/feed/", country: "BN", lang: "en", region: "asia", tier: 3}
+- {id: "tatoli", name: "Tatoli", url: "https://en.tatoli.tl/feed/", country: "TL", lang: "en", region: "asia", tier: 3}
+- {id: "premiumtimes", name: "Premium Times", url: "https://www.premiumtimesng.com/feed", country: "NG", lang: "en", region: "africa", tier: 2}
+- {id: "punch", name: "Punch", url: "https://punchng.com/feed/", country: "NG", lang: "en", region: "africa", tier: 2}
+- {id: "vanguard", name: "Vanguard", url: "https://www.vanguardngr.com/feed/", country: "NG", lang: "en", region: "africa", tier: 2}
+- {id: "myjoyonline", name: "MyJoyOnline", url: "https://www.myjoyonline.com/feed/", country: "GH", lang: "en", region: "africa", tier: 2}
+- {id: "citinewsroom", name: "Citi Newsroom", url: "https://citinewsroom.com/feed/", country: "GH", lang: "en", region: "africa", tier: 3}
+- {id: "capitalfm-ke", name: "Capital FM Kenya", url: "https://www.capitalfm.co.ke/news/feed/", country: "KE", lang: "en", region: "africa", tier: 2}
+- {id: "kenyans", name: "Kenyans.co.ke", url: "https://www.kenyans.co.ke/feeds/news", country: "KE", lang: "en", region: "africa", tier: 2}
+- {id: "news24", name: "News24", url: "https://feeds.news24.com/articles/news24/TopStories/rss", country: "ZA", lang: "en", region: "africa", tier: 1}
+- {id: "mg", name: "Mail & Guardian", url: "https://mg.co.za/feed/", country: "ZA", lang: "en", region: "africa", tier: 2}
+- {id: "dailymaverick", name: "Daily Maverick", url: "https://www.dailymaverick.co.za/dmrss/", country: "ZA", lang: "en", region: "africa", tier: 2}
+- {id: "addisstandard", name: "Addis Standard", url: "https://addisstandard.com/feed/", country: "ET", lang: "en", region: "africa", tier: 2}
+- {id: "nilepost", name: "Nile Post", url: "https://nilepost.co.ug/feed/", country: "UG", lang: "en", region: "africa", tier: 3}
+- {id: "thecitizen-tz", name: "The Citizen", url: "https://www.thecitizen.co.tz/rss", country: "TZ", lang: "en", region: "africa", tier: 3}
+- {id: "ktpress", name: "KT Press", url: "https://www.ktpress.rw/feed/", country: "RW", lang: "en", region: "africa", tier: 3}
+- {id: "iwacu", name: "Iwacu", url: "https://www.iwacu-burundi.org/englishnews/feed/", country: "BI", lang: "en", region: "africa", tier: 3}
+- {id: "newzimbabwe", name: "NewZimbabwe", url: "https://www.newzimbabwe.com/feed/", country: "ZW", lang: "en", region: "africa", tier: 3}
+- {id: "zimlive", name: "ZimLive", url: "https://www.zimlive.com/feed/", country: "ZW", lang: "en", region: "africa", tier: 3}
+- {id: "lusakatimes", name: "Lusaka Times", url: "https://www.lusakatimes.com/feed/", country: "ZM", lang: "en", region: "africa", tier: 3}
+- {id: "nyasatimes", name: "Nyasa Times", url: "https://www.nyasatimes.com/feed/", country: "MW", lang: "en", region: "africa", tier: 3}
+- {id: "clubofmozambique", name: "Club of Mozambique", url: "https://clubofmozambique.com/feed/", country: "MZ", lang: "en", region: "africa", tier: 3}
+- {id: "namibian", name: "The Namibian", url: "https://www.namibian.com.na/feed/", country: "NA", lang: "en", region: "africa", tier: 3}
+- {id: "mmegi", name: "Mmegi", url: "https://www.mmegi.bw/rss", country: "BW", lang: "en", region: "africa", tier: 3}
+- {id: "lexpress-mu", name: "L'Express Maurice", url: "https://lexpress.mu/rss.xml", country: "MU", lang: "fr", region: "africa", tier: 3}
+- {id: "moroccoworldnews", name: "Morocco World News", url: "https://www.moroccoworldnews.com/feed/", country: "MA", lang: "en", region: "africa", tier: 2}
+- {id: "hespress-en", name: "Hespress English", url: "https://en.hespress.com/feed", country: "MA", lang: "en", region: "africa", tier: 3}
+- {id: "tsa", name: "TSA Algérie", url: "https://www.tsa-algerie.com/feed/", country: "DZ", lang: "fr", region: "africa", tier: 3}
+- {id: "businessnews-tn", name: "Business News", url: "https://www.businessnews.com.tn/rss.xml", country: "TN", lang: "fr", region: "africa", tier: 3}
+- {id: "libyaherald", name: "Libya Herald", url: "https://libyaherald.com/feed/", country: "LY", lang: "en", region: "africa", tier: 3}
+- {id: "libyaobserver", name: "The Libya Observer", url: "https://libyaobserver.ly/rss.xml", country: "LY", lang: "en", region: "africa", tier: 3}
+- {id: "sudantribune", name: "Sudan Tribune", url: "https://sudantribune.com/feed/", country: "SD", lang: "en", region: "africa", tier: 2}
+- {id: "dabanga", name: "Radio Dabanga", url: "https://www.dabangasudan.org/en/feed", country: "SD", lang: "en", region: "africa", tier: 3}
+- {id: "radiotamazuj", name: "Radio Tamazuj", url: "https://www.radiotamazuj.org/en/rss", country: "SS", lang: "en", region: "africa", tier: 3}
+- {id: "hiiraan", name: "Hiiraan Online", url: "https://www.hiiraan.com/rss/news.xml", country: "SO", lang: "en", region: "africa", tier: 3}
+- {id: "garowe", name: "Garowe Online", url: "https://www.garoweonline.com/en/rss", country: "SO", lang: "en", region: "africa", tier: 3}
+- {id: "senego", name: "Senego", url: "https://senego.com/feed", country: "SN", lang: "fr", region: "africa", tier: 3}
+- {id: "lefaso", name: "Lefaso.net", url: "https://lefaso.net/spip.php?page=backend", country: "BF", lang: "fr", region: "africa", tier: 3}
+- {id: "maliweb", name: "Maliweb", url: "https://www.maliweb.net/feed", country: "ML", lang: "fr", region: "africa", tier: 3}
+- {id: "journalducameroun", name: "Journal du Cameroun", url: "https://www.journalducameroun.com/feed/", country: "CM", lang: "fr", region: "africa", tier: 3}
+- {id: "actualite-cd", name: "Actualite.cd", url: "https://actualite.cd/feed", country: "CD", lang: "fr", region: "africa", tier: 3}
+- {id: "radiookapi", name: "Radio Okapi", url: "https://www.radiookapi.net/rss.xml", country: "CD", lang: "fr", region: "africa", tier: 3}
+- {id: "frontpageafrica", name: "FrontPage Africa", url: "https://frontpageafricaonline.com/feed/", country: "LR", lang: "en", region: "africa", tier: 3}
+- {id: "awoko", name: "Awoko", url: "https://awokonewspaper.sl/feed/", country: "SL", lang: "en", region: "africa", tier: 3}
+- {id: "foroyaa", name: "Foroyaa", url: "https://foroyaa.net/feed/", country: "GM", lang: "en", region: "africa", tier: 3}
+- {id: "verangola", name: "Ver Angola", url: "https://www.verangola.net/va/rss", country: "AO", lang: "pt", region: "africa", tier: 3}
+- {id: "koaci", name: "Koaci", url: "https://www.koaci.com/rss", country: "CI", lang: "fr", region: "africa", tier: 3}
+- {id: "africanews", name: "Africanews", url: "https://www.africanews.com/feed/rss", country: "CG", lang: "en", region: "africa", tier: 2}
+- {id: "aplus-ne", name: "ActuNiger", url: "https://www.actuniger.com/feed", country: "NE", lang: "fr", region: "africa", tier: 3}
+- {id: "alwihda", name: "Alwihda Info", url: "https://www.alwihdainfo.com/xml/syndication.rss", country: "TD", lang: "fr", region: "africa", tier: 3}
+- {id: "madagascar-tribune", name: "Madagascar Tribune", url: "https://www.madagascar-tribune.com/spip.php?page=backend", country: "MG", lang: "fr", region: "africa", tier: 3}
+- {id: "abc-au", name: "ABC News", url: "https://www.abc.net.au/news/feed/51120/rss.xml", country: "AU", lang: "en", region: "oceania", tier: 2}
+- {id: "sbs", name: "SBS News", url: "https://www.sbs.com.au/news/feed", country: "AU", lang: "en", region: "oceania", tier: 2}
+- {id: "guardian-au", name: "The Guardian Australia", url: "https://www.theguardian.com/australia-news/rss", country: "AU", lang: "en", region: "oceania", tier: 2}
+- {id: "rnz-world", name: "RNZ", url: "https://www.rnz.co.nz/rss/world.xml", country: "NZ", lang: "en", region: "oceania", tier: 2}
+- {id: "rnz-nz", name: "RNZ New Zealand", url: "https://www.rnz.co.nz/rss/national.xml", country: "NZ", lang: "en", region: "oceania", tier: 2}
+- {id: "rnz-pacific", name: "RNZ Pacific", url: "https://www.rnz.co.nz/rss/pacific.xml", country: "NZ", lang: "en", region: "oceania", tier: 2}
+- {id: "fijitimes", name: "The Fiji Times", url: "https://www.fijitimes.com.fj/feed/", country: "FJ", lang: "en", region: "oceania", tier: 3}
+- {id: "islandsbusiness", name: "Islands Business", url: "https://islandsbusiness.com/feed/", country: "FJ", lang: "en", region: "oceania", tier: 3}
+- {id: "postcourier", name: "Post-Courier", url: "https://www.postcourier.com.pg/feed/", country: "PG", lang: "en", region: "oceania", tier: 3}
+- {id: "solomonstar", name: "Solomon Star", url: "https://www.solomonstarnews.com/feed/", country: "SB", lang: "en", region: "oceania", tier: 3}
+- {id: "samoaobserver", name: "Samoa Observer", url: "https://www.samoaobserver.ws/rss", country: "WS", lang: "en", region: "oceania", tier: 3}
+- {id: "matangitonga", name: "Matangi Tonga", url: "https://matangitonga.to/rss.xml", country: "TO", lang: "en", region: "oceania", tier: 3}
+- {id: "dailypost-vu", name: "Vanuatu Daily Post", url: "https://www.dailypost.vu/search/?f=rss", country: "VU", lang: "en", region: "oceania", tier: 3}

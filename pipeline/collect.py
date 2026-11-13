@@ -111,6 +111,7 @@ def parse_feed(content: bytes, source: Source, fetched_at: datetime) -> list[Art
             published=_published(e, fetched_at),
             image_url=_image(e, source.url),
             tags=[t["term"].strip().lower() for t in e.get("tags") or [] if t.get("term")],
+            source_tier=source.tier,
         ))
     return out
 

@@ -63,6 +63,7 @@ def _event_to_json(e: Event) -> dict:
         "summary_tr": e.summary_tr,
         "summary_en": e.summary_en,
         "summary_ai": e.summary_ai,
+        "summary_v": e.summary_v,
     }
 
 
@@ -78,6 +79,7 @@ def _event_from_json(d: dict) -> Event:
         summary_tr=d.get("summary_tr", ""),
         summary_en=d.get("summary_en", ""),
         summary_ai=d.get("summary_ai", False),
+        summary_v=d.get("summary_v", 0),
     )
 
 

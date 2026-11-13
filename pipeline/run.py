@@ -16,11 +16,11 @@ from .collect import fetch_all, http_get
 from .embed import Embedder, embed_text
 from .geo import Gazetteer, locate_event
 from .models import Source
-from .publish import build_site_data, lead_article, write_site_data
+from .publish import build_site_data, write_site_data
 from .rank import score, select_today
 from .sources import load_sources
 from .state import epoch_day, load_state, prune, save_state
-from .summarize import default_summary, gemini_summary
+from .summarize import SUMMARY_VERSION, combined_summary, gemini_summary
 from .topics import TopicConfig, article_topic, event_topic, load_topic_config, prototype_vectors
 from .translate import Budget, Translator, translate_articles, translate_pair
 
@@ -38,6 +38,22 @@ class RunReport:
     def line(self) -> str:
         return (f"new_articles={self.new_articles} touched_events={self.touched_events} "
                 f"failed_feeds={len(self.failures)} today={self.today}")
+
+
+def build_summary(e, arts, embedder, cache, translator) -> None:
+    """Longer summary from several outlets: English and widely read sources first."""
+    items, seen = [], set()
+    for a in sorted(arts, key=lambda a: (a.lang != "en", a.source_tier, a.published)):
+        if a.description and a.description not in seen:
+            seen.add(a.description)
+            items.append((a.lang, a.description))
+    picked = combined_summary(items[:8], embedder)
+    if not picked:
+        return
+    pairs = [translate_pair(sent, lang, cache, translator) for lang, sent in picked]
+    e.summary_tr = " ".join(tr for tr, _ in pairs)
+    e.summary_en = " ".join(en for _, en in pairs)
+    e.summary_v = SUMMARY_VERSION
 
 
 def _sources(e, articles) -> int:
@@ -82,11 +98,8 @@ def run(state_dir: Path, out_dir: Path, now: datetime, sources: list[Source],
     for e in shown:
         arts = [state.articles[a] for a in e.article_ids if a in state.articles]
         translate_articles(arts, state.translations, translator, budget)
-        if not e.summary_ai and not e.summary_en and not budget.exhausted:
-            lead = lead_article(e, state.articles)
-            text = default_summary(lead.description)
-            if text:
-                e.summary_tr, e.summary_en = translate_pair(text, lead.lang, state.translations, translator)
+        if not e.summary_ai and e.summary_v < SUMMARY_VERSION and not budget.exhausted:
+            build_summary(e, arts, embedder, state.translations, translator)
         e.location = locate_event([a.title_en or a.title for a in arts], [a.country for a in arts], gaz)
 
     prune(state, now)

@@ -84,3 +84,31 @@ def test_translation_budget_defers_work_to_next_run(tmp_path):
     assert tr.pairs  # deferred work done on the next run
     today = json.loads((tmp_path / "out" / "today.json").read_text())
     assert today["events"][0]["title"]["tr"] == "[tr] Quake hits Kobe"
+
+
+def test_summary_combines_several_sources(tmp_path):
+    t = NOW - timedelta(hours=2)
+    pages = {GB.url: rss([item("Quake hits Kobe", "https://bbc.example/q", t,
+                               "A strong quake struck Kobe. Trains were halted.")]),
+             TR.url: rss([item("Kobe'de deprem", "https://aa.example/d", t, "Tsunami uyarısı kaldırıldı.")]),
+             JP.url: rss([])}
+    go(tmp_path, pages, NOW)
+    d = json.loads(next((tmp_path / "out" / "events").iterdir()).read_text())
+    assert d["summary"]["en"] == "A strong quake struck Kobe. Trains were halted. [en] Tsunami uyarısı kaldırıldı."
+    assert d["summary"]["tr"] == "[tr] A strong quake struck Kobe. [tr] Trains were halted. Tsunami uyarısı kaldırıldı."
+
+
+def test_old_short_summaries_are_rebuilt_once(tmp_path):
+    from pipeline.state import load_state, save_state
+    t = NOW - timedelta(hours=2)
+    pages = {GB.url: rss([item("Quake hits Kobe", "https://bbc.example/q", t, "A strong quake struck Kobe.")]),
+             TR.url: rss([item("Kobe'de deprem", "https://aa.example/d", t, "Tsunami uyarısı kaldırıldı.")]),
+             JP.url: rss([])}
+    go(tmp_path, pages, NOW)
+    st = load_state(tmp_path / "state")
+    for e in st.events.values():
+        e.summary_en, e.summary_tr, e.summary_v = "Old.", "Eski.", 0
+    save_state(st, tmp_path / "state")
+    go(tmp_path, pages, NOW + timedelta(minutes=30))
+    d = json.loads(next((tmp_path / "out" / "events").iterdir()).read_text())
+    assert d["summary"]["en"].startswith("A strong quake struck Kobe.")

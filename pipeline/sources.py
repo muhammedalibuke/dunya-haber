@@ -29,7 +29,9 @@ def load_sources(path: Path) -> list[Source]:
         missing = [f for f in FIELDS if not entry.get(f)]
         if missing:
             raise ValueError(f"source {sid}: missing {missing}")
-        s = Source(**{f: str(entry[f]).strip() for f in FIELDS})
+        s = Source(**{f: str(entry[f]).strip() for f in FIELDS}, tier=entry.get("tier", 3))
+        if s.tier not in (1, 2, 3):
+            raise ValueError(f"source {sid}: tier must be 1, 2 or 3")
         if s.country not in country_codes():
             raise ValueError(f"source {sid}: unknown country {s.country!r}")
         if not re.fullmatch(r"[a-z]{2}", s.lang):

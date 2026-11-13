@@ -18,6 +18,7 @@ class Source:
     country: str  # ISO-3166 alpha-2, upper case
     lang: str  # ISO-639-1
     region: str  # one of REGIONS
+    tier: int = 3  # popularity: 1 = very widely read, 2 = major national, 3 = other
 
 
 @dataclass
@@ -36,6 +37,7 @@ class Article:
     topic: str = "general"
     title_tr: str | None = None
     title_en: str | None = None
+    source_tier: int = 3
 
 
 @dataclass
@@ -59,6 +61,7 @@ class Event:
     summary_tr: str = ""
     summary_en: str = ""
     summary_ai: bool = False
+    summary_v: int = 0  # summarize.SUMMARY_VERSION the summary was built with
 
 
 @dataclass

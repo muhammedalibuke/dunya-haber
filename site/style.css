@@ -117,3 +117,4 @@ button { font: inherit; color: inherit; }
 .m-num-ring { fill: var(--red); }
 .m-point { cursor: pointer; outline: none; }
 .m-point:focus-visible .m-hit { stroke: var(--focus); stroke-width: 2; }
+.src-total { margin: 0.75rem 0 0; font-size: 0.82rem; color: var(--faint); }

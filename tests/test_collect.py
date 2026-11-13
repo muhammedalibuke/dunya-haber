@@ -105,3 +105,9 @@ def test_non_http_links_dropped_and_relative_links_resolved():
     assert arts["Relative"].url == "https://example.com/world/story-1"
     assert arts["Relative"].image_url is None
     assert arts["Good image"].image_url == "https://cdn.example.com/a.jpg"
+
+
+def test_articles_carry_source_tier():
+    src = Source("big", "Big", "https://big.example/rss", "GB", "en", "europe", tier=1)
+    [a] = parse_feed(read("atom_basic.xml"), src, NOW)
+    assert a.source_tier == 1

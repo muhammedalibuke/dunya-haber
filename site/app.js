@@ -178,7 +178,10 @@ async function viewEvent(id) {
           el("a", { href: safeUrl(s.url), target: "_blank", rel: "noopener noreferrer" },
             el("span", { class: "src-name", text: s.name }),
             el("span", { class: "src-title", text: s.title[lang] }),
-            el("span", { class: "src-arrow", "aria-hidden": "true", text: "↗" })))))),
+            el("span", { class: "src-arrow", "aria-hidden": "true", text: "↗" }))))),
+      ev.source_total > ev.sources.length
+        ? el("p", { class: "src-total", text: t("sourceTotal", lang, { n: ev.source_total }) })
+        : null),
     footer(null));
   if (ev.location) detailMap(mapBox, ev.location);
 }

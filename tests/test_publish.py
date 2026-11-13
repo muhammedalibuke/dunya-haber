@@ -58,3 +58,20 @@ def test_write_site_data_clears_old_event_files(tmp_path):
     write_site_data(tmp_path, build_site_data(state_with_event(), ["a1"], NOW))
     assert sorted(p.name for p in (tmp_path / "events").iterdir()) == ["a1.json"]
     assert "Japonya" in (tmp_path / "today.json").read_text(encoding="utf-8")
+
+
+def test_detail_lists_top_5_sources_by_tier_and_reports_total():
+    from pipeline.publish import MAX_SOURCES_SHOWN
+    arts, ids = {}, []
+    for i in range(8):
+        a = art(f"x{i}", f"Story {i}", NOW - timedelta(hours=2, minutes=-i), source_id=f"s{i}",
+                source_name=f"S{i}")
+        a.source_tier = 1 if i in (6, 7) else (2 if i == 5 else 3)
+        arts[a.id] = a
+        ids.append(a.id)
+    e = Event("x0", ids, np.zeros(4, np.float32), NOW - timedelta(hours=2), NOW)
+    files = build_site_data(State(articles=arts, events={"x0": e}), ["x0"], NOW)
+    d = files["events/x0.json"]
+    assert MAX_SOURCES_SHOWN == 5
+    assert [s["name"] for s in d["sources"]] == ["S6", "S7", "S5", "S0", "S1"]
+    assert d["source_total"] == 8
