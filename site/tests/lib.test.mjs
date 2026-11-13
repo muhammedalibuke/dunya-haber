@@ -68,3 +68,20 @@ test("sourceTotal copy", () => {
   assert.equal(t("sourceTotal", "tr", { n: 42 }), "Bu olayı toplam 42 kaynak haberleştirdi.");
   assert.equal(t("sourceTotal", "en", { n: 42 }), "42 outlets covered this event in total.");
 });
+
+import { nextEvents } from "../lib.js";
+
+test("nextEvents: today first, unseen before seen, no current, no duplicates, max n", () => {
+  const ev = (id) => ({ id, updated_at: "2026-11-13T10:00:00Z" });
+  const today = ["a", "b", "c", "d"].map(ev);
+  const all = ["e", "b", "f", "g", "h"].map(ev);
+  const seen = { c: "2026-11-13T10:00:00Z", e: "2026-11-13T10:00:00Z" };
+  assert.deepEqual(nextEvents("a", today, all, seen, 5).map((e) => e.id), ["b", "d", "f", "g", "h"]);
+  assert.deepEqual(nextEvents("a", today, all, seen, 7).map((e) => e.id), ["b", "d", "f", "g", "h", "c", "e"]);
+  assert.deepEqual(nextEvents("z", [], [], {}, 5), []);
+});
+
+test("moreNews copy", () => {
+  assert.equal(t("moreNews", "tr"), "Diğer haberler");
+  assert.equal(t("moreNews", "en"), "More stories");
+});

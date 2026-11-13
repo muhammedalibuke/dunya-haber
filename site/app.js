@@ -1,4 +1,4 @@
-import { t, isNewDevelopment, formatAgo, formatToday, formatUpdated, safeUrl, dataDir } from "./lib.js";
+import { t, isNewDevelopment, formatAgo, formatToday, formatUpdated, safeUrl, dataDir, nextEvents } from "./lib.js";
 import { worldMap } from "./map.js";
 
 const params = new URLSearchParams(location.search);
@@ -187,6 +187,11 @@ async function viewEvent(id) {
     return;
   }
   const seen = store.get("seen", {});
+  const [today, all] = await Promise.all([
+    getJSON("today.json").catch(() => ({ events: [] })),
+    getJSON("all.json").catch(() => ({ events: [] })),
+  ]);
+  const more = nextEvents(ev.id, today.events, all.events, seen, 5);
   seen[ev.id] = ev.updated_at;
   store.set("seen", seen);
 
@@ -215,6 +220,12 @@ async function viewEvent(id) {
       ev.source_total > ev.sources.length
         ? el("p", { class: "src-total", text: t("sourceTotal", lang, { n: ev.source_total }) })
         : null),
+    more.length
+      ? el("section", { class: "more" },
+        el("h2", { class: "section", text: t("moreNews", lang) }),
+        el("ul", { class: "list" }, more.map((m) => eventRow(m, 0, now, seen))),
+        el("p", { class: "end" }, el("a", { href: "#/all", text: t("seeAll", lang) })))
+      : null,
     footer(null));
 }
 

@@ -7,6 +7,7 @@ export const STRINGS = {
     seeAll: "Tümünü gör",
     allTitle: "Tüm olaylar",
     sources: "Kaynaklar",
+    moreNews: "Diğer haberler",
     sourceTotal: "Bu olayı toplam {n} kaynak haberleştirdi.",
     sourceCount: "{n} kaynak",
     newDev: "yeni gelişme",
@@ -27,6 +28,7 @@ export const STRINGS = {
     seeAll: "See all",
     allTitle: "All events",
     sources: "Sources",
+    moreNews: "More stories",
     sourceTotal: "{n} outlets covered this event in total.",
     sourceCount: "{n} sources",
     newDev: "new development",
@@ -96,4 +98,18 @@ export function formatUpdated(iso, now, lang) {
   const day = (d) => formatToday(d, lang);
   const clock = formatClock(iso, lang);
   return day(new Date(iso)) === day(now) ? clock : `${day(new Date(iso))} ${clock}`;
+}
+
+// Stories to offer after an event page: today's list first, then the newest; unseen before seen.
+export function nextEvents(currentId, today, all, seen, n = 5) {
+  const pool = [];
+  const ids = new Set([currentId]);
+  for (const ev of [...(today || []), ...(all || [])]) {
+    if (ids.has(ev.id)) continue;
+    ids.add(ev.id);
+    pool.push(ev);
+  }
+  const unseen = pool.filter((ev) => !seen?.[ev.id]);
+  const already = pool.filter((ev) => seen?.[ev.id]);
+  return [...unseen, ...already].slice(0, n);
 }
