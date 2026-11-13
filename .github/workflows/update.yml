@@ -67,6 +67,8 @@ jobs:
           node --test site/tests/*.test.mjs
 
       - name: Run pipeline
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: python -m pipeline.run --state state --out build/data
 
       - name: Save state to the data branch

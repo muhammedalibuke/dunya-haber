@@ -20,7 +20,7 @@ from .publish import build_site_data, lead_article, write_site_data
 from .rank import select_today
 from .sources import load_sources
 from .state import load_state, prune, save_state
-from .summarize import default_summary
+from .summarize import default_summary, gemini_summary
 from .topics import TopicConfig, article_topic, event_topic, load_topic_config, prototype_vectors
 from .translate import Translator, translate_articles, translate_cached
 
@@ -41,7 +41,8 @@ class RunReport:
 
 def run(state_dir: Path, out_dir: Path, now: datetime, sources: list[Source],
         get: Callable[[str], bytes], embedder: Embedder, translator: Translator,
-        gaz: Gazetteer, topic_cfg: TopicConfig) -> RunReport:
+        gaz: Gazetteer, topic_cfg: TopicConfig, gemini_key: str | None = None,
+        post=None) -> RunReport:
     state = load_state(state_dir)
     fetched, failures = fetch_all(sources, get, now)
     new = [a for a in fetched if a.id not in state.articles]
@@ -71,6 +72,17 @@ def run(state_dir: Path, out_dir: Path, now: datetime, sources: list[Source],
     prune(state, now)
     today = select_today(state.events, state.articles, now)
     report.today = len(today)
+    if gemini_key:
+        for eid in today:
+            e = state.events[eid]
+            if e.summary_ai:
+                continue
+            arts = [state.articles[a] for a in e.article_ids if a in state.articles][:8]
+            got = gemini_summary([a.title_en or a.title for a in arts], [a.description for a in arts],
+                                 gemini_key, post=post)
+            if got:
+                e.summary_tr, e.summary_en = got
+                e.summary_ai = True
     save_state(state, state_dir)
     write_site_data(out_dir, build_site_data(state, today, now))
     return report
@@ -96,6 +108,7 @@ def main() -> None:
         translator=ArgosTranslator(Path(argos_dir) if argos_dir else None),
         gaz=Gazetteer.load(ROOT / "data" / "gazetteer.json.gz", ROOT / "config" / "place_stoplist.txt"),
         topic_cfg=load_topic_config(ROOT / "config" / "topics.yaml"),
+        gemini_key=os.environ.get("GEMINI_API_KEY") or None,
     )
     print(report.line())
     for sid, err in sorted(report.failures.items()):
