@@ -6,3 +6,6 @@ build/
 state/
 node_modules/
 .venv/
+.argos/
+.hf/
+*.egg-info/
