@@ -50,15 +50,14 @@ def test_roundtrip(tmp_path):
 
 
 def test_prune_deletes_events_7_days_after_last_article():
-    old = make_event("old", ["o1"], updated=NOW - timedelta(days=7, minutes=1))
-    keep = make_event("keep", ["k1"], updated=NOW - timedelta(days=6))
-    s = State(
-        articles={"o1": make_article("o1"), "k1": make_article("k1")},
-        events={"old": old, "keep": keep}, translations={},
-    )
+    old = make_event("old", ["o1", "o2"], updated=NOW - timedelta(days=7, minutes=1))
+    keep = make_event("keep", ["k1", "k2"], updated=NOW - timedelta(days=6))
+    arts = {i: make_article(i) for i in ("o1", "o2", "k1", "k2")}
+    arts["o2"].source_id = arts["k2"].source_id = "dw"
+    s = State(articles=arts, events={"old": old, "keep": keep}, translations={})
     prune(s, NOW)
     assert set(s.events) == {"keep"}
-    assert set(s.articles) == {"k1"}
+    assert set(s.articles) == {"k1", "k2"}
 
 
 def test_prune_drops_orphan_translations_not_needed():
@@ -84,3 +83,35 @@ def test_prune_keeps_translations_of_default_summaries():
               translations={key: {"text": "İlk cümle."}})
     prune(s, NOW)
     assert key in s.translations
+
+
+def test_prune_drops_closed_single_source_events():
+    single = make_event("s", ["s1"], updated=NOW - timedelta(hours=49))
+    s = State(articles={"s1": make_article("s1")}, events={"s": single})
+    prune(s, NOW)
+    assert s.events == {} and s.articles == {}
+
+
+def test_prune_slims_closed_multi_source_events():
+    a1, a2 = make_article("m1"), make_article("m2")
+    a2.source_id = "dw"
+    e = make_event("m", ["m1", "m2"], updated=NOW - timedelta(days=3))
+    s = State(articles={"m1": a1, "m2": a2}, events={"m": e})
+    prune(s, NOW)
+    assert s.events["m"].centroid is None
+    assert s.articles["m1"].description == "" and s.articles["m2"].description == ""
+
+
+def test_state_files_are_gzipped_and_seen_roundtrips(tmp_path):
+    s = State(articles={"a1": make_article()}, events={"a1": make_event()}, seen={"x": 20000})
+    save_state(s, tmp_path)
+    assert sorted(p.name for p in tmp_path.iterdir()) == [
+        "articles.json.gz", "events.json.gz", "seen.json.gz", "translations.json.gz"]
+    assert load_state(tmp_path).seen == {"x": 20000}
+
+
+def test_prune_forgets_seen_ids_after_14_days():
+    today = int(NOW.timestamp() // 86400)
+    s = State(seen={"old": today - 15, "new": today - 13})
+    prune(s, NOW)
+    assert s.seen == {"new": today - 13}

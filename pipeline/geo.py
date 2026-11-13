@@ -43,7 +43,8 @@ def fold(s: str) -> str:
 
 
 def _key(name: str) -> str:
-    return fold(" ".join(_norm_token(t) for t in name.split()))
+    """Index key for a gazetteer name. Apostrophes are kept, so "Smith's" never equals "Smith"."""
+    return fold(" ".join(t.rstrip(".") for t in name.split()))
 
 
 class Gazetteer:
@@ -137,8 +138,18 @@ def _collapse_per_country(cands: list[Place], gaz: "Gazetteer") -> list[Place]:
     return out
 
 
+SALIENT_POP = 1_000_000
+SALIENT_REGION_COUNTRIES = {"US"}  # US states are named constantly in world news
+
+
+def _salient(p: Place) -> bool:
+    return (p.level == "country" or p.population >= SALIENT_POP
+            or (p.level == "region" and p.country in SALIENT_REGION_COUNTRIES))
+
+
 def locate_event(titles: list[str], source_countries: list[str], gaz: Gazetteer) -> Location | None:
-    matches = [cands for t in titles for cands in gaz.find(t)]
+    found = [(ti, cands) for ti, t in enumerate(titles) for cands in gaz.find(t)]
+    matches = [cands for _, cands in found]
     if not matches:
         return None
     context = {c[0].country for c in matches if len(c) == 1}
@@ -146,23 +157,39 @@ def locate_event(titles: list[str], source_countries: list[str], gaz: Gazetteer)
 
     resolved: list[Place] = []
     unresolved: list[list[Place]] = []
-    for cands in matches:
+    title_hits: dict[Place, set[int]] = defaultdict(set)
+    for ti, cands in found:
         cands = _collapse_per_country(cands, gaz)
         if len(cands) > 1:
             pool = [p for p in cands if p.country in context] if context else []
             if not pool and fallback:
                 pool = [p for p in cands if p.country == fallback]
+            if not pool:
+                pool = [p for p in cands if _salient(p)]
             cands = pool if len(pool) == 1 else cands
         if len(cands) == 1:
             resolved.append(cands[0])
+            title_hits[cands[0]].add(ti)
         else:
             unresolved.append(cands)
 
+    # A city/region needs corroboration: a named country, the sources' country, a big
+    # population, or several headlines. Otherwise it is likely a surname or a common word.
+    mentioned = {p.country for p in resolved if p.level == "country"}
+    if mentioned:
+        resolved = [p for p in resolved if p.country in mentioned]
+
+    def corroborated(p: Place) -> bool:
+        return _salient(p) or p.country in mentioned or p.country == fallback or len(title_hits[p]) >= 2
+
+    resolved = [p for p in resolved if corroborated(p)]
     if resolved:
         counts = Counter(resolved)
         best = max(counts, key=lambda p: (counts[p], LEVEL_RANK[p.level], p.population))
         return Location(best.level, best.name, best.lat, best.lon, best.country)
 
+    if not unresolved:
+        return None
     top = Counter(tuple(c) for c in unresolved).most_common(1)[0][0]
     shared = {p.country for p in top}
     if len(shared) == 1:

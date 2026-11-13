@@ -1,8 +1,9 @@
-import { t, isNewDevelopment, formatAgo, formatToday, formatClock } from "./lib.js";
+import { t, isNewDevelopment, formatAgo, formatToday, formatUpdated, safeUrl, dataDir } from "./lib.js";
 import { worldMap, detailMap } from "./map.js";
 
 const params = new URLSearchParams(location.search);
-const DATA = params.get("data") || "data";
+const DATA = dataDir(params.get("data"));
+const CACHE_MS = 5 * 60 * 1000;
 const app = document.getElementById("app");
 
 const store = {
@@ -27,14 +28,18 @@ let lang = store.get("lang", "tr") === "en" ? "en" : "tr";
 const cache = new Map();
 
 async function getJSON(path) {
-  if (!cache.has(path)) {
-    cache.set(path, fetch(`${DATA}/${path}`, { cache: "no-cache" }).then((r) => {
-      if (!r.ok) throw new Error(`${r.status} ${path}`);
-      return r.json();
-    }));
+  const hit = cache.get(path);
+  if (!hit || Date.now() - hit.at > CACHE_MS) {
+    cache.set(path, {
+      at: Date.now(),
+      p: fetch(`${DATA}/${path}`, { cache: "no-cache" }).then((r) => {
+        if (!r.ok) throw new Error(`${r.status} ${path}`);
+        return r.json();
+      }),
+    });
   }
   try {
-    return await cache.get(path);
+    return await cache.get(path).p;
   } catch (e) {
     cache.delete(path);
     throw e;
@@ -85,7 +90,7 @@ function eventRow(ev, rank, now, seen) {
 
 function footer(generatedAt) {
   return el("footer", { class: "foot" },
-    generatedAt ? el("p", { text: t("updated", lang, { t: formatClock(generatedAt, lang) }) }) : null,
+    generatedAt ? el("p", { text: t("updated", lang, { t: formatUpdated(generatedAt, new Date(), lang) }) }) : null,
     el("p", { text: t("credits", lang) }));
 }
 
@@ -156,8 +161,8 @@ async function viewEvent(id) {
       el("a", { class: "back", href: "#/", text: `← ${t("back", lang)}` }),
       langButton()),
     el("article", { class: "detail" },
-      ev.image ? el("figure", { class: "photo" },
-        el("img", { src: ev.image.url, alt: "", loading: "lazy", referrerpolicy: "no-referrer",
+      ev.image && safeUrl(ev.image.url) ? el("figure", { class: "photo" },
+        el("img", { src: safeUrl(ev.image.url), alt: "", loading: "lazy", referrerpolicy: "no-referrer",
                     onerror: (e) => e.target.closest("figure")?.remove() }),
         el("figcaption", { text: t("photo", lang, { s: ev.image.source }) })) : null,
       el("h1", { class: "detail-title", text: ev.title[lang] }),
@@ -168,9 +173,9 @@ async function viewEvent(id) {
       summary ? el("p", { class: "summary", text: summary }) : null,
       summary && ev.summary.ai ? el("p", { class: "ai", text: t("aiSummary", lang) }) : null,
       el("h2", { class: "section", text: t("sources", lang) }),
-      el("ul", { class: "list" }, ev.sources.map((s) =>
+      el("ul", { class: "list" }, ev.sources.filter((s) => safeUrl(s.url)).map((s) =>
         el("li", { class: "row src" },
-          el("a", { href: s.url, target: "_blank", rel: "noopener noreferrer" },
+          el("a", { href: safeUrl(s.url), target: "_blank", rel: "noopener noreferrer" },
             el("span", { class: "src-name", text: s.name }),
             el("span", { class: "src-title", text: s.title[lang] }),
             el("span", { class: "src-arrow", "aria-hidden": "true", text: "↗" })))))),
@@ -193,4 +198,11 @@ async function render() {
 }
 
 window.addEventListener("hashchange", render);
+// A home-screen app can stay open for days: refresh when it comes back to the foreground.
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible") {
+    cache.clear();
+    render();
+  }
+});
 render();

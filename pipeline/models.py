@@ -51,7 +51,7 @@ class Location:
 class Event:
     id: str
     article_ids: list[str]
-    centroid: np.ndarray  # float32, L2-normalized
+    centroid: np.ndarray | None  # float32, L2-normalized; None once the event is closed
     created_at: datetime
     updated_at: datetime
     topic: str = "general"
@@ -66,3 +66,4 @@ class State:
     articles: dict[str, Article] = field(default_factory=dict)
     events: dict[str, Event] = field(default_factory=dict)
     translations: dict[str, dict[str, str]] = field(default_factory=dict)
+    seen: dict[str, int] = field(default_factory=dict)  # article id -> day first seen (days since epoch)

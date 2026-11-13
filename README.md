@@ -16,7 +16,7 @@ Adres: `https://muhammedalibuke.github.io/dunya-haber/`
 2. **Actions → check-sources → Run workflow** ile kaynakların sağlığını kontrol et (rapor, çalışmanın "Artifacts" kısmında).
 3. **Actions → update → Run workflow** ile ilk çalıştırmayı başlat. Sonrasında her 30 dakikada bir kendiliğinden çalışır.
 
-İlk çalıştırma çeviri ve vektör modellerini indirdiği için uzun sürer (15–25 dk). Sonrakiler önbellekten çalışır.
+İlk çalıştırma çeviri ve vektör modellerini indirdiği için uzun sürer. Çeviri her çalıştırmada en fazla 15 dakika yapılır; yetişmeyen çeviriler bir sonraki çalıştırmaya kalır, bu yüzden ilk birkaç çalıştırmada bazı başlıklar özgün dilinde görünebilir.
 
 ## Nasıl çalışır
 

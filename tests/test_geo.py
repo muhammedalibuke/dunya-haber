@@ -151,3 +151,43 @@ def test_city_and_its_eponymous_region_give_city():
                                   P("Budapest", "region", 47.49, 19.06, "HU", 0)])
     l = locate_event(["Leaders meet in Budapest"], ["US"], gaz)
     assert (l.level, l.name) == ("city", "Budapest")
+
+
+def test_possessive_gazetteer_names_do_not_match_surnames():
+    gaz = Gazetteer.from_entries([P("Smith's", "region", 32.3, -64.7, "BM", 0)])
+    assert locate_event(["Smith wins the vote"], ["US"], gaz) is None
+
+
+def test_uncorroborated_small_place_abroad_is_ignored():
+    gaz = Gazetteer.from_entries([P("Kennedy", "city", 4.7, -74.1, "CO", 300_000)])
+    assert locate_event(["Kennedy speaks at rally"], ["US", "US", "GB"], gaz) is None
+
+
+def test_small_place_corroborated_by_two_titles_or_sources():
+    gaz = Gazetteer.from_entries([P("Kherson", "city", 46.6, 32.6, "UA", 280_000)])
+    assert locate_event(["Shelling in Kherson", "Kherson residents flee"], ["GB", "US"], gaz).name == "Kherson"
+    assert locate_event(["Shelling in Kherson"], ["UA", "UA", "GB"], gaz).name == "Kherson"
+
+
+def test_named_country_beats_place_in_another_country():
+    gaz = Gazetteer.from_entries([P("Bolivar", "region", -1.6, -79.0, "EC", 0),
+                                  P("Venezuela", "country", 7.0, -66.0, "VE", 28_000_000)])
+    l = locate_event(["Bolivar falls as Venezuela crisis deepens"], ["GB"], gaz)
+    assert (l.level, l.country) == ("country", "VE")
+
+
+@pytest.mark.parametrize("title", [
+    "Smith wins the vote", "Army retook key City from rebels", "Kennedy speaks", "Bush library opens",
+    "Meta shares fall", "George announces tour", "Hassan meets envoy", "Gulf states meet",
+    "Mountain rescue under way", "Nelson leads poll", "Tyler signs deal", "Santos coach sacked",
+])
+def test_real_gazetteer_ignores_names_and_words(title):
+    gaz = Gazetteer.load(ROOT / "data" / "gazetteer.json.gz", ROOT / "config" / "place_stoplist.txt")
+    assert locate_event([title], ["US", "GB"], gaz) is None
+
+
+def test_ambiguous_name_with_single_salient_candidate_resolves():
+    gaz = Gazetteer.from_entries([P("Florida", "region", 28.1, -81.6, "US", 0),
+                                  P("Florida", "city", -34.1, -56.2, "UY", 120_000)])
+    l = locate_event(["Hurricane Makes Landfall In Florida"], ["US", "CA", "GB"], gaz)
+    assert (l.level, l.name, l.country) == ("region", "Florida", "US")

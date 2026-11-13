@@ -79,3 +79,19 @@ export function formatClock(iso, lang) {
     minute: "2-digit",
   }).format(new Date(iso));
 }
+
+export function safeUrl(u) {
+  if (typeof u !== "string") return null;
+  const s = u.trim();
+  return /^https?:\/\//i.test(s) ? s : null;
+}
+
+export function dataDir(param) {
+  return typeof param === "string" && /^[\w-]+$/.test(param) ? param : "data";
+}
+
+export function formatUpdated(iso, now, lang) {
+  const day = (d) => formatToday(d, lang);
+  const clock = formatClock(iso, lang);
+  return day(new Date(iso)) === day(now) ? clock : `${day(new Date(iso))} ${clock}`;
+}

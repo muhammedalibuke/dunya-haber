@@ -33,7 +33,7 @@ def test_translate_articles_fills_both_fields():
     a_ja = art("a2", "神戸で地震", NOW, lang="ja")
     translate_articles([a_en, a_ja], cache, tr)
     assert (a_en.title_tr, a_en.title_en) == ("[tr] Quake hits Kobe", "Quake hits Kobe")
-    assert (a_ja.title_tr, a_ja.title_en) == ("[tr] 神戸で地震", "[en] 神戸で地震")
+    assert (a_ja.title_tr, a_ja.title_en) == ("[tr] [en] 神戸で地震", "[en] 神戸で地震")  # pivot via English
 
 
 def test_translator_exception_falls_back_to_original():
@@ -41,3 +41,11 @@ def test_translator_exception_falls_back_to_original():
         def translate(self, text, src, tgt):
             raise RuntimeError("model crashed")
     assert translate_cached("Hello", "en", "tr", {}, Boom()) == "Hello"
+
+
+def test_exhausted_budget_leaves_fields_empty_for_next_run():
+    from pipeline.translate import Budget
+    tr, cache = FakeTranslator(), {}
+    a = art("a1", "Quake hits Kobe", NOW, lang="en")
+    translate_articles([a], cache, tr, budget=Budget(0))
+    assert (a.title_tr, a.title_en, tr.calls) == (None, None, 0)

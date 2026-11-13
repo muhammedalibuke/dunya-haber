@@ -7,24 +7,25 @@ from __future__ import annotations
 import argparse
 import os
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Callable
 
-from .cluster import assign
+from .cluster import OPEN_WINDOW_HOURS, assign
 from .collect import fetch_all, http_get
 from .embed import Embedder, embed_text
 from .geo import Gazetteer, locate_event
 from .models import Source
 from .publish import build_site_data, lead_article, write_site_data
-from .rank import select_today
+from .rank import score, select_today
 from .sources import load_sources
-from .state import load_state, prune, save_state
+from .state import epoch_day, load_state, prune, save_state
 from .summarize import default_summary, gemini_summary
 from .topics import TopicConfig, article_topic, event_topic, load_topic_config, prototype_vectors
-from .translate import Translator, translate_articles, translate_cached
+from .translate import Budget, Translator, translate_articles, translate_pair
 
 ROOT = Path(__file__).resolve().parents[1]
+TRANSLATE_BUDGET_S = 15 * 60  # leaves room for downloads, embedding and deploy in a 40-min job
 
 
 @dataclass
@@ -39,13 +40,25 @@ class RunReport:
                 f"failed_feeds={len(self.failures)} today={self.today}")
 
 
+def _sources(e, articles) -> int:
+    return len({articles[a].source_id for a in e.article_ids if a in articles})
+
+
 def run(state_dir: Path, out_dir: Path, now: datetime, sources: list[Source],
         get: Callable[[str], bytes], embedder: Embedder, translator: Translator,
         gaz: Gazetteer, topic_cfg: TopicConfig, gemini_key: str | None = None,
-        post=None) -> RunReport:
+        post=None, translate_budget_s: float = TRANSLATE_BUDGET_S) -> RunReport:
     state = load_state(state_dir)
     fetched, failures = fetch_all(sources, get, now)
-    new = [a for a in fetched if a.id not in state.articles]
+    too_old = now - timedelta(hours=OPEN_WINDOW_HOURS)
+    today_n = epoch_day(now)
+    new = []
+    for a in fetched:
+        if a.id in state.articles or a.id in state.seen:
+            continue
+        state.seen[a.id] = today_n  # remembered even after pruning: never processed twice
+        if a.published >= too_old:
+            new.append(a)
     report = RunReport(new_articles=len(new), failures=failures)
 
     if new:
@@ -54,20 +67,27 @@ def run(state_dir: Path, out_dir: Path, now: datetime, sources: list[Source],
         for a, v in zip(new, vectors):
             a.topic = article_topic(a, v, topic_cfg, protos)
             state.articles[a.id] = a
-        translate_articles(new, state.translations, translator)
         touched = assign(state.events, new, vectors, now)
         report.touched_events = len(touched)
-
         for eid in touched:
             e = state.events[eid]
-            arts = [state.articles[a] for a in e.article_ids if a in state.articles]
-            e.topic = event_topic([a.topic for a in arts])
-            e.location = locate_event([a.title_en or a.title for a in arts], [a.country for a in arts], gaz)
-            if not e.summary_ai:
-                lead = lead_article(e, state.articles)
-                text = default_summary(lead.description)
-                e.summary_tr = translate_cached(text, lead.lang, "tr", state.translations, translator)
-                e.summary_en = translate_cached(text, lead.lang, "en", state.translations, translator)
+            e.topic = event_topic([state.articles[a].topic for a in e.article_ids if a in state.articles])
+
+    # Only events that can be shown (open, ≥2 sources) get translated, located and summarized,
+    # most important first, within a time budget; leftovers are picked up by the next run.
+    shown = [e for e in state.events.values()
+             if e.updated_at >= too_old and _sources(e, state.articles) >= 2]
+    shown.sort(key=lambda e: -score(e, state.articles, now))
+    budget = Budget(translate_budget_s)
+    for e in shown:
+        arts = [state.articles[a] for a in e.article_ids if a in state.articles]
+        translate_articles(arts, state.translations, translator, budget)
+        if not e.summary_ai and not e.summary_en and not budget.exhausted:
+            lead = lead_article(e, state.articles)
+            text = default_summary(lead.description)
+            if text:
+                e.summary_tr, e.summary_en = translate_pair(text, lead.lang, state.translations, translator)
+        e.location = locate_event([a.title_en or a.title for a in arts], [a.country for a in arts], gaz)
 
     prune(state, now)
     today = select_today(state.events, state.articles, now)

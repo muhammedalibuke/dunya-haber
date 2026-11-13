@@ -37,3 +37,29 @@ test("t fills placeholders and both languages share keys", () => {
   assert.equal(t("sourceCount", "en", { n: 3 }), "3 sources");
   assert.deepEqual(Object.keys(STRINGS.tr).sort(), Object.keys(STRINGS.en).sort());
 });
+
+import { safeUrl, dataDir, formatUpdated } from "../lib.js";
+
+test("safeUrl allows only absolute http(s)", () => {
+  assert.equal(safeUrl("https://example.com/a"), "https://example.com/a");
+  assert.equal(safeUrl("http://example.com/a"), "http://example.com/a");
+  assert.equal(safeUrl("javascript:alert(1)"), null);
+  assert.equal(safeUrl(" JavaScript:alert(1)"), null);
+  assert.equal(safeUrl("data:text/html,x"), null);
+  assert.equal(safeUrl("/relative"), null);
+  assert.equal(safeUrl(undefined), null);
+});
+
+test("dataDir accepts only a plain folder name", () => {
+  assert.equal(dataDir(null), "data");
+  assert.equal(dataDir("dev-data"), "dev-data");
+  assert.equal(dataDir("https://evil.example"), "data");
+  assert.equal(dataDir("../x"), "data");
+});
+
+test("formatUpdated shows the date when data is not from today", () => {
+  const now = new Date("2026-11-14T09:00:00Z");
+  assert.equal(formatUpdated("2026-11-14T08:30:00Z", now, "tr"), "11:30");
+  assert.equal(formatUpdated("2026-11-13T19:30:00Z", now, "tr"), "13 Kasım 22:30");
+  assert.equal(formatUpdated("2026-11-13T19:30:00Z", now, "en"), "13 November 22:30");
+});

@@ -29,13 +29,22 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Restore state from the data branch
-        uses: actions/checkout@v4
-        continue-on-error: true
-        with:
-          ref: data
-          path: state
-
-      - run: mkdir -p state && rm -rf state/.git
+        run: |
+          mkdir -p state
+          set +e
+          git ls-remote --exit-code --heads origin data > /dev/null
+          code=$?
+          set -e
+          if [ "$code" -eq 0 ]; then
+            git fetch -q --depth=1 origin data
+            git --work-tree=state checkout FETCH_HEAD -- .
+            git reset -q
+          elif [ "$code" -eq 2 ]; then
+            echo "No data branch yet: starting with empty state."
+          else
+            echo "Could not reach the data branch (exit $code); refusing to start from empty state."
+            exit 1
+          fi
 
       - uses: actions/setup-python@v5
         with:
@@ -47,19 +56,34 @@ jobs:
         with:
           node-version: "22"
 
-      - name: Cache models
-        uses: actions/cache@v4
+      - name: Restore models
+        uses: actions/cache/restore@v4
         with:
           path: |
             .argos
             .hf
-          key: models-${{ hashFiles('config/sources.yaml') }}
+          key: models-${{ github.run_id }}
           restore-keys: models-
 
       - name: Install
         run: |
           pip install torch --index-url https://download.pytorch.org/whl/cpu
           pip install -e ".[ml,dev]"
+
+      - name: Install models
+        id: models
+        run: |
+          python scripts/install_models.py
+          echo "fp=$(find .argos .hf -type f -printf '%P %s\n' 2>/dev/null | sort | sha256sum | cut -c1-16)" >> "$GITHUB_OUTPUT"
+
+      - name: Save models (only when the set changed)
+        uses: actions/cache/save@v4
+        continue-on-error: true
+        with:
+          path: |
+            .argos
+            .hf
+          key: models-${{ steps.models.outputs.fp }}
 
       - name: Test
         run: |

@@ -1,7 +1,6 @@
 """Tag articles/events as sport, entertainment or general (free, offline)."""
 from __future__ import annotations
 
-import re
 from collections import Counter
 from dataclasses import dataclass
 from pathlib import Path
@@ -38,7 +37,8 @@ def prototype_vectors(cfg: TopicConfig, embedder: Embedder) -> dict[str, np.ndar
 
 def article_topic(a: Article, vector: np.ndarray, cfg: TopicConfig,
                   protos: dict[str, np.ndarray], min_sim: float = 0.45) -> str:
-    segments = {s for s in re.split(r"[/\-_.]", urlsplit(a.url).path.lower()) if s}
+    # whole path segments only: slug words ("…-people-killed-…") must not set a topic
+    segments = {s for s in urlsplit(a.url).path.lower().split("/") if s}
     for topic in TOPICS:
         if segments & set(cfg.url_keywords.get(topic, [])):
             return topic

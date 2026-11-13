@@ -89,3 +89,19 @@ def test_duplicate_urls_across_sources_deduped():
     arts, _ = fetch_all([SRC, other], pages.__getitem__, NOW)
     urls = [a.url for a in arts]
     assert len(urls) == len(set(urls))
+
+
+def test_non_http_links_dropped_and_relative_links_resolved():
+    xml = b"""<?xml version="1.0"?><rss version="2.0" xmlns:media="http://search.yahoo.com/mrss/"><channel><title>x</title>
+    <item><title>Evil</title><link>javascript:alert(1)</link></item>
+    <item><title>Data</title><link>data:text/html,hi</link></item>
+    <item><title>Relative</title><link>/world/story-1</link>
+      <media:content url="javascript:alert(2)" medium="image"/></item>
+    <item><title>Good image</title><link>https://example.com/ok</link>
+      <media:content url="//cdn.example.com/a.jpg" medium="image"/></item>
+    </channel></rss>"""
+    arts = {a.title: a for a in parse_feed(xml, SRC, NOW)}
+    assert set(arts) == {"Relative", "Good image"}
+    assert arts["Relative"].url == "https://example.com/world/story-1"
+    assert arts["Relative"].image_url is None
+    assert arts["Good image"].image_url == "https://cdn.example.com/a.jpg"

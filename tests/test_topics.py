@@ -1,3 +1,4 @@
+import pytest
 from pathlib import Path
 
 from pipeline.embed import embed_text
@@ -56,3 +57,28 @@ def test_real_config_loads():
     assert "spor" in cfg.url_keywords["sport"]
     assert "magazin" in cfg.url_keywords["entertainment"]
     assert cfg.prototypes["sport"] and cfg.prototypes["entertainment"]
+
+
+@pytest.mark.parametrize("url", [
+    "https://x.com/world/at-least-40-people-killed-in-sudan-attack",
+    "https://x.com/news/thousands-of-people-flee-floods",
+    "https://x.com/politics/sports-minister-resigns-over-scandal",
+    "https://x.com/world/vip-flight-crash-kills-12",
+    "https://x.com/people/2026/11/13/story",
+])
+def test_slug_words_do_not_set_topic(url):
+    real = load_topic_config(ROOT / "config" / "topics.yaml")
+    a = art("a", "Something happened", NOW, url=url)
+    assert article_topic(a, EMB.encode([embed_text(a)])[0], real, PROTOS) == "general"
+
+
+def test_section_segment_still_sets_topic():
+    real = load_topic_config(ROOT / "config" / "topics.yaml")
+    a = art("a", "Late winner", NOW, url="https://x.com/sports/football/late-winner")
+    assert article_topic(a, EMB.encode([embed_text(a)])[0], real, PROTOS) == "sport"
+
+
+def test_real_config_has_no_ambiguous_section_words():
+    cfg = load_topic_config(ROOT / "config" / "topics.yaml")
+    for word in ("people", "vip", "lifestyle"):
+        assert word not in cfg.url_keywords["entertainment"]

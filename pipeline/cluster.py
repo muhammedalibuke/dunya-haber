@@ -26,7 +26,7 @@ def assign(
 ) -> set[str]:
     known = {aid for e in events.values() for aid in e.article_ids}
     cutoff = now - timedelta(hours=window_hours)
-    open_ids = [eid for eid, e in events.items() if e.updated_at >= cutoff]
+    open_ids = [eid for eid, e in events.items() if e.updated_at >= cutoff and e.centroid is not None]
     touched: set[str] = set()
 
     order = sorted(range(len(articles)), key=lambda i: articles[i].published)

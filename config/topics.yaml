@@ -1,8 +1,8 @@
 # Topic tagging. Sport and entertainment events are kept out of the "today" list.
-# url_keywords match whole URL path segments (split on / - _).
+# url_keywords match whole URL path segments (between slashes), e.g. /sport/ or /magazin/.
 url_keywords:
   sport: [sport, sports, spor, deportes, deporte, esportes, esporte, football, futbol, futebol, soccer, calcio, fussball, nba, nfl, f1, formula1, tennis, cricket, rugby, golf, olympics]
-  entertainment: [entertainment, showbiz, celebrity, celebrities, magazin, gossip, unluler, ünlüler, lifestyle, people, famosos, vip]
+  entertainment: [entertainment, showbiz, celebrity, celebrities, magazin, gossip, unluler, ünlüler, famosos]
 tag_keywords:
   sport: [sport, sports, spor, football, soccer, futbol, deportes, cricket, tennis, basketball, formula 1, rugby]
   entertainment: [entertainment, showbiz, celebrity, celebrities, magazin, gossip, ünlüler, famosos]

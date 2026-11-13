@@ -84,4 +84,4 @@ def test_e2e_first_run_empty_state_and_no_today(tmp_path):
     assert rep.today == 0 and set(rep.failures) == {"bbc", "aa"}
     assert load(tmp_path, "today.json")["events"] == []
     assert load(tmp_path, "all.json")["events"] == []
-    assert (tmp_path / "state" / "events.json").exists()
+    assert (tmp_path / "state" / "events.json.gz").exists()

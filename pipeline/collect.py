@@ -8,7 +8,7 @@ import re
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timedelta, timezone
 from typing import Callable
-from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
+from urllib.parse import parse_qsl, urlencode, urljoin, urlsplit, urlunsplit
 
 import feedparser
 
@@ -62,18 +62,29 @@ def _published(entry, fetched_at: datetime) -> datetime:
     return dt
 
 
-def _image(entry) -> str | None:
+def safe_http_url(url: str | None, base: str) -> str | None:
+    """Resolve against the feed URL; anything that is not http(s) is rejected."""
+    if not url:
+        return None
+    full = urljoin(base, url.strip())
+    return full if urlsplit(full).scheme.lower() in ("http", "https") else None
+
+
+def _image(entry, base: str) -> str | None:
+    candidates = []
     for m in entry.get("media_content") or []:
-        url = m.get("url")
         kind = (m.get("medium") or m.get("type") or "image").lower()
-        if url and kind.startswith("image"):
-            return url
-    for m in entry.get("media_thumbnail") or []:
-        if m.get("url"):
-            return m["url"]
-    for link in entry.get("links") or []:
-        if link.get("rel") == "enclosure" and (link.get("type") or "").startswith("image/"):
-            return link.get("href")
+        if kind.startswith("image"):
+            candidates.append(m.get("url"))
+    candidates += [m.get("url") for m in entry.get("media_thumbnail") or []]
+    candidates += [
+        link.get("href") for link in entry.get("links") or []
+        if link.get("rel") == "enclosure" and (link.get("type") or "").startswith("image/")
+    ]
+    for c in candidates:
+        safe = safe_http_url(c, base)
+        if safe:
+            return safe
     return None
 
 
@@ -84,7 +95,7 @@ def parse_feed(content: bytes, source: Source, fetched_at: datetime) -> list[Art
     out: list[Article] = []
     for e in parsed.entries:
         title = clean_text(e.get("title", ""), max_chars=300)
-        link = e.get("link") or ""
+        link = safe_http_url(e.get("link"), source.url)
         if not title or not link:
             continue
         url = canonical_url(link)
@@ -98,7 +109,7 @@ def parse_feed(content: bytes, source: Source, fetched_at: datetime) -> list[Art
             country=source.country,
             lang=source.lang,
             published=_published(e, fetched_at),
-            image_url=_image(e),
+            image_url=_image(e, source.url),
             tags=[t["term"].strip().lower() for t in e.get("tags") or [] if t.get("term")],
         ))
     return out
