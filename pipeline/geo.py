@@ -139,6 +139,7 @@ def _collapse_per_country(cands: list[Place], gaz: "Gazetteer") -> list[Place]:
 
 
 SALIENT_POP = 1_000_000
+MIN_TITLE_SHARE = 0.2  # a place named in only a few of many headlines is a side mention
 SALIENT_REGION_COUNTRIES = {"US"}  # US states are named constantly in world news
 
 
@@ -182,10 +183,16 @@ def locate_event(titles: list[str], source_countries: list[str], gaz: Gazetteer)
     def corroborated(p: Place) -> bool:
         return _salient(p) or p.country in mentioned or p.country == fallback or len(title_hits[p]) >= 2
 
+    def well_supported(cc: str) -> bool:
+        support = {ti for ti, cands in found if any(p.country == cc for p in cands)}
+        return len(support) >= MIN_TITLE_SHARE * len(titles)
+
     resolved = [p for p in resolved if corroborated(p)]
     if resolved:
         counts = Counter(resolved)
         best = max(counts, key=lambda p: (counts[p], LEVEL_RANK[p.level], p.population))
+        if not well_supported(best.country):
+            return None
         return Location(best.level, best.name, best.lat, best.lon, best.country)
 
     if not unresolved:
@@ -195,7 +202,7 @@ def locate_event(titles: list[str], source_countries: list[str], gaz: Gazetteer)
     if len(shared) == 1:
         cc = shared.pop()
         country = gaz.countries.get(cc)
-        if country:
+        if country and well_supported(cc):
             return Location("country", country.name, country.lat, country.lon, cc)
     return None
 

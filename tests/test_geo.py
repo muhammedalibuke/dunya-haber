@@ -10,6 +10,7 @@ ROOT = Path(__file__).resolve().parents[1]
 P = Place
 ENTRIES = [
     P("Japan", "country", 36.0, 138.0, "JP", 125_000_000),
+    P("India", "country", 22.0, 79.0, "IN", 1_400_000_000),
     P("Kobe", "city", 34.69, 135.19, "JP", 1_500_000),
     P("Tokyo", "city", 35.68, 139.69, "JP", 9_000_000),
     P("Oregon", "region", 44.0, -120.5, "US", 0),
@@ -191,3 +192,14 @@ def test_ambiguous_name_with_single_salient_candidate_resolves():
                                   P("Florida", "city", -34.1, -56.2, "UY", 120_000)])
     l = locate_event(["Hurricane Makes Landfall In Florida"], ["US", "CA", "GB"], gaz)
     assert (l.level, l.name, l.country) == ("region", "Florida", "US")
+
+
+def test_global_event_with_scattered_mentions_has_no_location():
+    titles = [f"Global Microsoft outage hits users ({i})" for i in range(18)] + \
+             ["Outage disrupts services in India", "Japan banks hit by Microsoft outage"]
+    assert locate_event(titles, ["GB", "US", "DK"], GAZ) is None
+
+
+def test_location_supported_by_enough_titles_is_kept():
+    titles = ["Pope arrives in Kobe", "Crowds greet pope", "Kobe welcomes pope", "Pope mass draws million"]
+    assert locate_event(titles, ["GB", "US"], GAZ).name == "Kobe"
