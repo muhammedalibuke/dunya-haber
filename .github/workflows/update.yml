@@ -1,9 +1,10 @@
 name: update
 
 on:
+  # Main trigger: cron-job.org calls workflow_dispatch every 10 minutes (on time, unlike
+  # GitHub's scheduler). This hourly schedule is only a backup if that service stops.
   schedule:
-    # every 10 minutes, away from the top of the hour (GitHub delays schedules most at :00)
-    - cron: "7,17,27,37,47,57 * * * *"
+    - cron: "37 * * * *"
   workflow_dispatch:
 
 permissions:

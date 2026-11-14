@@ -14,7 +14,7 @@ Adres: `https://muhammedalibuke.github.io/dunya-haber/`
 
 1. **Settings → Pages → Build and deployment → Source: GitHub Actions** seç.
 2. **Actions → check-sources → Run workflow** ile kaynakların sağlığını kontrol et (rapor, çalışmanın "Artifacts" kısmında).
-3. **Actions → update → Run workflow** ile ilk çalıştırmayı başlat. Sonrasında yaklaşık 10 dakikada bir kendiliğinden çalışır (GitHub yoğun saatlerde birkaç dakika geciktirebilir).
+3. **Actions → update → Run workflow** ile ilk çalıştırmayı başlat. Sonrasında cron-job.org her 10 dakikada bir `update` çalışmasını başlatır (GitHub API'si üzerinden, yalnızca bu depoda Actions izni olan bir anahtarla; anahtarın süresi 10 Kasım 2027'de doluyor, yenilenmeli). GitHub'ın kendi zamanlayıcısı saatte bir yedek olarak çalışır.
 
 İlk çalıştırma çeviri ve vektör modellerini indirdiği için uzun sürer. Çeviri her çalıştırmada en fazla 8 dakika yapılır; yetişmeyen çeviriler bir sonraki çalıştırmaya kalır, bu yüzden ilk birkaç çalıştırmada bazı başlıklar özgün dilinde görünebilir.
 
