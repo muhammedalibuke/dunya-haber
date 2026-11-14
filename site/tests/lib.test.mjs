@@ -85,3 +85,11 @@ test("moreNews copy", () => {
   assert.equal(t("moreNews", "tr"), "Diğer haberler");
   assert.equal(t("moreNews", "en"), "More stories");
 });
+
+test("nextEvents lists newest first within unseen and seen groups", () => {
+  const ev = (id, h) => ({ id, updated_at: new Date(Date.UTC(2026, 10, 14, h)).toISOString() });
+  const today = [ev("a", 1), ev("b", 3)];
+  const all = [ev("c", 5), ev("d", 2), ev("e", 4)];
+  const seen = { e: "x" };
+  assert.deepEqual(nextEvents("z", today, all, seen, 5).map((e) => e.id), ["c", "b", "d", "a", "e"]);
+});

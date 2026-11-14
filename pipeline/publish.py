@@ -120,9 +120,11 @@ def build_site_data(state: State, today_ids: list[str], now: datetime) -> dict[s
     listed = listed[:ALL_MAX]
     detail_ids = {e.id for e in listed} | set(today_ids)
     stamp = now.isoformat()
+    # importance decides WHICH events are in today's list; they are shown newest first
+    today = sorted((state.events[i] for i in today_ids), key=lambda e: (e.updated_at, e.id), reverse=True)
     files: dict[str, object] = {
         "today.json": {"generated_at": stamp,
-                       "events": [event_summary(state.events[i], arts) for i in today_ids]},
+                       "events": [event_summary(e, arts) for e in today]},
         "all.json": {"generated_at": stamp, "events": [event_summary(e, arts) for e in listed]},
     }
     for eid in sorted(detail_ids):

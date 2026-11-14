@@ -100,7 +100,7 @@ export function formatUpdated(iso, now, lang) {
   return day(new Date(iso)) === day(now) ? clock : `${day(new Date(iso))} ${clock}`;
 }
 
-// Stories to offer after an event page: today's list first, then the newest; unseen before seen.
+// Stories to offer after an event page: newest first, unread before read.
 export function nextEvents(currentId, today, all, seen, n = 5) {
   const pool = [];
   const ids = new Set([currentId]);
@@ -109,6 +109,7 @@ export function nextEvents(currentId, today, all, seen, n = 5) {
     ids.add(ev.id);
     pool.push(ev);
   }
+  pool.sort((a, b) => Date.parse(b.updated_at) - Date.parse(a.updated_at));
   const unseen = pool.filter((ev) => !seen?.[ev.id]);
   const already = pool.filter((ev) => seen?.[ev.id]);
   return [...unseen, ...already].slice(0, n);

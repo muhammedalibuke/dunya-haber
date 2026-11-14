@@ -94,3 +94,15 @@ def test_detail_lists_top_5_sources_by_tier_and_reports_total():
     assert MAX_SOURCES_SHOWN == 5
     assert [s["name"] for s in d["sources"]] == ["S6", "S7", "S5", "S0", "S1"]
     assert d["source_total"] == 8
+
+
+def test_today_list_is_newest_first_whatever_the_importance_order():
+    arts, events = {}, {}
+    for i, hours in enumerate([5, 1, 3]):
+        a1 = art(f"a{i}", f"Story {i}", NOW - timedelta(hours=hours), source_id=f"x{i}")
+        a2 = art(f"b{i}", f"Story {i}", NOW - timedelta(hours=hours), source_id=f"y{i}")
+        arts.update({a1.id: a1, a2.id: a2})
+        t = NOW - timedelta(hours=hours)
+        events[f"e{i}"] = Event(f"e{i}", [a1.id, a2.id], np.zeros(4, np.float32), t, t)
+    files = build_site_data(State(articles=arts, events=events), ["e0", "e1", "e2"], NOW)
+    assert [e["id"] for e in files["today.json"]["events"]] == ["e1", "e2", "e0"]
