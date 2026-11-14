@@ -111,10 +111,10 @@ function photos(images) {
   return { hero, thumbs: buttons.length ? el("div", { class: "thumbs" }, buttons) : null };
 }
 
-function eventRow(ev, rank, now, seen) {
+function eventRow(ev, rank, now, seen, timeField = "updated_at") {
   const meta = el("span", { class: "meta" },
     el("span", { text: placeName(ev) }),
-    el("span", { text: formatAgo(ev.updated_at, now, lang) }),
+    el("span", { text: formatAgo(ev[timeField] || ev.updated_at, now, lang) }),
     isNewDevelopment(ev, seen) ? el("span", { class: "new", text: t("newDev", lang) }) : null);
   return el("li", { class: "row" },
     el("a", { href: `#/e/${encodeURIComponent(ev.id)}` },
@@ -170,7 +170,7 @@ async function viewAll() {
       el("h1", { class: "page-title", text: t("allTitle", lang) }),
       langButton()),
     data.events.length
-      ? el("ul", { class: "list" }, data.events.map((ev) => eventRow(ev, 0, now, seen)))
+      ? el("ul", { class: "list" }, data.events.map((ev) => eventRow(ev, 0, now, seen, "created_at")))
       : message(t("quiet", lang)),
     footer(data.generated_at));
 }

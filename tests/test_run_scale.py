@@ -125,3 +125,13 @@ def test_stored_articles_get_current_source_tier(tmp_path):
     go(tmp_path, pages, NOW + timedelta(minutes=30), sources=(big, TR, JP))
     [a] = load_state(tmp_path / "state").articles.values()
     assert a.source_tier == 1
+
+
+def test_breaking_single_source_from_big_outlet_is_translated(tmp_path):
+    from pipeline.models import Source
+    big = Source(GB.id, GB.name, GB.url, GB.country, GB.lang, GB.region, tier=1)
+    t = NOW - timedelta(minutes=5)
+    pages = {GB.url: rss([item("Quake hits Kobe", "https://bbc.example/q", t, "A strong quake.")]),
+             TR.url: rss([]), JP.url: rss([])}
+    _, tr = go(tmp_path, pages, NOW, sources=(big, TR, JP))
+    assert ("en", "tr", "Quake hits Kobe") in tr.pairs

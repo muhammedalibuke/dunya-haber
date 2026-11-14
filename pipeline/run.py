@@ -16,8 +16,8 @@ from .collect import ConditionalGetter, fetch_all
 from .embed import Embedder, embed_text
 from .geo import Gazetteer, locate_event
 from .models import Source
-from .publish import build_site_data, write_site_data
-from .rank import score, select_today
+from .publish import build_site_data, listable, write_site_data
+from .rank import select_today
 from .sources import load_sources
 from .state import epoch_day, load_state, prune, save_state
 from .summarize import SUMMARY_VERSION, combined_summary, gemini_summary
@@ -56,10 +56,6 @@ def build_summary(e, arts, embedder, cache, translator) -> None:
     e.summary_v = SUMMARY_VERSION
 
 
-def _sources(e, articles) -> int:
-    return len({articles[a].source_id for a in e.article_ids if a in articles})
-
-
 def run(state_dir: Path, out_dir: Path, now: datetime, sources: list[Source],
         get: Callable[[str], bytes], embedder: Embedder, translator: Translator,
         gaz: Gazetteer, topic_cfg: TopicConfig, gemini_key: str | None = None,
@@ -94,9 +90,10 @@ def run(state_dir: Path, out_dir: Path, now: datetime, sources: list[Source],
 
     # Only events that can be shown (open, ≥2 sources) get translated, located and summarized,
     # most important first, within a time budget; leftovers are picked up by the next run.
-    shown = [e for e in state.events.values()
-             if e.updated_at >= too_old and _sources(e, state.articles) >= 2]
-    shown.sort(key=lambda e: -score(e, state.articles, now))
+    shown = [e for e in state.events.values() if listable(e, state.articles, now)]
+    first = set(select_today(state.events, state.articles, now))
+    # today's important events first, then the newest stories (breaking news) first
+    shown.sort(key=lambda e: (e.id not in first, -e.created_at.timestamp()))
     budget = Budget(translate_budget_s)
     for e in shown:
         arts = [state.articles[a] for a in e.article_ids if a in state.articles]

@@ -4,8 +4,8 @@ export const STRINGS = {
   tr: {
     todayCount: "Bugün {n} önemli olay",
     end: "Bugünlük bu kadar.",
-    seeAll: "Tümünü gör",
-    allTitle: "Tüm olaylar",
+    seeAll: "Son haberler",
+    allTitle: "Son haberler",
     sources: "Kaynaklar",
     moreNews: "Diğer haberler",
     sourceTotal: "Bu olayı toplam {n} kaynak haberleştirdi.",
@@ -25,8 +25,8 @@ export const STRINGS = {
   en: {
     todayCount: "{n} key events today",
     end: "That's all for today.",
-    seeAll: "See all",
-    allTitle: "All events",
+    seeAll: "Latest news",
+    allTitle: "Latest news",
     sources: "Sources",
     moreNews: "More stories",
     sourceTotal: "{n} outlets covered this event in total.",

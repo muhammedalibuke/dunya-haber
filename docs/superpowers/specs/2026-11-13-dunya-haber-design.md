@@ -63,7 +63,7 @@ Bu uygulama haberleri **olay** etrafında birleştirir ve sakin, bitirilebilir b
 ## 7. Kullanıcının verdiği kararlar
 
 - **Ana ekran "Günün özeti":** O günün en önemli 5–10 olayı (seçim öneme göre), en yeniden en eskiye sıralı (14 Kasım, kullanıcı isteği), numaralı ve tek satır başlık halinde. Altında ülke ve kaynak sayısı. Sonda "Bugünlük bu kadar · Tümünü gör" yazar.
-- **"Tümünü gör" sakin liste:** Bütün olaylar alt alta. Sadece küçük meta satırı (ülke · zaman), başlık ve kaynak sayısı. Bol boşluk, ince ayraçlar, görsel yok.
+- **"Son haberler" (14 Kasım; eski adı "Tümünü gör"):** Son 3 saatte ilk kez ortaya çıkan haberler, ilk çıkış zamanına göre en yeniden eskiye (sakin saatlerde en az 30 haber). En az 2 kaynağın yazdığı olaylar ve tek kaynakta çıkmış olsa bile büyük sitelerin (tier 1–2) haberleri. Eski açıklama: **"Tümünü gör" sakin liste:** Bütün olaylar alt alta. Sadece küçük meta satırı (ülke · zaman), başlık ve kaynak sayısı. Bol boşluk, ince ayraçlar, görsel yok.
 - **Kartlı tasarım (iki satır özetli kartlar) kesinlikle yok.** Kullanıcı bunu açıkça reddetti.
 - **Olay detayı:** En üstte tek bir büyük fotoğraf. Altında başlık, ülke ve zaman, birkaç kaynaktan derlenmiş 5–6 cümlelik özet. En altta kaynak listesi: en çok okunan en fazla 5 kaynak (popülerlik sırası `sources.yaml` içindeki `tier` alanıyla, 1–3), her biri için kaynak adı, o kaynağın kendi başlığı ve orijinal habere giden bağlantı (↗). Altında "Bu olayı toplam N kaynak haberleştirdi" satırı. (13 Kasım güncellemesi, kullanıcı isteği.)
 - **Diğer haberler (14 Kasım):** Olay sayfasının sonunda en fazla 5 başka haber: önce günün özetindekiler, sonra en yeniler; açılmamış olanlar önce. Altında "Tümünü gör".

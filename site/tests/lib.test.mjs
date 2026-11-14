@@ -93,3 +93,9 @@ test("nextEvents lists newest first within unseen and seen groups", () => {
   const seen = { e: "x" };
   assert.deepEqual(nextEvents("z", today, all, seen, 5).map((e) => e.id), ["c", "b", "d", "a", "e"]);
 });
+
+test("latest-news copy", () => {
+  assert.equal(t("seeAll", "tr"), "Son haberler");
+  assert.equal(t("allTitle", "tr"), "Son haberler");
+  assert.equal(t("allTitle", "en"), "Latest news");
+});

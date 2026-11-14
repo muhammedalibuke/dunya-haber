@@ -11,10 +11,12 @@ from .geo import country_of_event
 from .models import Article, Event, State
 
 OPEN_WINDOW = timedelta(hours=48)
-ALL_MAX = 300
+LATEST_WINDOW = timedelta(hours=3)  # "Son haberler": stories that first appeared this recently
+LATEST_MIN = 30  # quiet hours: fill up with older stories
+LATEST_MAX = 150
+SINGLE_SOURCE_MAX_TIER = 2  # breaking news seen in one outlet is listed only if it's a big one
 MAX_SOURCES_SHOWN = 5  # most widely read outlets only; the rest still count toward ranking
 MAX_IMAGES = 4
-MIN_SOURCES_ALL = 2
 
 
 @lru_cache(maxsize=512)
@@ -87,6 +89,7 @@ def event_summary(event: Event, articles: dict[str, Article]) -> dict:
         "country": {"code": cc, "name": country_name(cc)},
         "source_count": len({a.source_id for a in arts}),
         "updated_at": event.updated_at.isoformat(),
+        "created_at": event.created_at.isoformat(),
         "topic": event.topic,
         "location": _location(event),
     }
@@ -109,15 +112,27 @@ def event_detail(event: Event, articles: dict[str, Article]) -> dict:
     }
 
 
+def listable(event: Event, articles: dict[str, Article], now: datetime) -> bool:
+    """Open, and either covered by ≥2 outlets or by one widely read outlet."""
+    if event.updated_at < now - OPEN_WINDOW:
+        return False
+    arts = [articles[a] for a in event.article_ids if a in articles]
+    n = len({a.source_id for a in arts})
+    return n >= 2 or (n == 1 and min(a.source_tier for a in arts) <= SINGLE_SOURCE_MAX_TIER)
+
+
+def latest_events(state: State, now: datetime) -> list[Event]:
+    cands = [e for e in state.events.values() if listable(e, state.articles, now)]
+    cands.sort(key=lambda e: (e.created_at, e.id), reverse=True)
+    fresh = [e for e in cands if e.created_at >= now - LATEST_WINDOW]
+    if len(fresh) < LATEST_MIN:
+        fresh = cands[:LATEST_MIN]
+    return fresh[:LATEST_MAX]
+
+
 def build_site_data(state: State, today_ids: list[str], now: datetime) -> dict[str, object]:
     arts = state.articles
-    listed = [
-        e for e in state.events.values()
-        if e.updated_at >= now - OPEN_WINDOW
-        and len({arts[a].source_id for a in e.article_ids if a in arts}) >= MIN_SOURCES_ALL
-    ]
-    listed.sort(key=lambda e: (e.updated_at, e.id), reverse=True)
-    listed = listed[:ALL_MAX]
+    listed = latest_events(state, now)
     detail_ids = {e.id for e in listed} | set(today_ids)
     stamp = now.isoformat()
     # importance decides WHICH events are in today's list; they are shown newest first

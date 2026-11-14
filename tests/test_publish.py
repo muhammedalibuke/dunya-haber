@@ -28,7 +28,7 @@ def test_build_site_data_shapes():
     today = files["today.json"]
     assert today["generated_at"] == NOW.isoformat()
     [s] = today["events"]
-    assert set(s) == {"id", "title", "country", "source_count", "updated_at", "topic", "location"}
+    assert set(s) == {"id", "title", "country", "source_count", "updated_at", "created_at", "topic", "location"}
     assert s["title"] == {"tr": "Deprem Kobe'yi vurdu", "en": "Quake hits Kobe"}  # English source preferred
     assert s["country"] == {"code": "JP", "name": {"tr": "Japonya", "en": "Japan"}}
     assert s["source_count"] == 2
@@ -106,3 +106,40 @@ def test_today_list_is_newest_first_whatever_the_importance_order():
         events[f"e{i}"] = Event(f"e{i}", [a1.id, a2.id], np.zeros(4, np.float32), t, t)
     files = build_site_data(State(articles=arts, events=events), ["e0", "e1", "e2"], NOW)
     assert [e["id"] for e in files["today.json"]["events"]] == ["e1", "e2", "e0"]
+
+
+def _latest_state():
+    arts, events = {}, {}
+
+    def add(eid, minutes_ago, tiers):
+        ids = []
+        t = NOW - timedelta(minutes=minutes_ago)
+        for k, tier in enumerate(tiers):
+            a = art(f"{eid}-{k}", f"Story {eid}", t, source_id=f"{eid}src{k}")
+            a.source_tier = tier
+            arts[a.id] = a
+            ids.append(a.id)
+        events[eid] = Event(eid, ids, np.zeros(4, np.float32), t, NOW - timedelta(minutes=1))
+
+    add("old_big", 20 * 60, [1, 2, 3])      # started 20 h ago, just updated
+    add("fresh_single_big", 5, [1])         # breaking news from a big outlet
+    add("fresh_single_small", 4, [3])       # one small site only: noise
+    add("fresh_multi", 30, [3, 3])
+    add("two_hours", 120, [2, 3])
+    return State(articles=arts, events=events)
+
+
+def test_latest_list_is_by_first_appearance_and_includes_big_single_source():
+    from pipeline.publish import LATEST_MIN
+    files = build_site_data(_latest_state(), [], NOW)
+    ids = [e["id"] for e in files["all.json"]["events"]]
+    assert ids[:3] == ["fresh_single_big", "fresh_multi", "two_hours"]
+    assert "fresh_single_small" not in ids
+    assert files["all.json"]["events"][0]["created_at"] == (NOW - timedelta(minutes=5)).isoformat()
+    assert "events/fresh_single_big.json" in files
+    assert LATEST_MIN == 30
+
+
+def test_latest_list_fills_quiet_hours_with_older_stories():
+    files = build_site_data(_latest_state(), [], NOW)
+    assert "old_big" in [e["id"] for e in files["all.json"]["events"]]  # < 30 fresh, so older fill in
