@@ -130,6 +130,13 @@ def latest_events(state: State, now: datetime) -> list[Event]:
     return fresh[:LATEST_MAX]
 
 
+def published_events(state: State, today_ids: list[str], now: datetime) -> list[Event]:
+    """Every event the site shows (today's list + latest news): the only ones worth translating."""
+    out = [state.events[i] for i in today_ids if i in state.events]
+    seen = {e.id for e in out}
+    return out + [e for e in latest_events(state, now) if e.id not in seen]
+
+
 def build_site_data(state: State, today_ids: list[str], now: datetime) -> dict[str, object]:
     arts = state.articles
     listed = latest_events(state, now)

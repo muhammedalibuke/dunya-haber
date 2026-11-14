@@ -16,7 +16,7 @@ from .collect import ConditionalGetter, fetch_all
 from .embed import Embedder, embed_text
 from .geo import Gazetteer, locate_event
 from .models import Source
-from .publish import build_site_data, listable, write_site_data
+from .publish import build_site_data, published_events, write_site_data
 from .rank import select_today
 from .sources import load_sources
 from .state import epoch_day, load_state, prune, save_state
@@ -90,10 +90,8 @@ def run(state_dir: Path, out_dir: Path, now: datetime, sources: list[Source],
 
     # Only events that can be shown (open, ≥2 sources) get translated, located and summarized,
     # most important first, within a time budget; leftovers are picked up by the next run.
-    shown = [e for e in state.events.values() if listable(e, state.articles, now)]
-    first = set(select_today(state.events, state.articles, now))
-    # today's important events first, then the newest stories (breaking news) first
-    shown.sort(key=lambda e: (e.id not in first, -e.created_at.timestamp()))
+    # only what the site will show: today's important events first, then the newest stories
+    shown = published_events(state, select_today(state.events, state.articles, now), now)
     budget = Budget(translate_budget_s)
     for e in shown:
         arts = [state.articles[a] for a in e.article_ids if a in state.articles]

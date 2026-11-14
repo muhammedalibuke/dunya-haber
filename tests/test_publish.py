@@ -143,3 +143,17 @@ def test_latest_list_is_by_first_appearance_and_includes_big_single_source():
 def test_latest_list_fills_quiet_hours_with_older_stories():
     files = build_site_data(_latest_state(), [], NOW)
     assert "old_big" in [e["id"] for e in files["all.json"]["events"]]  # < 30 fresh, so older fill in
+
+
+def test_published_events_are_today_plus_latest_only():
+    from pipeline.publish import published_events
+    st = _latest_state()
+    # make the fresh list long enough that older stories are not needed as filler
+    for i in range(30):
+        t = NOW - timedelta(minutes=10 + i)
+        a, b = art(f"f{i}a", "x", t, source_id=f"fa{i}"), art(f"f{i}b", "x", t, source_id=f"fb{i}")
+        st.articles.update({a.id: a, b.id: b})
+        st.events[f"f{i}"] = Event(f"f{i}", [a.id, b.id], np.zeros(4, np.float32), t, t)
+    ids = {e.id for e in published_events(st, ["two_hours"], NOW)}
+    assert "old_big" not in ids and "fresh_single_small" not in ids
+    assert {"fresh_single_big", "fresh_multi", "two_hours", "f0"} <= ids
