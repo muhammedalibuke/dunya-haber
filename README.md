@@ -3,7 +3,8 @@
 Dünyada bugün olan önemli olayları tek, sade bir sayfada gösteren kişisel haber uygulaması.
 
 - Aynı olayı yazan haberler (farklı dillerde bile) **tek bir olayda** birleşir.
-- Ana ekranda günün en önemli **5–10 olayı** ve bir **dünya haritası** var. Liste bitirilebilir.
+- Ana ekranda günün en önemli **10–20 olayı** ve bir **dünya haritası** var. Liste bitirilebilir.
+- Sıralama ve tazelik, haberin **ilk çıktığı zamana** göre hesaplanır: başka bir site aynı haberi sonradan yayınlarsa haber yukarı çıkmaz. Aynı başlıkla yeniden yayınlanan ajans haberleri (AFP, Reuters vb.) yeni olay açmaz, eski olaya eklenir.
 - Her olayda kaynakların listesi ve **orijinal habere doğrudan bağlantı** bulunur.
 - Türkçe ve İngilizce. Spor ve magazin günün özetine girmez, "Tümünü gör" listesinde görünür.
 - **Ücretsiz:** GitHub Actions yaklaşık 10 dakikada bir haberleri toplar, site GitHub Pages'te yayınlanır.
@@ -34,6 +35,7 @@ Durum (olaylar, çeviri önbelleği) `data` dalında JSON olarak saklanır. Bu d
 - **Yanlış eşleşen yer adı:** `config/place_stoplist.txt` dosyasına ekle.
 - **Benzer haberlerin birleşme hassasiyeti:** `pipeline/cluster.py` içindeki `CLUSTER_THRESHOLD` (şu an 0,72). İlk gerçek çalıştırmada (13 Kasım 2026, 4.119 haber) bu değerle 10'dan fazla dildeki aynı haberler doğru birleşti ve farklı olaylar karışmadı. Yükseltirsen daha az birleşir, düşürürsen daha çok.
 - **Yerelde önizleme:** `python scripts/make_dev_data.py`, sonra `python -m http.server` ve `http://localhost:8000/site/?data=dev-data`.
+- **Ana ekrandaki olay sayısı:** `pipeline/rank.py` içindeki `select_today` (`min_n=10`, `max_n=20`, `rel_cutoff=0,3`).
 - **Testler:** `pytest` ve `npm test`.
 
 ## İsteğe bağlı: yapay zekâ özeti

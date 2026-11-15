@@ -80,3 +80,45 @@ def test_updated_at_never_moves_backwards():
     a = art("a1", "Late-published quake piece", NOW - timedelta(hours=2))
     assign(events, [a], vecs([a]), NOW)
     assert events["e1"].updated_at == NOW - timedelta(hours=1)
+
+
+WIRE = "Triumphant Democrats descend on COP31 snubbed by Trump"
+
+
+def _existing(created, centroid=True):
+    first = art("orig", WIRE, created, source_id="france24")
+    e = Event("orig", ["orig"], unit(axis(0)) if centroid else None, created, created)
+    return {"orig": e}, {"orig": first}
+
+
+def test_republished_wire_story_joins_its_event_even_if_vectors_differ():
+    events, known = _existing(NOW - timedelta(hours=3))
+    copy = art("copy", "  triumphant democrats descend on COP31, snubbed by Trump. ", NOW, source_id="vanguard")
+    assign(events, [copy], unit([[0] * 15 + [1]]).reshape(1, -1), NOW, existing=known)
+    assert len(events) == 1
+    assert events["orig"].article_ids == ["orig", "copy"]
+    assert events["orig"].created_at == NOW - timedelta(hours=3)
+
+
+def test_republished_copy_of_a_closed_story_does_not_start_a_new_event():
+    events, known = _existing(NOW - timedelta(hours=60), centroid=False)
+    copy = art("copy", WIRE, NOW, source_id="vanguard")
+    assign(events, [copy], vecs([copy]), NOW, existing=known)
+    assert set(events) == {"orig"}
+    assert events["orig"].created_at == NOW - timedelta(hours=60)
+
+
+def test_two_copies_in_the_same_batch_make_one_event():
+    a = art("a", WIRE, NOW - timedelta(minutes=5), source_id="france24")
+    b = art("b", WIRE, NOW, source_id="vanguard")
+    events = {}
+    assign(events, [a, b], np.vstack([unit(axis(2)), unit(axis(3))]), NOW)
+    assert len(events) == 1
+
+
+def test_short_generic_titles_are_not_merged_by_title():
+    events = {}
+    a = art("a", "Morning update", NOW - timedelta(hours=1), source_id="mee")
+    b = art("b", "Morning update", NOW, source_id="mee")
+    assign(events, [a, b], np.vstack([unit(axis(2)), unit(axis(3))]), NOW)
+    assert len(events) == 2

@@ -111,10 +111,10 @@ function photos(images) {
   return { hero, thumbs: buttons.length ? el("div", { class: "thumbs" }, buttons) : null };
 }
 
-function eventRow(ev, rank, now, seen, timeField = "updated_at") {
+function eventRow(ev, rank, now, seen) {
   const meta = el("span", { class: "meta" },
     el("span", { text: placeName(ev) }),
-    el("span", { text: formatAgo(ev[timeField] || ev.updated_at, now, lang) }),
+    el("span", { text: formatAgo(ev.created_at || ev.updated_at, now, lang) }),
     isNewDevelopment(ev, seen) ? el("span", { class: "new", text: t("newDev", lang) }) : null);
   return el("li", { class: "row" },
     el("a", { href: `#/e/${encodeURIComponent(ev.id)}` },
@@ -170,7 +170,7 @@ async function viewAll() {
       el("h1", { class: "page-title", text: t("allTitle", lang) }),
       langButton()),
     data.events.length
-      ? el("ul", { class: "list" }, data.events.map((ev) => eventRow(ev, 0, now, seen, "created_at")))
+      ? el("ul", { class: "list" }, data.events.map((ev) => eventRow(ev, 0, now, seen)))
       : message(t("quiet", lang)),
     footer(data.generated_at));
 }
@@ -206,7 +206,7 @@ async function viewEvent(id) {
       el("h1", { class: "detail-title", text: ev.title[lang] }),
       el("p", { class: "meta" },
         el("span", { text: placeName(ev) }),
-        el("span", { text: formatAgo(ev.updated_at, now, lang) })),
+        el("span", { text: formatAgo(ev.created_at || ev.updated_at, now, lang) })),
       thumbs,
       summary ? el("p", { class: "summary", text: summary }) : null,
       summary && ev.summary.ai ? el("p", { class: "ai", text: t("aiSummary", lang) }) : null,
