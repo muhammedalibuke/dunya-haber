@@ -82,7 +82,7 @@ def run(state_dir: Path, out_dir: Path, now: datetime, sources: list[Source],
         for a, v in zip(new, vectors):
             a.topic = article_topic(a, v, topic_cfg, protos)
             state.articles[a.id] = a
-        touched = assign(state.events, new, vectors, now)
+        touched = assign(state.events, new, vectors, now, existing=state.articles)
         report.touched_events = len(touched)
         for eid in touched:
             e = state.events[eid]

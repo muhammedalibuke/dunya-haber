@@ -157,3 +157,16 @@ def test_published_events_are_today_plus_latest_only():
     ids = {e.id for e in published_events(st, ["two_hours"], NOW)}
     assert "old_big" not in ids and "fresh_single_small" not in ids
     assert {"fresh_single_big", "fresh_multi", "two_hours", "f0"} <= ids
+
+
+def test_today_list_order_ignores_late_coverage():
+    """A story republished by another outlet keeps its place: order is by first appearance."""
+    arts, events = {}, {}
+    for eid, created_h, updated_h in [("early", 6, 0.1), ("late", 2, 2)]:
+        t = NOW - timedelta(hours=created_h)
+        a1 = art(f"{eid}1", eid, t, source_id=f"{eid}x")
+        a2 = art(f"{eid}2", eid, NOW - timedelta(hours=updated_h), source_id=f"{eid}y")
+        arts.update({a1.id: a1, a2.id: a2})
+        events[eid] = Event(eid, [a1.id, a2.id], np.zeros(4, np.float32), t, NOW - timedelta(hours=updated_h))
+    files = build_site_data(State(articles=arts, events=events), ["early", "late"], NOW)
+    assert [e["id"] for e in files["today.json"]["events"]] == ["late", "early"]

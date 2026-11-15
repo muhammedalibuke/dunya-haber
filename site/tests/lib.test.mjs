@@ -87,7 +87,7 @@ test("moreNews copy", () => {
 });
 
 test("nextEvents lists newest first within unseen and seen groups", () => {
-  const ev = (id, h) => ({ id, updated_at: new Date(Date.UTC(2026, 10, 14, h)).toISOString() });
+  const ev = (id, h) => ({ id, created_at: new Date(Date.UTC(2026, 10, 14, h)).toISOString() });
   const today = [ev("a", 1), ev("b", 3)];
   const all = [ev("c", 5), ev("d", 2), ev("e", 4)];
   const seen = { e: "x" };
@@ -98,4 +98,12 @@ test("latest-news copy", () => {
   assert.equal(t("seeAll", "tr"), "Son haberler");
   assert.equal(t("allTitle", "tr"), "Son haberler");
   assert.equal(t("allTitle", "en"), "Latest news");
+});
+
+test("nextEvents orders by first appearance, so late coverage does not push a story up", () => {
+  const ev = (id, created, updated) => ({ id,
+    created_at: new Date(Date.UTC(2026, 10, 14, created)).toISOString(),
+    updated_at: new Date(Date.UTC(2026, 10, 14, updated)).toISOString() });
+  const all = [ev("old_republished", 1, 9), ev("new", 5, 5), ev("mid", 3, 3)];
+  assert.deepEqual(nextEvents("z", [], all, {}, 5).map((e) => e.id), ["new", "mid", "old_republished"]);
 });

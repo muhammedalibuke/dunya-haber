@@ -51,21 +51,21 @@ def test_sport_older_than_24h_and_single_source_excluded():
     assert select_today(events, ARTS, NOW) == ["ok"]
 
 
-def test_returns_at_most_10():
-    events = {f"e{i}": ev(f"e{i}", ["US", "GB", "FR"]) for i in range(15)}
-    assert len(select_today(events, ARTS, NOW)) == 10
+def test_returns_at_most_20():
+    events = {f"e{i}": ev(f"e{i}", ["US", "GB", "FR"]) for i in range(25)}
+    assert len(select_today(events, ARTS, NOW)) == 20
 
 
 def test_cutoff_keeps_at_least_min_n():
     big = ev("big", ["US", "GB", "FR", "DE", "JP", "BR", "IN", "CN", "ZA", "AU"])
     small = [ev(f"s{i}", ["US", "GB"], hours_ago=20) for i in range(6)]
     events = {e.id: e for e in [big, *small]}
-    out = select_today(events, ARTS, NOW)
+    out = select_today(events, ARTS, NOW, min_n=5)
     assert out[0] == "big" and len(out) == 5
 
 
 def test_cutoff_drops_weak_tail_above_min_n():
-    strong = [ev(f"st{i}", ["US", "GB", "FR", "DE", "JP", "BR"]) for i in range(7)]
+    strong = [ev(f"st{i}", ["US", "GB", "FR", "DE", "JP", "BR"]) for i in range(12)]
     weak = [ev(f"w{i}", ["US", "GB"], hours_ago=20) for i in range(3)]
     events = {e.id: e for e in [*strong, *weak]}
     out = select_today(events, ARTS, NOW)
@@ -75,3 +75,29 @@ def test_cutoff_drops_weak_tail_above_min_n():
 def test_fewer_candidates_than_min():
     events = {e.id: e for e in [ev(f"c{i}", ["US", "GB"]) for i in range(3)]}
     assert len(select_today(events, ARTS, NOW)) == 3
+
+
+def _late_coverage(eid, created_h, updated_h, countries=("US", "GB", "FR")):
+    e = ev(eid, list(countries), hours_ago=created_h)
+    e.updated_at = NOW - timedelta(hours=updated_h)
+    return e
+
+
+def test_late_coverage_does_not_refresh_an_old_story():
+    """Another outlet republishing a story must not make it fresh again."""
+    fresh = ev("fresh", ["US", "GB", "FR"], hours_ago=2)
+    old = _late_coverage("old_republished", created_h=10, updated_h=0.1)
+    assert score(fresh, ARTS, NOW) > score(old, ARTS, NOW)
+
+
+def test_story_first_seen_over_24h_ago_stays_out_of_today_even_if_republished():
+    events = {e.id: e for e in [ev("ok", ["US", "GB"]),
+                                _late_coverage("yesterday", created_h=30, updated_h=0.5)]}
+    assert select_today(events, ARTS, NOW) == ["ok"]
+
+
+def test_today_holds_at_least_10_when_there_are_enough():
+    big = ev("big2", ["US", "GB", "FR", "DE", "JP", "BR", "IN", "CN", "ZA", "AU"])
+    small = [ev(f"t{i}", ["US", "GB"], hours_ago=20) for i in range(12)]
+    out = select_today({e.id: e for e in [big, *small]}, ARTS, NOW)
+    assert out[0] == "big2" and len(out) == 10

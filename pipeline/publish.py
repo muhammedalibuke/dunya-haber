@@ -142,8 +142,9 @@ def build_site_data(state: State, today_ids: list[str], now: datetime) -> dict[s
     listed = latest_events(state, now)
     detail_ids = {e.id for e in listed} | set(today_ids)
     stamp = now.isoformat()
-    # importance decides WHICH events are in today's list; they are shown newest first
-    today = sorted((state.events[i] for i in today_ids), key=lambda e: (e.updated_at, e.id), reverse=True)
+    # importance decides WHICH events are in today's list; they are shown newest first by FIRST
+    # appearance, so a story republished by another outlet keeps its place
+    today = sorted((state.events[i] for i in today_ids), key=lambda e: (e.created_at, e.id), reverse=True)
     files: dict[str, object] = {
         "today.json": {"generated_at": stamp,
                        "events": [event_summary(e, arts) for e in today]},
