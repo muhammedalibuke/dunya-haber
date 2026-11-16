@@ -99,3 +99,9 @@ test("latest-news copy", () => {
   assert.equal(t("allTitle", "tr"), "Son haberler");
   assert.equal(t("allTitle", "en"), "Latest news");
 });
+
+test("formatToday can include the weekday", () => {
+  const d = new Date("2026-11-16T09:00:00Z");
+  assert.equal(formatToday(d, "tr", true), "16 Kasım Pazartesi");
+  assert.equal(formatToday(d, "en", true), "Monday 16 November");
+});

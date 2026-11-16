@@ -152,9 +152,11 @@ async function viewToday() {
   const mapBox = el("div", { class: "map" });
   const events = data.events;
   app.replaceChildren(
-    el("header", { class: "top" },
-      el("h1", { class: "date", text: formatToday(now, lang) }),
-      langButton()),
+    el("header", { class: "masthead" },
+      el("h1", { class: "masthead-name", text: "Dünya Haber" }),
+      el("div", { class: "masthead-line" },
+        el("span", { text: formatToday(now, lang, true) }),
+        langButton())),
     mapBox,
     ...(events.length
       ? [

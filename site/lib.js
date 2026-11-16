@@ -68,11 +68,12 @@ export function formatAgo(iso, now, lang) {
   return tr ? `${d} gün önce` : `${d}d ago`;
 }
 
-export function formatToday(now, lang) {
+export function formatToday(now, lang, withWeekday = false) {
   return new Intl.DateTimeFormat(lang === "tr" ? "tr-TR" : "en-GB", {
     timeZone: "Europe/Istanbul",
     day: "numeric",
     month: "long",
+    ...(withWeekday ? { weekday: "long" } : {}),
   }).format(now);
 }
 
