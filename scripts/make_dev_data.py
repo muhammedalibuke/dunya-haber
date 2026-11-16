@@ -51,7 +51,7 @@ EVENTS = [
      [("Agência Brasil", "BR"), ("The Guardian", "GB"), ("El País", "ES")], True,
      ("Zirve, ormansızlaşmayı azaltmaya yönelik yeni bir fon kararıyla kapandı.",
       "The summit closed with a new fund aimed at reducing deforestation.")),
-    ("e6", "Merkez bankası faiz kararını açıkladı <b>test</b>", "Central bank announces rate decision <b>test</b>", 9,
+    ("e6", "Merkez bankası faiz kararını açıkladı", "Central bank announces rate decision", 9,
      None, [("AA", "TR"), ("NTV", "TR")], False,
      ("Karar piyasa beklentileriyle uyumlu oldu.", "The decision was in line with market expectations.")),
     ("e7", "Yeni Zelanda'da seçim sonuçları kesinleşti", "New Zealand election results confirmed", 11,
