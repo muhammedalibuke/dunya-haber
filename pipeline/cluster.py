@@ -147,5 +147,8 @@ def merge_events(events: dict[str, Event], touched: set[str], now: datetime,
         keep.updated_at = max(keep.updated_at, gone.updated_at)
         keep.created_at = min(keep.created_at, gone.created_at)
         del events[gone.id]
+        for k, v in merged.items():  # earlier merges into `gone` now live on in `keep`
+            if v == gone.id:
+                merged[k] = keep.id
         merged[gone.id] = keep.id
     return merged

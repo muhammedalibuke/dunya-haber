@@ -130,3 +130,22 @@ def test_merge_split_events():
     assert set(events) == {"old", "other"}
     assert events["old"].article_ids == ["a1", "a2", "b1"]
     assert events["old"].created_at == t0 and events["old"].updated_at == NOW
+
+
+def test_merge_chain_points_to_surviving_event():
+    """x merges into y, then y merges into z: x must map to z, never to the deleted y."""
+    from pipeline.cluster import merge_events
+    import math
+
+    def at(deg):
+        r = math.radians(deg)
+        return unit([math.cos(r), math.sin(r)] + [0] * 14)
+
+    z = Event("z", ["z1"], at(0), NOW - timedelta(hours=3), NOW - timedelta(hours=3))
+    y = Event("y", ["y1"], at(20), NOW - timedelta(hours=2), NOW - timedelta(hours=2))
+    x = Event("x", ["x1"], at(60), NOW - timedelta(hours=1), NOW)
+    events = {"x": x, "y": y, "z": z}
+    merged = merge_events(events, {"x", "y"}, NOW, threshold=0.72)
+    assert set(events) == {"z"}
+    assert merged == {"x": "z", "y": "z"}
+    assert all(kept in events for kept in merged.values())
