@@ -167,3 +167,11 @@ def test_summary_has_thumbnail_from_most_popular_source():
     assert files["today.json"]["events"][0]["thumb"] == "https://img.example/bbc.jpg"
     files = build_site_data(state_with_event(image=False), ["a1"], NOW)
     assert files["today.json"]["events"][0]["thumb"] is None
+
+
+def test_detail_images_use_large_versions_but_thumbs_stay_small():
+    st = state_with_event()
+    st.articles["a1"].image_url = "https://ichef.bbci.co.uk/ace/standard/240/x.jpg"
+    files = build_site_data(st, ["a1"], NOW)
+    assert files["events/a1.json"]["images"][0]["url"] == "https://ichef.bbci.co.uk/ace/standard/976/x.jpg"
+    assert files["today.json"]["events"][0]["thumb"] == "https://ichef.bbci.co.uk/ace/standard/240/x.jpg"

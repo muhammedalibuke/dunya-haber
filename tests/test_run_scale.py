@@ -169,3 +169,33 @@ def test_split_events_are_merged_after_a_run(tmp_path):
     st = load_state(tmp_path / "state")
     quake = [e for e in st.events.values() if any("Kobe" in st.articles[a].title for a in e.article_ids)]
     assert len(quake) == 1 and len(quake[0].article_ids) == 2
+
+
+def test_shown_stories_without_photo_get_the_page_cover_once(tmp_path):
+    t = NOW - timedelta(hours=2)
+    pages = {GB.url: rss([item("Quake hits Kobe", "https://bbc.example/q", t, "")]),
+             TR.url: rss([item("Kobe'de deprem", "https://aa.example/d", t, "")]), JP.url: rss([])}
+    calls = []
+
+    def page_get(url):
+        calls.append(url)
+        return b'<html><head><meta property="og:image" content="https://img.example/cover.jpg"></head></html>'
+
+    go(tmp_path, pages, NOW, page_get=page_get)
+    d = json.loads(next((tmp_path / "out" / "events").iterdir()).read_text())
+    assert d["images"][0]["url"] == "https://img.example/cover.jpg"
+    assert len(calls) == 1
+    go(tmp_path, pages, NOW + timedelta(minutes=10), page_get=page_get)
+    assert len(calls) == 1  # never asked twice
+
+
+def test_page_cover_lookup_failure_is_harmless(tmp_path):
+    t = NOW - timedelta(hours=2)
+    pages = {GB.url: rss([item("Quake hits Kobe", "https://bbc.example/q", t, "")]),
+             TR.url: rss([item("Kobe'de deprem", "https://aa.example/d", t, "")]), JP.url: rss([])}
+
+    def page_get(url):
+        raise TimeoutError("slow")
+
+    rep, _ = go(tmp_path, pages, NOW, page_get=page_get)
+    assert rep.today == 1

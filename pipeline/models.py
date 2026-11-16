@@ -38,6 +38,7 @@ class Article:
     title_tr: str | None = None
     title_en: str | None = None
     source_tier: int = 3
+    image_checked: bool = False  # article page already searched for a cover photo
 
 
 @dataclass

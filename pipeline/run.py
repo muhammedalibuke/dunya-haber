@@ -12,7 +12,7 @@ from pathlib import Path
 from typing import Callable
 
 from .cluster import CLUSTER_LOW, OPEN_WINDOW_HOURS, NameRescue, _normalize, assign, merge_events
-from .collect import ConditionalGetter, fetch_all
+from .collect import ConditionalGetter, fetch_all, fetch_page_head
 from .embed import Embedder, embed_text
 from .geo import Gazetteer, locate_event
 from .models import Source
@@ -56,6 +56,43 @@ def build_summary(e, arts, embedder, cache, translator) -> None:
     e.summary_v = SUMMARY_VERSION
 
 
+COVER_LOOKUPS_PER_RUN = 40
+
+
+def find_covers(events, articles, page_get, limit: int = COVER_LOOKUPS_PER_RUN) -> int:
+    """For shown stories without any photo, read one article page's cover photo (og:image).
+    Each article page is asked at most once. Returns how many photos were found."""
+    from concurrent.futures import ThreadPoolExecutor
+
+    from .images import extract_og_image
+
+    todo = []
+    for e in events:
+        arts = [articles[a] for a in e.article_ids if a in articles]
+        if not arts or any(a.image_url for a in arts):
+            continue
+        cand = [a for a in sorted(arts, key=lambda a: (a.source_tier, a.published)) if not a.image_checked]
+        if cand:
+            todo.append(cand[0])
+        if len(todo) >= limit:
+            break
+
+    def one(a):
+        try:
+            return a, extract_og_image(page_get(a.url).decode("utf-8", "ignore"), a.url)
+        except Exception:  # unreachable or blocked page: simply no photo
+            return a, None
+
+    found = 0
+    with ThreadPoolExecutor(max_workers=16) as pool:
+        for a, url in pool.map(one, todo):
+            a.image_checked = True
+            if url:
+                a.image_url = url
+                found += 1
+    return found
+
+
 def migrate_centroids(state, embedder: Embedder, dim: int, now: datetime,
                       recent_hours: int = 12, max_articles: int = 600) -> None:
     """After a model change, centroids from the old model can't be compared. Recent events are
@@ -76,7 +113,7 @@ def run(state_dir: Path, out_dir: Path, now: datetime, sources: list[Source],
         get: Callable[[str], bytes], embedder: Embedder, translator: Translator,
         gaz: Gazetteer, topic_cfg: TopicConfig, gemini_key: str | None = None,
         post=None, translate_budget_s: float = TRANSLATE_BUDGET_S,
-        topic_embedder: Embedder | None = None) -> RunReport:
+        topic_embedder: Embedder | None = None, page_get=None) -> RunReport:
     """`embedder` groups articles into events; `topic_embedder` (default: the same) tags topics."""
     topic_embedder = topic_embedder or embedder
     state = load_state(state_dir)
@@ -126,6 +163,9 @@ def run(state_dir: Path, out_dir: Path, now: datetime, sources: list[Source],
             build_summary(e, arts, embedder, state.translations, translator)
         e.location = locate_event([a.title_en or a.title for a in arts], [a.country for a in arts], gaz)
 
+    if page_get is not None:
+        find_covers(shown, state.articles, page_get)
+
     prune(state, now)
     today = select_today(state.events, state.articles, now)
     report.today = len(today)
@@ -168,6 +208,7 @@ def main() -> None:
         gaz=Gazetteer.load(ROOT / "data" / "gazetteer.json.gz", ROOT / "config" / "place_stoplist.txt"),
         topic_cfg=load_topic_config(ROOT / "config" / "topics.yaml"),
         gemini_key=os.environ.get("GEMINI_API_KEY") or None,
+        page_get=fetch_page_head,
     )
     getter.save()  # only after the state was saved: a failed run must refetch everything it saw
     print(report.line())

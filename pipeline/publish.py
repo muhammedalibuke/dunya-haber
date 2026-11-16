@@ -8,6 +8,7 @@ from functools import lru_cache
 from pathlib import Path
 
 from .geo import country_of_event
+from .images import upgrade_image_url
 from .models import Article, Event, State
 
 OPEN_WINDOW = timedelta(hours=48)
@@ -69,7 +70,7 @@ def _images(arts: list[Article]) -> list[dict]:
             continue
         sources.add(a.source_id)
         urls.add(a.image_url)
-        out.append({"url": a.image_url, "source": a.source_name})
+        out.append({"url": upgrade_image_url(a.image_url), "source": a.source_name, "small": a.image_url})
         if len(out) >= MAX_IMAGES:
             break
     return out
@@ -92,7 +93,7 @@ def event_summary(event: Event, articles: dict[str, Article]) -> dict:
         "created_at": event.created_at.isoformat(),
         "topic": event.topic,
         "location": _location(event),
-        "thumb": next((i["url"] for i in _images(arts)), None),
+        "thumb": next((i["small"] for i in _images(arts)), None),
     }
 
 
@@ -106,7 +107,7 @@ def event_detail(event: Event, articles: dict[str, Article]) -> dict:
         "created_at": event.created_at.isoformat(),
         "updated_at": s["updated_at"],
         "summary": {"tr": event.summary_tr, "en": event.summary_en, "ai": event.summary_ai},
-        "images": _images(arts),
+        "images": [{"url": i["url"], "source": i["source"]} for i in _images(arts)],
         "location": s["location"],
         "sources": _source_rows(arts),
         "source_total": s["source_count"],

@@ -177,6 +177,24 @@ class ConditionalGetter:
             json.dump(self.cache, f)
 
 
+def fetch_page_head(url: str, max_bytes: int = 300_000, deadline_s: float = 8) -> bytes:
+    """The beginning of an article page (cover-photo meta tags live in <head>)."""
+    import httpx
+
+    start = time.monotonic()
+    buf = bytearray()
+    with httpx.stream("GET", url, headers={"User-Agent": USER_AGENT}, timeout=TIMEOUT_S,
+                      follow_redirects=True) as r:
+        r.raise_for_status()
+        for chunk in r.iter_bytes():
+            buf.extend(chunk)
+            if len(buf) >= max_bytes or b"</head>" in chunk.lower():
+                break
+            if time.monotonic() - start > deadline_s:
+                raise TimeoutError("page slower than allowed")
+    return bytes(buf)
+
+
 def http_get(url: str) -> bytes:
     import httpx
 
