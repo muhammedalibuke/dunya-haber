@@ -3,6 +3,8 @@ from __future__ import annotations
 
 from datetime import datetime, timedelta
 
+import re
+
 import numpy as np
 
 from .models import Article, Event
@@ -53,3 +55,20 @@ def assign(
             touched.add(eid)
         known.add(a.id)
     return touched
+
+
+_WORD = re.compile(r"[^\W\d_][\w'’\-]*", re.UNICODE)
+
+
+def name_tokens(text: str) -> list[str]:
+    """Name-like words (Capitalized, ≥4 letters) and acronyms (≥3 capitals), folded for matching."""
+    from .geo import fold
+
+    out = []
+    for w in _WORD.findall(text or ""):
+        w = re.split(r"['’]", w, maxsplit=1)[0].strip("-")
+        if not w or not w[0].isupper():
+            continue
+        if len(w) >= 4 or (len(w) >= 3 and w.isupper()):
+            out.append(fold(w))
+    return out

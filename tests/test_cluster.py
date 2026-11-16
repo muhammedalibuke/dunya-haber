@@ -80,3 +80,11 @@ def test_updated_at_never_moves_backwards():
     a = art("a1", "Late-published quake piece", NOW - timedelta(hours=2))
     assign(events, [a], vecs([a]), NOW)
     assert events["e1"].updated_at == NOW - timedelta(hours=1)
+
+
+def test_name_tokens_picks_names_and_acronyms():
+    from pipeline.cluster import name_tokens
+    toks = name_tokens("NYPD shoots suspect; Gérard Depardieu's appeal in São Paulo, 2027 Budget")
+    assert "nypd" in toks and "depardieu" in toks and "gerard" in toks and "paulo" in toks
+    assert "shoots" not in toks and "2027" not in toks and "sao" not in toks  # short / lowercase / digits out
+    assert name_tokens("神戸で地震") == []

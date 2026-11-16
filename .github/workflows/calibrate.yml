@@ -1,0 +1,25 @@
+name: calibrate
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  calibrate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - name: State (for word rarity)
+        run: |
+          mkdir -p state
+          git fetch -q --depth=1 origin data && git --work-tree=state checkout FETCH_HEAD -- . && git reset -q || true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: |
+          pip install -q torch --index-url https://download.pytorch.org/whl/cpu
+          pip install -q -e ".[ml]"
+      - run: python scripts/calibrate.py

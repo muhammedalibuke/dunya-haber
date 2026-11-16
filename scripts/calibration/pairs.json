@@ -1,0 +1,704 @@
+[
+ {
+  "same": 1,
+  "a": {
+   "title": "Pope Leo XIV Goes Home to Peru, Meeting Ghosts of His Past",
+   "desc": "In Peru, where Leo XIV lived for two decades and became a citizen, the pope was met by President Keiko Fujimori, whose father’s policies he had protested.",
+   "lang": "en"
+  },
+  "b": {
+   "title": "Papa León XIV en Chiclayo: fieles celebran su retorno y recuerdan felices que los confirmó",
+   "desc": "Un largo aplauso se escuchó en el parque principal de Chiclayo tras la llegada del papa León XIV a la base aérea Teniente Coronel Pedro Ruiz Gallo. Un grupo de fieles que aguarda en el centro de la ci",
+   "lang": "es"
+  }
+ },
+ {
+  "same": 0,
+  "a": {
+   "title": "Ukraine: Russian drone attacks hit Kyiv hospital, leave two dead in Odesa",
+   "desc": "Russian overnight attacks on Ukraine killed at least two person in Odesa and injured another at a hospital in Kyiv. Rescuers evacuated patients, including people using wheelchairs and crutches, as fir",
+   "lang": "en"
+  },
+  "b": {
+   "title": "Russian forces attack Hlukhiv in morning drone strike, three injured, including child",
+   "desc": "Three people, including a nine-year-old boy, were injured in a drone attack on the city of Hlukhiv in the Sumy region early on November 14.",
+   "lang": "en"
+  }
+ },
+ {
+  "same": 1,
+  "a": {
+   "title": "Au Cap-Vert, modèle de stabilité démocratique, le président sortant José Maria Neves vise un second mandat",
+   "desc": "Parmi les six candidats en lice pour le premier tour, dimanche, le chef de l’Etat part favori face à sa principale rivale, l’ancienne ministre de la justice Joana Rosa Amado, première femme candidate ",
+   "lang": "fr"
+  },
+  "b": {
+   "title": "Cape Verde could elect first woman president since gaining independence in 1975",
+   "desc": "Cape Verde could elect its first woman president as former Justice Minister Joana Rosa challenges incumbent José Maria Neves",
+   "lang": "en"
+  }
+ },
+ {
+  "same": 0,
+  "a": {
+   "title": "Two Palestinians killed by Israeli fire in central Gaza, hospital sources say",
+   "desc": "Two Palestinians killed by Israeli fire in central Gaza, hospital sources say Two Palestinians were killed by Israeli fire east of Deir el-Balah in central Gaza, according to sources at Al-Aqsa Martyr",
+   "lang": "en"
+  },
+  "b": {
+   "title": "İsrail'in ateşkese rağmen Gazze'ye düzenlediği saldırılarda son 24 saatte 4 kişi hayatını kaybetti",
+   "desc": "İsrail ordusunun ateşkese rağmen Gazze Şeridi'ne düzenlediği saldırılarda son 24 saatte 4 kişi yaşamını yitirdi.",
+   "lang": "tr"
+  }
+ },
+ {
+  "same": 0,
+  "a": {
+   "title": "Yemeni forces report 943 strikes and operations against Houthi positions",
+   "desc": "ADEN: Yemen’s armed forces have carried out 943 air and ground strikes against Houthi positions, military sites and equipment over the past few hours, the army’s spokesperson said on Friday. In a stat",
+   "lang": "en"
+  },
+  "b": {
+   "title": "Houthis target civilians in Aden with ballistic missiles, Yemeni army says",
+   "desc": "AL-MUKALLA: Houthi forces launched ballistic missiles targeting civilians and civilian infrastructure in Yemen’s interim capital Aden on Friday, Yemeni military spokesperson said. Majed Al-Nuzaili des",
+   "lang": "en"
+  }
+ },
+ {
+  "same": 0,
+  "a": {
+   "title": "Iran warns states against assisting US-Israeli aggression, says they will bear full responsibility",
+   "desc": "TEHRAN – Iranian Foreign Ministry Spokesman Esmaeil Baqaei has warned that any country providing direct or indirect support for US aggression against Iran, including military and logistical assistance",
+   "lang": "en"
+  },
+  "b": {
+   "title": "Trump Signals New Strategy on Iran: A Waiting Game",
+   "desc": "The administration appears to be moving toward a long-term economic pressure campaign as President Trump expresses little urgency in securing a nuclear agreement.",
+   "lang": "en"
+  }
+ },
+ {
+  "same": 1,
+  "a": {
+   "title": "Ronaldinho Gaúcho volta aos 46 anos: ‘Meu drible mais bonito? Voltar a jogar’",
+   "desc": "Último jogo oficial do craque foi em 2015, no Maracanã. Neste domingo (15), é titular pelo Ravenna no clássico contra o Forlì, pela terceira divisão italiana, e pode marcar o gol 300 da carreira.",
+   "lang": "pt"
+  },
+  "b": {
+   "title": "Icon Ronaldinho makes winning return to pro football in Italy’s third division",
+   "desc": "",
+   "lang": "en"
+  }
+ },
+ {
+  "same": 0,
+  "a": {
+   "title": "Bulgaria's PM Says Europe Must Join Ukraine Peace Negotiations",
+   "desc": "Prime Minister Rumen Radev said in Dublin that Europe must take part in negotiations to end the war in Ukraine, arguing that a new security framework for the continent cannot be established without th",
+   "lang": "en"
+  },
+  "b": {
+   "title": "‘There is only one line of demarcation — the state border’: Ahead of talks with U.S., Putin calls lasting peace impossible with ‘gray zones’",
+   "desc": "Vladimir Putin spoke about the Ukrainian territories Russia claims ahead of a meeting with U.S. special envoys Steve Witkoff and Jared Kushner.",
+   "lang": "en"
+  }
+ },
+ {
+  "same": 0,
+  "a": {
+   "title": "China’s access to Nvidia chips in doubt as curbs gain traction in U.S. Congress",
+   "desc": "Nvidia's advanced chips are widely used to develop AI models, making the company key in the U.S. race against China to build superior AI systems.",
+   "lang": "en"
+  },
+  "b": {
+   "title": "AI industry weighs future without Nvidia’s Huang",
+   "desc": "Huang's abrupt fall comes amid mounting concerns about the financial soundness of the industry's colossal investment spree.",
+   "lang": "en"
+  }
+ },
+ {
+  "same": 0,
+  "a": {
+   "title": "VÍDEOS: AB1 desta sexta-feira, 13 de novembro de 2026",
+   "desc": "Assista aos vídeos do telejornal com as notícias do interior de Pernambuco.",
+   "lang": "pt"
+  },
+  "b": {
+   "title": "VÍDEOS: JL2 de sexta-feira, 13 de novembro de 2026",
+   "desc": "",
+   "lang": "pt"
+  }
+ },
+ {
+  "same": 0,
+  "a": {
+   "title": "2027: Tompolo, Zamfara gov rally support for Tinubu’s re-election",
+   "desc": "Tompolo and Zamfara Governor Dauda Lawal have urged voters to support President Bola Tinubu’s re-election bid in 2027 to sustain his administration’s refor Read More: https://punchng.com/2027-tompolo-",
+   "lang": "en"
+  },
+  "b": {
+   "title": "Abiodun mobilises 50,400 grassroots canvassers for Tinubu",
+   "desc": "Ogun State Governor, Dapo Abiodun, has inaugurated 50,400 grassroots canvassers to secure victory for the APC and President Tinubu in the 2027 elections. Read More: https://punchng.com/abiodun-mobilis",
+   "lang": "en"
+  }
+ },
+ {
+  "same": 0,
+  "a": {
+   "title": "Netanyahu may fall, but his far-right legacy in Israel is going nowhere",
+   "desc": "Israel’s far-right is accused of embedding a hardline agenda so deeply that reversing it may prove almost impossible.",
+   "lang": "en"
+  },
+  "b": {
+   "title": "Netanyahu insiste, 'governo di unità nazionale per chiudere i conti con l'Iran'",
+   "desc": "'Solo una coalizione con me garantisce la sicurezza d'Israele', dice il premier",
+   "lang": "it"
+  }
+ },
+ {
+  "same": 1,
+  "a": {
+   "title": "‘I’m a piece of s---’: Jensen Huang’s last hours as Nvidia CEO",
+   "desc": "After weeks spent denying allegations of infidelity and fighting to remain in his job, Huang's surrender late Wednesday night was unconditional.",
+   "lang": "en"
+  },
+  "b": {
+   "title": "Nvidia preparing to oust CEO Jensen Huang: US media",
+   "desc": "Nvidia’s board is preparing to oust its co-founder and CEO Jensen Huang, US media reported Wednesday, as the chip giant’s chief faces new accusations of infidelity, after revelations he had an affair ",
+   "lang": "en"
+  }
+ },
+ {
+  "same": 0,
+  "a": {
+   "title": "Why COP31 matters to Turkiye beyond climate change",
+   "desc": "Turkiye has this year been given the opportunity to host two major events that it views as significant for its foreign policy ambitions. In July, the NATO Summit was held in Ankara, while Antalya is c",
+   "lang": "en"
+  },
+  "b": {
+   "title": "COP31'de sanat ve spor dünyasından isimler Türkiye Pavilyonu ve COPArt'ı gezdi",
+   "desc": "Türkiye'nin ev sahipliğinde Antalya'da düzenlenen Birleşmiş Milletler (BM) İklim Değişikliği Çerçeve Sözleşmesi 31. Taraflar Konferansı'na (COP31) katılan sanat ve spor dünyasından isimler, Türkiye Pa",
+   "lang": "tr"
+  }
+ },
+ {
+  "same": 0,
+  "a": {
+   "title": "مأساة إنسانية في غزة: وفاة رضيع بسبب البرد القارس في خان يونس",
+   "desc": "الرَّضِيعَ نُقِلَ مِنْ خَيْمَةِ نُزُوحٍ فِي مِنْطَقَةِ مَوَاصِي خَان يونس إِلَى مَجْمَعِ نَاصِرٍ الط...",
+   "lang": "en"
+  },
+  "b": {
+   "title": "محاكمة المتهم بقتل ابنته وثلاثة من أهل مطلقته أمام جنايات القاهرة",
+   "desc": "وَتَعُودُ تَفَاصِيلُ الحَادِثَةِ إِلَى تَلَقِّي النِّيَابَةِ العَامَّةِ إِخْطَاراً بِإِطْلَاقِ أَعْي...",
+   "lang": "en"
+  }
+ },
+ {
+  "same": 1,
+  "a": {
+   "title": "Ukraine seeks explanation on Starshield speed restrictions from US",
+   "desc": "President Volodymyr Zelensky said on Nov. 13 that the restrictions applied over Russian-occupied territory and along the front line, making it \"impossible\" to use interceptors against Shahed-type dron",
+   "lang": "en"
+  },
+  "b": {
+   "title": "Russia’s energy attacks helped by Starshield restrictions",
+   "desc": "",
+   "lang": "en"
+  }
+ },
+ {
+  "same": 1,
+  "a": {
+   "title": "Trump tapaa Xin ja Putinin ensi viikolla, vahvistaa Valkoinen talo",
+   "desc": "Tapaaminen on määrä järjestää Aasian ja Tyynenmeren maiden talousjärjestö Apecin huippukokouksen yhteydessä.",
+   "lang": "fi"
+  },
+  "b": {
+   "title": "La Casa Blanca confirma una cumbre inédita entre Trump, Xi y Putin",
+   "desc": "",
+   "lang": "es"
+  }
+ },
+ {
+  "same": 0,
+  "a": {
+   "title": "Ukraine hits key Russian oil hub, military airbase in latest long-range strikes",
+   "desc": "The General Staff reported a fire at the Samara linear production control station near the village of Prosvet in Samara Oblast, some 950 kilometers east of Ukraine-controlled territory, with several o",
+   "lang": "en"
+  },
+  "b": {
+   "title": "Russian forces attack critical infrastructure facility in Chernihiv region: Two killed, one injured",
+   "desc": "Russian forces attacked a critical infrastructure facility in Mena, Chernihiv region, on November 14. Two men were killed and another person was injured and is currently receiving hospital treatment.",
+   "lang": "en"
+  }
+ },
+ {
+  "same": 1,
+  "a": {
+   "title": "Copper wire upgrade caused nationwide flight suspension, US transport secretary says",
+   "desc": "The US government is trying to find out whether the chaos was caused by \"incompetence\" or faulty equipment.",
+   "lang": "en"
+  },
+  "b": {
+   "title": "EUA suspendem decolagens em todos os aeroportos do país por motivos de segurança",
+   "desc": "A Administração Federal de Aviação dos Estados Unidos (FAA, na sigla em inglês) determinou nesta sexta-feira (13) a suspensão de todas as decolagens no país por motivos de segurança e devido a circuns",
+   "lang": "pt"
+  }
+ },
+ {
+  "same": 1,
+  "a": {
+   "title": "Britain’s Prince William to be joined by wife Kate for visit to India",
+   "desc": "The trip marks Kate's most high-profile overseas visit since she having treatment for cancer in 2024.",
+   "lang": "en"
+  },
+  "b": {
+   "title": "Prince William, Kate to meet PM Modi in Delhi during three-day India visit",
+   "desc": "",
+   "lang": "en"
+  }
+ },
+ {
+  "same": 1,
+  "a": {
+   "title": "Prince Harry in Ukraine meeting Invictus 2027 hopefuls",
+   "desc": "British royal says he's 'taken a risk' in his fourth surprise visit to Ukraine since 2022 to meet wounded veterans.",
+   "lang": "en"
+  },
+  "b": {
+   "title": "Prince Harry salutes wounded Ukrainian veterans as ‘role models’ on surprise Ukraine visit",
+   "desc": "Britain’s Prince Harry hailed wounded Ukrainian veterans as society’s role models on Sunday and said they need to continue receiving support from Kyiv as he wrapped up an unannounced weekend visit to ",
+   "lang": "en"
+  }
+ },
+ {
+  "same": 0,
+  "a": {
+   "title": "Russia’s demands for Ukraine war end include ban on NATO bases in Baltics – German media",
+   "desc": "The demands put forward by Russian negotiators during talks on ending the war in Ukraine include bans on setting up NATO military bases in the Baltic states and Finland withdrawing from NATO, the Germ",
+   "lang": "en"
+  },
+  "b": {
+   "title": "‘There is only one line of demarcation — the state border’: Ahead of talks with U.S., Putin calls lasting peace impossible with ‘gray zones’",
+   "desc": "Vladimir Putin spoke about the Ukrainian territories Russia claims ahead of a meeting with U.S. special envoys Steve Witkoff and Jared Kushner.",
+   "lang": "en"
+  }
+ },
+ {
+  "same": 0,
+  "a": {
+   "title": "Bulgaria's PM Says Europe Must Join Ukraine Peace Negotiations",
+   "desc": "Prime Minister Rumen Radev said in Dublin that Europe must take part in negotiations to end the war in Ukraine, arguing that a new security framework for the continent cannot be established without th",
+   "lang": "en"
+  },
+  "b": {
+   "title": "Kremlin declines to comment on reports of Macron as possible EU negotiator",
+   "desc": "Dmitry Peskov also declined to comment on how Moscow would view the candidacy of EU foreign policy chief Kaja Kallas as a possible European negotiator on Ukraine",
+   "lang": "en"
+  }
+ },
+ {
+  "same": 1,
+  "a": {
+   "title": "Airports Fill Up With Stuck Families and Stranded Travelers",
+   "desc": "The emergency ground stop disrupted travel plans across the country.",
+   "lang": "en"
+  },
+  "b": {
+   "title": "US air travel issues to persist well into Sunday, officials say, with thousands of flights affected",
+   "desc": "The problem was traced to FAA contractor L3Harris' installation of at least one new router at a remote facility.",
+   "lang": "en"
+  }
+ },
+ {
+  "same": 1,
+  "a": {
+   "title": "Tijeretazo generalizado en la valoración de Nvidia: la salida de Huang “podría cambiar la tesis de inversión”",
+   "desc": "Las firmas de análisis activan un muro de contención, pero descartan cambios en los fundamentales de la empresa",
+   "lang": "es"
+  },
+  "b": {
+   "title": "Nvidia preparing to oust CEO Jensen Huang: US media",
+   "desc": "Nvidia’s board is preparing to oust its co-founder and CEO Jensen Huang, US media reported Wednesday, as the chip giant’s chief faces new accusations of infidelity, after revelations he had an affair ",
+   "lang": "en"
+  }
+ },
+ {
+  "same": 1,
+  "a": {
+   "title": "US nationwide flight disruption: Trump rules out cyberattack, role of AI",
+   "desc": "",
+   "lang": "en"
+  },
+  "b": {
+   "title": "Trump, in first comments on air travel halt, blames Biden",
+   "desc": "Donald Trump criticized Joe Biden over an air travel halt caused by a systems upgrade failure. This marks Trump’s first public comment on the incident, attributing the issue to the current administrat",
+   "lang": "en"
+  }
+ },
+ {
+  "same": 0,
+  "a": {
+   "title": "Previsão do tempo hoje para Porto Velho (RO): sol com algumas nuvens; chove rápido durante o dia e à noite",
+   "desc": "Previsão do tempo hoje em Porto Velho g1 A previsão do tempo para este sábado (14) para Porto Velho (RO) é de sol com algumas nuvens. Chove rápido durante o dia e à noite. As máximas são de 34ºC e as ",
+   "lang": "pt"
+  },
+  "b": {
+   "title": "Previsão indica temperaturas de até 35°C e possibilidade de chuva em cidades da Paraíba no segundo dia de provas do Enem 2026",
+   "desc": "Universidade Federal da Paraíba (UFPB), campus João Pessoa Krystine Carneiro/G1 A previsão do tempo para este domingo (15), segundo dia de provas do Exame Nacional do Ensino Médio (Enem) 2026, indica ",
+   "lang": "pt"
+  }
+ },
+ {
+  "same": 1,
+  "a": {
+   "title": "Copper wire upgrade caused nationwide flight suspension, US transport secretary says",
+   "desc": "The US government is trying to find out whether the chaos was caused by \"incompetence\" or faulty equipment.",
+   "lang": "en"
+  },
+  "b": {
+   "title": "Airports Fill Up With Stuck Families and Stranded Travelers",
+   "desc": "The emergency ground stop disrupted travel plans across the country.",
+   "lang": "en"
+  }
+ },
+ {
+  "same": 1,
+  "a": {
+   "title": "FAA issues national ground stop due to ‘extraordinary circumstances’",
+   "desc": "The ​US Federal Aviation ‌Administration on Friday issued a national ground stop \"due to ​extraordinary circumstance and ​reasons for safety.\"",
+   "lang": "en"
+  },
+  "b": {
+   "title": "US flights resume amid gradual return to normal operations",
+   "desc": "While flights in the United States started resuming on Saturday after all flights were grounded and nearly 6,000 flights were cancelled, authorities warned returning to normal operations would take ti",
+   "lang": "en"
+  }
+ },
+ {
+  "same": 0,
+  "a": {
+   "title": "Previsão do tempo hoje para Macapá (AP): sol com muitas nuvens durante o dia e períodos de céu nublado; noite com muitas nuvens",
+   "desc": "Previsão do tempo hoje em Macapá g1 A previsão do tempo para este sábado (14) para Macapá (AP) é de sol com muitas nuvens durante o dia e períodos de céu nublado. Noite com muitas nuvens. As máximas s",
+   "lang": "pt"
+  },
+  "b": {
+   "title": "Previsão do tempo hoje para Porto Velho (RO): sol com algumas nuvens; chove rápido durante o dia e à noite",
+   "desc": "Previsão do tempo hoje em Porto Velho g1 A previsão do tempo para este sábado (14) para Porto Velho (RO) é de sol com algumas nuvens. Chove rápido durante o dia e à noite. As máximas são de 34ºC e as ",
+   "lang": "pt"
+  }
+ },
+ {
+  "same": 1,
+  "a": {
+   "title": "EEUU prevé 5.000 vuelos cancelados este sábado antes de volver a la normalidad el domingo",
+   "desc": "",
+   "lang": "es"
+  },
+  "b": {
+   "title": "US flights resume amid gradual return to normal operations",
+   "desc": "While flights in the United States started resuming on Saturday after all flights were grounded and nearly 6,000 flights were cancelled, authorities warned returning to normal operations would take ti",
+   "lang": "en"
+  }
+ },
+ {
+  "same": 0,
+  "a": {
+   "title": "UAE President meets US envoys in Russia-Ukraine peace talks",
+   "desc": "Sheikh Mohamed bin Zayed receives Steve Witkoff and Jared Kushner",
+   "lang": "en"
+  },
+  "b": {
+   "title": "President Sheikh Mohamed and Arab League chief discuss regional developments",
+   "desc": "",
+   "lang": "en"
+  }
+ },
+ {
+  "same": 1,
+  "a": {
+   "title": "Ukraine seeks explanation on Starshield speed restrictions from US",
+   "desc": "President Volodymyr Zelensky said on Nov. 13 that the restrictions applied over Russian-occupied territory and along the front line, making it \"impossible\" to use interceptors against Shahed-type dron",
+   "lang": "en"
+  },
+  "b": {
+   "title": "SpaceX not being honest about ‘political’ reasons for slowing Starshield, says Zelenskyy",
+   "desc": "Throttling of Elon Musk’s military-grade satellite system affecting whole frontline, says Ukraine’s president Volodymyr Zelenskyy has accused SpaceX of not telling the truth over restrictions to Ukrai",
+   "lang": "en"
+  }
+ },
+ {
+  "same": 1,
+  "a": {
+   "title": "NYT: USS Theodore Roosevelt uçak gemisi, Orta Doğu’daki görevine başlıyor",
+   "desc": "ABD ordusuna ait USS Theodore Roosevelt uçak gemisinin birkaç gün içinde Orta Doğu'ya ulaşarak görevine başlayacağı iddia edildi.",
+   "lang": "tr"
+  },
+  "b": {
+   "title": "USS Theodore Roosevelt aircraft carrier arrives in CENTCOM area of responsibility",
+   "desc": "According to Axios correspondent Barak Ravid, the US military has three vessels of this type in CENTCOM",
+   "lang": "en"
+  }
+ },
+ {
+  "same": 1,
+  "a": {
+   "title": "US lifts ground stop, but passengers face second day of flight disruption",
+   "desc": "More than 1.5 million passengers face travel disruption as domestic and international airlines warn of knock-on delays.",
+   "lang": "en"
+  },
+  "b": {
+   "title": "Airports Fill Up With Stuck Families and Stranded Travelers",
+   "desc": "The emergency ground stop disrupted travel plans across the country.",
+   "lang": "en"
+  }
+ },
+ {
+  "same": 1,
+  "a": {
+   "title": "Full drift efter flygstoppet – men fortsatta förseningar",
+   "desc": "Ett byte från koppartråd till fiber orsakade kommunikationshaveriet som ledde till att ett totalt flygstopp i USA under fredagen. Felet har nu åtgärdats. – Vi är tillbaka till full drift, säger USA:s ",
+   "lang": "sv"
+  },
+  "b": {
+   "title": "Copper wire upgrade caused nationwide flight suspension, US transport secretary says",
+   "desc": "The US government is trying to find out whether the chaos was caused by \"incompetence\" or faulty equipment.",
+   "lang": "en"
+  }
+ },
+ {
+  "same": 0,
+  "a": {
+   "title": "الجيش اللبناني يضبط مستودع أسلحة في الضاحية الجنوبية لبيروت ويوقف أحد المتورطين - فيديو",
+   "desc": "أَوْضَحَتْ قِيَادَةُ الْجَيْشِ فِي بَيَانٍ أَنَّ الْقُوَّةَ الْمُدَاهِمَةَ ضَبَطَتْ دَاخِلَ الْمُسْت...",
+   "lang": "en"
+  },
+  "b": {
+   "title": "الأمن المصري يضبط مخزنا سريا للأسلحة والذخائر مدفونا تحت الأرض في الشرقية",
+   "desc": "نَجَحَتِ الأَجْهِزَةُ الأَمْنِيَّةُ فِي مُدِيرِيَّةِ أَمْنِ الشَّرْقِيَّةِ بِشَمَالِ مِصْرَ فِي كَشْ...",
+   "lang": "en"
+  }
+ },
+ {
+  "same": 0,
+  "a": {
+   "title": "Acidente entre caminhão e caminhonete deixa um morto e dois feridos na BR-163, em Coxim",
+   "desc": "Acidente aconteceu na BR-163, em Coxim. Portal Coxim Agora Uma pessoa, que não teve a identidade divulgada, morreu e outras duas ficaram feridas em um acidente entre um caminhão e uma caminhonete, por",
+   "lang": "pt"
+  },
+  "b": {
+   "title": "Peça se solta de caminhão, atinge carro e mata motorista na BR-277 no Paraná",
+   "desc": "Peça se solta de caminhão, atinge carro e mata motorista na BR-277 no Paraná PRF Um motorista morreu após uma peça se soltar de um caminhão e atingir o carro em que ele estava, na BR-277, em Céu Azul,",
+   "lang": "pt"
+  }
+ },
+ {
+  "same": 1,
+  "a": {
+   "title": "León XIV en tierras peruanas",
+   "desc": "",
+   "lang": "es"
+  },
+  "b": {
+   "title": "Pope Leo XIV Goes Home to Peru, Meeting Ghosts of His Past",
+   "desc": "In Peru, where Leo XIV lived for two decades and became a citizen, the pope was met by President Keiko Fujimori, whose father’s policies he had protested.",
+   "lang": "en"
+  }
+ },
+ {
+  "same": 0,
+  "a": {
+   "title": "مأساة إنسانية في غزة: وفاة رضيع بسبب البرد القارس في خان يونس",
+   "desc": "الرَّضِيعَ نُقِلَ مِنْ خَيْمَةِ نُزُوحٍ فِي مِنْطَقَةِ مَوَاصِي خَان يونس إِلَى مَجْمَعِ نَاصِرٍ الط...",
+   "lang": "en"
+  },
+  "b": {
+   "title": "الأردن يختتم مشاركته التاريخية في داكار 2026 بالمركز الـ16 عالميا والثاني عربيا بأكبر حصيلة أولمبية",
+   "desc": "اخْتُتِمَتْ مَسَاءَ الجُمُعَةِ، فِي العَاصِمَةِ السِّنِغَالِيَّةِ دَاكَار، مُنَافَسَاتُ النُّسْخَةِ ...",
+   "lang": "en"
+  }
+ },
+ {
+  "same": 0,
+  "a": {
+   "title": "Russian forces strike ship carrying military supplies, two locomotives in Odessa Region",
+   "desc": "The Russian army previously carried out strikes on energy sites, port facilities and rail infrastructure, along with ships involved in delivering military supplies to Ukraine",
+   "lang": "en"
+  },
+  "b": {
+   "title": "Ukrainian strikes kill nine in Russia, Kyiv hospital hit",
+   "desc": "Ukrainian attacks killed at least nine people in Russia overnight, while Moscow struck a hospital in Kyiv and killed at least three in the south of the country, officials on both sides said.",
+   "lang": "en"
+  }
+ },
+ {
+  "same": 0,
+  "a": {
+   "title": "Previsão indica temperaturas de até 35°C e possibilidade de chuva em cidades da Paraíba no segundo dia de provas do Enem 2026",
+   "desc": "Universidade Federal da Paraíba (UFPB), campus João Pessoa Krystine Carneiro/G1 A previsão do tempo para este domingo (15), segundo dia de provas do Exame Nacional do Ensino Médio (Enem) 2026, indica ",
+   "lang": "pt"
+  },
+  "b": {
+   "title": "BH registra chuva forte e granizo nesta tarde de domingo",
+   "desc": "BH registra chuva forte e granizo nesta tarde de domingo Chuva forte e com granizo é registrada em Belo Horizonte nesta tarde de domingo (15). A capital e mais de 800 cidades do estado estão entre as ",
+   "lang": "pt"
+  }
+ },
+ {
+  "same": 1,
+  "a": {
+   "title": "Ronaldinho Gaúcho volta aos 46 anos: ‘Meu drible mais bonito? Voltar a jogar’",
+   "desc": "Último jogo oficial do craque foi em 2015, no Maracanã. Neste domingo (15), é titular pelo Ravenna no clássico contra o Forlì, pela terceira divisão italiana, e pode marcar o gol 300 da carreira.",
+   "lang": "pt"
+  },
+  "b": {
+   "title": "Ronaldinho returns at 46 to play first competitive match in 11 years",
+   "desc": "",
+   "lang": "en"
+  }
+ },
+ {
+  "same": 0,
+  "a": {
+   "title": "Fenómeno El Niño: lluvias en zonas altas de Tumbes aislan centros poblados de Casitas",
+   "desc": "Lluvias de moderada intensidad se registran desde la noche del sábado 14 y en las primeras horas de hoy domingo 15 de noviembre en las zonas altas de la región Tumbes, lo cual ha originado que se acti",
+   "lang": "es"
+  },
+  "b": {
+   "title": "BH registra chuva forte e granizo nesta tarde de domingo",
+   "desc": "BH registra chuva forte e granizo nesta tarde de domingo Chuva forte e com granizo é registrada em Belo Horizonte nesta tarde de domingo (15). A capital e mais de 800 cidades do estado estão entre as ",
+   "lang": "pt"
+  }
+ },
+ {
+  "same": 1,
+  "a": {
+   "title": "LIVE UPDATES: 49th ASEAN Summit in Manila",
+   "desc": "Leaders and representatives of the 11 members of the Association of Southeast Asian Nations, and their allies, are gathering in Manila for the bloc's biggest event of the year",
+   "lang": "en"
+  },
+  "b": {
+   "title": "Trade war in focus at ASEAN summit ahead of Trump’s arrival",
+   "desc": "Southeast Asian leaders grapple with the US trade war and regional flashpoints at a key summit in Manila ahead of US President Donald Trump’s arrival. Read More: https://punchng.com/trade-war-in-focus",
+   "lang": "en"
+  }
+ },
+ {
+  "same": 1,
+  "a": {
+   "title": "New York police shoot dead man after suspected abduction sparks chase",
+   "desc": "New York police have shot dead a 26-year-old man, Omatoyo Neverson, after a suspected abduction report sparked a vehicle chase on the Belt Parkway in Brook Read More: https://punchng.com/new-york-poli",
+   "lang": "en"
+  },
+  "b": {
+   "title": "NYPD shoots kidnapping suspect dead after van chase on busy highway; no child found",
+   "desc": "",
+   "lang": "en"
+  }
+ },
+ {
+  "same": 1,
+  "a": {
+   "title": "Belästigungsprozess: Depardieu nimmt Berufung zurück",
+   "desc": "",
+   "lang": "de"
+  },
+  "b": {
+   "title": "Gérard Depardieu renonce à faire appel et « assume » sa condamnation pour agressions sexuelles",
+   "desc": "« J’ai été reconnu coupable. Je l’entends et j’assume cette condamnation », écrit l’acteur, qui présente des « excuses, profondes et sincères » à celles et ceux qui ont « pu en souffrir ».",
+   "lang": "fr"
+  }
+ },
+ {
+  "same": 0,
+  "a": {
+   "title": "PNP criticises Ghana’s 2027 Budget over unfulfilled promises on women’s bank, poultry and jobs",
+   "desc": "The People’s National Party (PNP) has criticised the 2027 Budget, describing it as a collection of recycled promises and accusing the government of failing to demonstrate tangible results from commitm",
+   "lang": "en"
+  },
+  "b": {
+   "title": "Liberia: PLP Criticizes Boakai’s Spending Plan for 2027, Says Budget Ignores World Bank’s Warnings",
+   "desc": "Monrovia — The People’s Liberation Party has criticized the Boakai administration’s proposed 2027 national budget, arguing that its spending priorities fail to address growing poverty concerns highlig",
+   "lang": "en"
+  }
+ },
+ {
+  "same": 1,
+  "a": {
+   "title": "Hubert Aiwanger: Lebensgefährtin lädt öffentlich zur Beisetzung in Niederbayern ein",
+   "desc": "In wenigen Tagen wird Hubert Aiwanger beerdigt. Er sei ein Mann des Volkes gewesen, schreibt seine Lebensgefährtin Tanja Schweiger. Deshalb sollen alle kommen dürfen, die den Freie-Wähler-Chef mochten",
+   "lang": "de"
+  },
+  "b": {
+   "title": "München: Mehr als 1000 Trauergäste nehmen Abschied von Hubert Aiwanger",
+   "desc": "Mit Blasmusik und geistlicher Begleitung wird Hubert Aiwanger in München die letzte Ehre erwiesen. Die Frauenkirche ist voll besetzt. Hunderte wollen sich vom plötzlich gestorbenen Chef der Freien Wäh",
+   "lang": "de"
+  }
+ },
+ {
+  "same": 0,
+  "a": {
+   "title": "Battlegroup West artillery strikes Ukrainian UAV control post in Kharkov Region",
+   "desc": "Russian Pion artillery system crew launched precision long-range strikes from a concealed firing position using high-explosive fragmentation shells at a distance of up to 30 km",
+   "lang": "en"
+  },
+  "b": {
+   "title": "LPR air defenses shoot down 150 Ukrainian UAVs over past day — LPR head",
+   "desc": "According to Leonid Pasechnik, the Ukrainian armed forces struck seven LPR municipalities over the past 24 hours, damaging vehicles, civilian and municipal infrastructure and residential buildings",
+   "lang": "en"
+  }
+ },
+ {
+  "same": 0,
+  "a": {
+   "title": "IEBC Sets 14-Day Deadline to Clear Political Party Nomination Rules",
+   "desc": "Parties that meet the requirements will be issued with certificates of compliance, while those found wanting will be required to make amendments.",
+   "lang": "en"
+  },
+  "b": {
+   "title": "Opposition Demands IEBC Meeting Over Voter Registration Technology",
+   "desc": "\"We must meet the stakeholders immediately to discuss how we renew the Smartmatic contract so that voter registration can go on because if the contract expires on 24th of November before you procure a",
+   "lang": "en"
+  }
+ },
+ {
+  "same": 1,
+  "a": {
+   "title": "China stocks hover near July 2025 lows as AI jitters hit tech shares",
+   "desc": "On Monday, China's stock markets experienced a downturn, primarily fueled by concerns over the sustainability of the recent AI-driven rally. Significant losses were recorded in technology shares, part",
+   "lang": "en"
+  },
+  "b": {
+   "title": "China’s stocks fall as AI hardware selloff, weak data weigh",
+   "desc": "The losses in Chinese AI hardware shares tracked those of their Asian peers, following a volatile week capped by the shock exit of Jensen Huang as Nvidia CEO.",
+   "lang": "en"
+  }
+ },
+ {
+  "same": 1,
+  "a": {
+   "title": "China says Xi-Putin-Trump meeting has ‘groundbreaking significance’",
+   "desc": "",
+   "lang": "en"
+  },
+  "b": {
+   "title": "Trump tapaa Xin ja Putinin ensi viikolla, vahvistaa Valkoinen talo",
+   "desc": "Tapaaminen on määrä järjestää Aasian ja Tyynenmeren maiden talousjärjestö Apecin huippukokouksen yhteydessä.",
+   "lang": "fi"
+  }
+ },
+ {
+  "same": 0,
+  "a": {
+   "title": "Prabowo commends China for backing Palestine, Global South",
+   "desc": "Indonesian President Prabowo Subianto has praised China for its consistent support for the interests of countries in ...",
+   "lang": "en"
+  },
+  "b": {
+   "title": "Prabowo urges stronger ASEAN resilience amid global turmoil",
+   "desc": "Indonesian President Prabowo Subianto urged ASEAN member states Sunday to bolster regional resilience and unity to ...",
+   "lang": "en"
+  }
+ }
+]
