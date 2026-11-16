@@ -65,30 +65,28 @@ button { font: inherit; color: inherit; }
 /* two-column news grid: small photo top-left, title beside it, one info line below */
 .grid {
   list-style: none; margin: 0; padding: 0;
-  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 1.1rem;
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.7rem;
 }
-.item { border-top: 1px solid var(--rule); }
-.item a {
-  display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: 0.6rem; row-gap: 0.45rem;
-  align-items: start; padding: 0.85rem 0 0.95rem;
-}
+/* each story is a box: hairline frame, a little air inside, darker frame on hover/focus */
+.item { display: flex; border: 1px solid var(--rule); border-radius: 6px; background: var(--bg); }
+.item:hover, .item:focus-within { border-color: var(--rule-strong); }
+.item a { flex: 1; display: flex; flex-direction: column; padding: 0.7rem 0.7rem 0.75rem; }
+.item .head { display: block; font: 700 1.08rem/1.22 var(--serif); letter-spacing: -0.005em; }
+.item .head::after { content: ""; display: block; clear: both; }
+.item .meta { margin-top: auto; padding-top: 0.5rem; }
 .item-thumb {
-  width: 3.75rem; height: 3.75rem; object-fit: cover; border-radius: 2px; background: var(--land);
+  float: left; width: 3.2rem; height: 3.2rem; margin: 0.15rem 0.55rem 0.25rem 0;
+  object-fit: cover; border-radius: 3px; background: var(--land);
 }
-.item .title {
-  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 5; overflow: hidden;
-  font: 700 1.08rem/1.2 var(--serif); letter-spacing: -0.005em;
-  overflow-wrap: anywhere; hyphens: auto;
-}
-.item a.no-thumb .title { grid-column: 1 / -1; }
+.item .title { font: inherit; hyphens: auto; }
 .item .meta {
-  grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 0.1rem 0.45rem;
+  display: flex; flex-wrap: wrap; gap: 0.1rem 0.45rem;
   font-size: 0.8rem; line-height: 1.35; color: var(--muted);
 }
 .item .count { color: var(--faint); font-size: inherit; }
 .item .rank { color: var(--red); font-weight: 600; }
 .item a:hover .title { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
-@media (min-width: 36rem) { .item-thumb { width: 4.4rem; height: 4.4rem; } }
+@media (min-width: 36rem) { .item-thumb { width: 4.2rem; height: 4.2rem; } }
 .new { color: var(--red); }
 .row a:hover .title { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
 

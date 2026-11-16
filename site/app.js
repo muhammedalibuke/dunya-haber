@@ -119,13 +119,11 @@ function shortPlace(ev) {
 function eventRow(ev, rank, now, seen, timeField = "updated_at") {
   const thumb = safeUrl(ev.thumb);
   return el("li", { class: "item" },
-    el("a", { href: `#/e/${encodeURIComponent(ev.id)}`, class: thumb ? "" : "no-thumb" },
-      thumb ? el("img", { class: "item-thumb", src: thumb, alt: "", loading: "lazy", decoding: "async",
-        referrerpolicy: "no-referrer", onerror: (e) => {
-          e.target.closest("a")?.classList.add("no-thumb");
-          e.target.remove();
-        } }) : null,
-      el("span", { class: "title", text: ev.title[lang] }),
+    el("a", { href: `#/e/${encodeURIComponent(ev.id)}` },
+      el("span", { class: "head" },
+        thumb ? el("img", { class: "item-thumb", src: thumb, alt: "", loading: "lazy", decoding: "async",
+          referrerpolicy: "no-referrer", onerror: (e) => e.target.remove() }) : null,
+        el("span", { class: "title", text: ev.title[lang] })),
       el("span", { class: "meta" },
         rank ? el("span", { class: "rank", text: String(rank) }) : null,
         el("span", { text: shortPlace(ev) }),
