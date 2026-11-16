@@ -1,51 +1,130 @@
+<div align="center">
+
 # Dünya Haber
 
-Dünyada bugün olan önemli olayları tek, sade bir sayfada gösteren kişisel haber uygulaması.
+**Dünyada bugün ne oldu? Tek sayfada, sade ve ücretsiz.**
 
-- Aynı olayı yazan haberler (farklı dillerde bile) **tek bir olayda** birleşir.
-- Ana ekranda günün en önemli **5–10 olayı** ve bir **dünya haritası** var. Liste bitirilebilir.
-- Her olayda kaynakların listesi ve **orijinal habere doğrudan bağlantı** bulunur.
-- Türkçe ve İngilizce. Spor ve magazin günün özetine girmez, "Tümünü gör" listesinde görünür.
-- **Ücretsiz:** GitHub Actions yaklaşık 10 dakikada bir haberleri toplar, site GitHub Pages'te yayınlanır.
+161 ülkeden 235 haber kaynağını 10 dakikada bir tarar, aynı olayı anlatan haberleri dil fark etmeksizin tek bir olayda birleştirir,
+Türkçe ve İngilizce özetler ve her olayı haritada gösterir.
 
-Adres: `https://muhammedalibuke.github.io/dunya-haber/`
+[**Siteyi aç →**](https://muhammedalibuke.github.io/dunya-haber/)
 
-## İlk kurulum (bir kez)
+[![update](https://github.com/muhammedalibuke/dunya-haber/actions/workflows/update.yml/badge.svg)](https://github.com/muhammedalibuke/dunya-haber/actions/workflows/update.yml)
+[![ci](https://github.com/muhammedalibuke/dunya-haber/actions/workflows/ci.yml/badge.svg)](https://github.com/muhammedalibuke/dunya-haber/actions/workflows/ci.yml)
 
-1. **Settings → Pages → Build and deployment → Source: GitHub Actions** seç.
-2. **Actions → check-sources → Run workflow** ile kaynakların sağlığını kontrol et (rapor, çalışmanın "Artifacts" kısmında).
-3. **Actions → update → Run workflow** ile ilk çalıştırmayı başlat. Sonrasında cron-job.org her 10 dakikada bir `update` çalışmasını başlatır (GitHub API'si üzerinden, yalnızca bu depoda Actions izni olan bir anahtarla; anahtarın süresi 10 Kasım 2027'de doluyor, yenilenmeli). GitHub'ın kendi zamanlayıcısı saatte bir yedek olarak çalışır.
+<img src="docs/screens.png" alt="Ana ekran, Son haberler ve haber sayfası" width="900">
 
-İlk çalıştırma çeviri ve vektör modellerini indirdiği için uzun sürer. Çeviri her çalıştırmada en fazla 8 dakika yapılır; yetişmeyen çeviriler bir sonraki çalıştırmaya kalır, bu yüzden ilk birkaç çalıştırmada bazı başlıklar özgün dilinde görünebilir.
+<sub>Örnek verilerle çekilmiş ekran görüntüleri; fotoğraflar temsilidir.</sub>
 
-## Nasıl çalışır
+</div>
 
+---
+
+## Ne yapar?
+
+| | |
+|---|---|
+| **Aynı haber bir kez** | 10 farklı dilde 30 site aynı depremi yazsa da karşına tek bir olay çıkar. Altında "Bu olayı toplam 30 kaynak haberleştirdi" yazar. |
+| **Günün özeti** | Ana ekranda, ülke dengesi gözetilerek seçilmiş 5–10 önemli olay ve dünya haritasında yerleri. Spor ve magazin buraya girmez. |
+| **Son haberler** | Son 3 saatte ilk kez ortaya çıkan haberler, en yeniden eskiye. Büyük sitelerin son dakika haberleri ilk dakikalarda görünür. |
+| **Haber sayfası** | Birden fazla kaynaktan derlenmiş özet, farklı kaynaklardan en fazla 4 fotoğraf, en çok okunan 5 kaynağa doğrudan bağlantı. |
+| **İki dil** | Bütün başlıklar ve özetler Türkçe ve İngilizce. Tek dokunuşla geçiş. |
+| **Telefonda uygulama gibi** | Tarayıcı menüsünden "Ana ekrana ekle" ile uygulama gibi açılır. |
+| **Sıfır maliyet** | Sunucu yok, ücretli servis yok. Her şey GitHub Actions ve GitHub Pages üzerinde çalışır. |
+
+## Nasıl çalışır?
+
+```mermaid
+flowchart LR
+    T["cron-job.org<br/>10 dakikada bir"] --> A
+    subgraph A["GitHub Actions"]
+        direction LR
+        F["RSS beslemeleri<br/>235 kaynak"] --> E["Vektörler<br/>bge-m3"]
+        E --> C["Olaylara<br/>kümeleme"]
+        C --> X["Konu · konum<br/>çeviri · özet"]
+        X --> R["Sıralama"]
+    end
+    A --> D[("data dalı<br/>durum")]
+    A --> P["GitHub Pages<br/>statik site"]
 ```
-config/sources.yaml  →  topla (RSS)  →  vektörle  →  olaylara kümele
-→ spor/magazin etiketi  →  çeviri (TR/EN, çevrimdışı)  →  konum (GeoNames + Natural Earth)
-→ sıralama (ülke dengeli)  →  site/data/*.json  →  GitHub Pages
-```
 
-Durum (olaylar, çeviri önbelleği) `data` dalında JSON olarak saklanır. Bu dal her çalışmada tek bir commit olarak üzerine yazılır.
+1. **Toplama:** `config/sources.yaml` içindeki beslemeler paralel çekilir. Değişmeyen beslemeler tekrar indirilmez, bozuk ya da yavaş olanlar atlanır.
+2. **Birleştirme:** Her haber çok dilli bir modelle (`BAAI/bge-m3`) vektöre çevrilir ve son 48 saatteki olaylarla karşılaştırılır. Sınırda kalan benzerliklerde ancak nadir bir ortak isim (ör. "Depardieu", "NYPD") varsa birleştirilir. Sonradan aynı olduğu anlaşılan olaylar da birleştirilir.
+3. **Zenginleştirme:** Spor ve magazin etiketlenir. Olayın yeri GeoNames ve Natural Earth verisiyle internete çıkmadan bulunur. Başlıklar ve özetler Argos Translate ile çevrilir. Fotoğrafı olmayan haberlere haber sayfasındaki kapak fotoğrafı eklenir.
+4. **Yayın:** Önem puanı ülke dengeli hesaplanır, site için JSON dosyaları üretilir ve GitHub Pages'e yüklenir. Durum `data` dalında tek bir commit olarak saklanır.
+
+Bir güncelleme yaklaşık 1,5 dakika sürer.
+
+## Kurulum (bir kez)
+
+1. **Pages'i aç:** Settings → Pages → Build and deployment → Source: **GitHub Actions**
+2. **Kaynakları kontrol et:** Actions → `check-sources` → Run workflow. Rapor, çalışmanın Artifacts kısmında.
+3. **Zamanlayıcıyı kur:** GitHub'ın kendi zamanlayıcısı güvenilir değil, bu yüzden güncellemeleri [cron-job.org](https://cron-job.org) başlatır:
+   - GitHub'da yalnızca bu depoya, yalnızca **Actions: Read and write** izni olan bir *fine-grained token* oluştur.
+   - cron-job.org'da her 10 dakikada bir şu isteği gönderen bir görev kur:
+     ```
+     POST https://api.github.com/repos/muhammedalibuke/dunya-haber/actions/workflows/update.yml/dispatches
+     Authorization: Bearer <token>
+     Accept: application/vnd.github+json
+     X-GitHub-Api-Version: 2022-11-28
+     Content-Type: application/json
+
+     {"ref":"main"}
+     ```
+   - GitHub'ın kendi zamanlayıcısı saatte bir yedek olarak çalışmaya devam eder.
+
+> [!IMPORTANT]
+> Token'ın süresi **10 Kasım 2027**'de doluyor. O tarihten önce yenileyip cron-job.org'daki `Authorization` satırını güncelle.
+
+İlk çalıştırma modelleri indirdiği için uzun sürer. Çeviriye her çalıştırmada en fazla 8 dakika ayrılır, yetişmeyen çeviriler bir sonraki çalıştırmaya kalır.
 
 ## Sık yapılacaklar
 
-- **Kaynak eklemek:** `config/sources.yaml` dosyasına bir satır ekle (`id, name, url, country, lang, region`). `pytest tests/test_sources.py` alanları kontrol eder.
-- **Yanlış eşleşen yer adı:** `config/place_stoplist.txt` dosyasına ekle.
-- **Aynı haberi bulma (16 Kasım):** Olaylar `BAAI/bge-m3` modeliyle eşleştirilir (5 modelin 54 etiketli zor örnek üzerinde karşılaştırması: `scripts/calibrate.py`, GitHub'da `calibrate` iş akışı). Benzerlik 0,72 ve üstüyse birleşir; 0,55–0,72 arasında ise yalnızca en fazla 10 olayda geçen ortak bir isim (ör. "Ronaldinho", "NYPD") varsa birleşir. Her çalıştırmada bölünmüş olaylar da birleştirilir. Spor/magazin etiketleme hafif MiniLM modelinde kalır.
-- **Benzer haberlerin birleşme hassasiyeti:** `pipeline/cluster.py` içindeki `CLUSTER_THRESHOLD` (şu an 0,72). İlk gerçek çalıştırmada (13 Kasım 2026, 4.119 haber) bu değerle 10'dan fazla dildeki aynı haberler doğru birleşti ve farklı olaylar karışmadı. Yükseltirsen daha az birleşir, düşürürsen daha çok.
-- **Yerelde önizleme:** `python scripts/make_dev_data.py`, sonra `python -m http.server` ve `http://localhost:8000/site/?data=dev-data`.
-- **Testler:** `pytest` ve `npm test`.
+| Ne | Nerede |
+|---|---|
+| Kaynak eklemek | `config/sources.yaml`: `id, name, url, country, lang, region, tier`. `tier` popülerliktir: 1 dünya çapında çok okunan, 2 büyük ulusal yayın, 3 diğer. Haber sayfasında en popüler 5 kaynak listelenir. |
+| Yanlış yere düşen harita noktası | `config/place_stoplist.txt` (ör. kişi adı olan şehirler) |
+| Spor/magazin anahtar kelimeleri | `config/topics.yaml` |
+| Haber birleştirme hassasiyeti | `pipeline/cluster.py`: `CLUSTER_THRESHOLD` (0,72) ve `CLUSTER_LOW` (0,55) |
+| Modelleri yeniden ölçmek | Actions → `calibrate` (54 etiketli zor örnek: `scripts/calibration/pairs.json`) |
+| Yapay zekâ özeti (isteğe bağlı) | Settings → Secrets → Actions → `GEMINI_API_KEY`. Günün özetindeki olaylar için daha akıcı özetler üretir. Kota dolarsa sessizce normal özete döner. |
 
-## İsteğe bağlı: yapay zekâ özeti
+## Geliştirme
 
-Varsayılan olarak kapalı. Açmak için Google AI Studio'dan ücretsiz bir Gemini API anahtarı al ve depoda
-**Settings → Secrets and variables → Actions → New repository secret** ile `GEMINI_API_KEY` adıyla ekle.
-Kota dolarsa ya da hata olursa sistem sessizce normal özete döner.
+```bash
+pip install -e ".[dev]"            # ağır modeller olmadan testler için yeterli
+pytest                             # Python testleri
+npm test                           # site testleri (node --test)
+
+python scripts/make_dev_data.py    # örnek veri
+python -m http.server              # → http://localhost:8000/site/?data=dev-data
+```
+
+<details>
+<summary>Proje yapısı</summary>
+
+```
+config/            kaynaklar, konu anahtar kelimeleri, yer adı istisnaları
+pipeline/          collect · embed · cluster · topics · geo · translate · summarize · images · rank · publish · run
+site/              statik site (HTML, CSS, JS modülleri, harita verisi, d3-geo)
+scripts/           kaynak kontrolü, model kurulumu, harita ve gazetteer üretimi, kalibrasyon
+data/              çevrimdışı yer adları sözlüğü (GeoNames + Natural Earth)
+docs/superpowers/  tasarım belgesi ve uygulama planı
+.github/workflows/ update (10 dk) · ci · check-sources · calibrate
+```
+
+</details>
 
 ## Telif ve lisanslar
 
-Haber başlıkları ve kısa açıklamalar ilgili yayıncılara aittir. Uygulama haberin tamamını göstermez, kaynağına bağlantı verir.
-Yer verisi: [GeoNames](https://www.geonames.org/) (CC-BY 4.0). Harita: [Natural Earth](https://www.naturalearthdata.com/) (kamu malı).
-Vektör modeli: `paraphrase-multilingual-MiniLM-L12-v2` (Apache-2.0). Çeviri: Argos Translate.
-Harita kütüphaneleri: d3-geo, d3-array, topojson-client (ISC).
+Haber başlıkları, kısa açıklamalar ve fotoğraflar ilgili yayıncılara aittir. Uygulama haberin tamamını göstermez, her zaman kaynağına bağlantı verir.
+
+| Kullanılan | Lisans |
+|---|---|
+| [GeoNames](https://www.geonames.org/) yer adları | CC-BY 4.0 |
+| [Natural Earth](https://www.naturalearthdata.com/) harita verisi | Kamu malı |
+| [`BAAI/bge-m3`](https://huggingface.co/BAAI/bge-m3) (haber eşleştirme) | MIT |
+| [`paraphrase-multilingual-MiniLM-L12-v2`](https://huggingface.co/sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2) (konu etiketleme) | Apache-2.0 |
+| [Argos Translate](https://github.com/argosopentech/argos-translate) (çeviri) | MIT |
+| d3-geo, d3-array, topojson-client | ISC |
+| Fraunces, Source Sans 3 (yazı tipleri) | SIL OFL |
