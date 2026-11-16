@@ -19,7 +19,7 @@ from pipeline.cluster import name_tokens  # noqa: E402
 from pipeline.state import load_state  # noqa: E402
 
 MODELS = {
-    "minilm (current)": ("sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2", ""),
+    "minilm": ("sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2", ""),
     "mpnet": ("sentence-transformers/paraphrase-multilingual-mpnet-base-v2", ""),
     "e5-base": ("intfloat/multilingual-e5-base", "query: "),
     "labse": ("sentence-transformers/LaBSE", ""),
@@ -62,7 +62,10 @@ def main() -> None:
 
     from sentence_transformers import SentenceTransformer
 
+    only = [m for m in sys.argv[1:] if m in MODELS]
     for label, (name, prefix) in MODELS.items():
+        if only and label not in only:
+            continue
         try:
             t0 = time.time()
             m = SentenceTransformer(name, device="cpu")
@@ -75,6 +78,7 @@ def main() -> None:
         except Exception as exc:
             print(f"{label}: failed: {exc}")
             continue
+        print("SIMS " + label + " " + json.dumps([round(float(x), 4) for x in sims]))
         f1, acc, t, fp = sweep(sims, y)
         print(f"\n== {label}: best F1 {f1:.2f} acc {acc:.2f} at {t:.2f} (false merges {fp}); "
               f"load {load:.0f}s, {speed:.0f} ms/text")

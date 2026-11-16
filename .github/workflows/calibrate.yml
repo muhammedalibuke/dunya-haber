@@ -2,6 +2,10 @@ name: calibrate
 
 on:
   workflow_dispatch:
+    inputs:
+      models:
+        description: "Model labels to test (space separated); empty = all"
+        default: ""
 
 permissions:
   contents: read
@@ -22,4 +26,4 @@ jobs:
       - run: |
           pip install -q torch --index-url https://download.pytorch.org/whl/cpu
           pip install -q -e ".[ml]"
-      - run: python scripts/calibrate.py
+      - run: python scripts/calibrate.py ${{ inputs.models }}
