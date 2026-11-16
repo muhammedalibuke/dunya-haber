@@ -11,7 +11,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Callable
 
-from .cluster import OPEN_WINDOW_HOURS, assign
+from .cluster import CLUSTER_LOW, OPEN_WINDOW_HOURS, NameRescue, _normalize, assign, merge_events
 from .collect import ConditionalGetter, fetch_all
 from .embed import Embedder, embed_text
 from .geo import Gazetteer, locate_event
@@ -56,10 +56,29 @@ def build_summary(e, arts, embedder, cache, translator) -> None:
     e.summary_v = SUMMARY_VERSION
 
 
+def migrate_centroids(state, embedder: Embedder, dim: int, now: datetime,
+                      recent_hours: int = 12, max_articles: int = 600) -> None:
+    """After a model change, centroids from the old model can't be compared. Recent events are
+    re-embedded with the new model (newest first, bounded); older ones stop taking new articles."""
+    stale = [e for e in state.events.values() if e.centroid is not None and e.centroid.shape[0] != dim]
+    stale.sort(key=lambda e: e.updated_at, reverse=True)
+    budget = max_articles
+    for e in stale:
+        arts = [state.articles[a] for a in e.article_ids if a in state.articles]
+        if arts and e.updated_at >= now - timedelta(hours=recent_hours) and len(arts) <= budget:
+            e.centroid = _normalize(embedder.encode([embed_text(a) for a in arts]).mean(axis=0))
+            budget -= len(arts)
+        else:
+            e.centroid = None
+
+
 def run(state_dir: Path, out_dir: Path, now: datetime, sources: list[Source],
         get: Callable[[str], bytes], embedder: Embedder, translator: Translator,
         gaz: Gazetteer, topic_cfg: TopicConfig, gemini_key: str | None = None,
-        post=None, translate_budget_s: float = TRANSLATE_BUDGET_S) -> RunReport:
+        post=None, translate_budget_s: float = TRANSLATE_BUDGET_S,
+        topic_embedder: Embedder | None = None) -> RunReport:
+    """`embedder` groups articles into events; `topic_embedder` (default: the same) tags topics."""
+    topic_embedder = topic_embedder or embedder
     state = load_state(state_dir)
     tiers = {src.id: src.tier for src in sources}
     for a in state.articles.values():  # popularity can be edited in sources.yaml at any time
@@ -75,14 +94,21 @@ def run(state_dir: Path, out_dir: Path, now: datetime, sources: list[Source],
         if a.published >= too_old:
             new.append(a)
     report = RunReport(new_articles=len(new), failures=failures)
+    if any(e.centroid is not None for e in state.events.values()):
+        migrate_centroids(state, embedder, embedder.encode(["dimension probe"]).shape[1], now)
 
     if new:
-        vectors = embedder.encode([embed_text(a) for a in new])
-        protos = prototype_vectors(topic_cfg, embedder)
-        for a, v in zip(new, vectors):
+        texts = [embed_text(a) for a in new]
+        vectors = embedder.encode(texts)
+        topic_vectors = vectors if topic_embedder is embedder else topic_embedder.encode(texts)
+        protos = prototype_vectors(topic_cfg, topic_embedder)
+        for a, v in zip(new, topic_vectors):
             a.topic = article_topic(a, v, topic_cfg, protos)
             state.articles[a.id] = a
-        touched = assign(state.events, new, vectors, now)
+        rescue = NameRescue(state.articles, state.events)
+        touched = assign(state.events, new, vectors, now, low=CLUSTER_LOW, rescue=rescue)
+        merged = merge_events(state.events, touched, now, low=CLUSTER_LOW, rescue=rescue)
+        touched = {merged.get(t, t) for t in touched}
         report.touched_events = len(touched)
         for eid in touched:
             e = state.events[eid]
@@ -125,7 +151,7 @@ def main() -> None:
     ap.add_argument("--out", type=Path, default=Path("build/data"))
     args = ap.parse_args()
 
-    from .embed import SentenceEmbedder
+    from .embed import CLUSTER_MODEL, SentenceEmbedder
     from .translate import ArgosTranslator
 
     argos_dir = os.environ.get("ARGOS_PACKAGES_DIR")
@@ -136,7 +162,8 @@ def main() -> None:
         now=datetime.now(timezone.utc),
         sources=load_sources(ROOT / "config" / "sources.yaml"),
         get=getter,
-        embedder=SentenceEmbedder(),
+        embedder=SentenceEmbedder(CLUSTER_MODEL),
+        topic_embedder=SentenceEmbedder(),
         translator=ArgosTranslator(Path(argos_dir) if argos_dir else None),
         gaz=Gazetteer.load(ROOT / "data" / "gazetteer.json.gz", ROOT / "config" / "place_stoplist.txt"),
         topic_cfg=load_topic_config(ROOT / "config" / "topics.yaml"),

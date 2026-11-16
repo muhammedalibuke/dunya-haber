@@ -32,6 +32,7 @@ Durum (olaylar, çeviri önbelleği) `data` dalında JSON olarak saklanır. Bu d
 
 - **Kaynak eklemek:** `config/sources.yaml` dosyasına bir satır ekle (`id, name, url, country, lang, region`). `pytest tests/test_sources.py` alanları kontrol eder.
 - **Yanlış eşleşen yer adı:** `config/place_stoplist.txt` dosyasına ekle.
+- **Aynı haberi bulma (16 Kasım):** Olaylar `BAAI/bge-m3` modeliyle eşleştirilir (5 modelin 54 etiketli zor örnek üzerinde karşılaştırması: `scripts/calibrate.py`, GitHub'da `calibrate` iş akışı). Benzerlik 0,72 ve üstüyse birleşir; 0,55–0,72 arasında ise yalnızca en fazla 10 olayda geçen ortak bir isim (ör. "Ronaldinho", "NYPD") varsa birleşir. Her çalıştırmada bölünmüş olaylar da birleştirilir. Spor/magazin etiketleme hafif MiniLM modelinde kalır.
 - **Benzer haberlerin birleşme hassasiyeti:** `pipeline/cluster.py` içindeki `CLUSTER_THRESHOLD` (şu an 0,72). İlk gerçek çalıştırmada (13 Kasım 2026, 4.119 haber) bu değerle 10'dan fazla dildeki aynı haberler doğru birleşti ve farklı olaylar karışmadı. Yükseltirsen daha az birleşir, düşürürsen daha çok.
 - **Yerelde önizleme:** `python scripts/make_dev_data.py`, sonra `python -m http.server` ve `http://localhost:8000/site/?data=dev-data`.
 - **Testler:** `pytest` ve `npm test`.

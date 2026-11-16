@@ -135,3 +135,37 @@ def test_breaking_single_source_from_big_outlet_is_translated(tmp_path):
              TR.url: rss([]), JP.url: rss([])}
     _, tr = go(tmp_path, pages, NOW, sources=(big, TR, JP))
     assert ("en", "tr", "Quake hits Kobe") in tr.pairs
+
+
+def test_model_change_reembeds_recent_events_and_closes_old_ones(tmp_path):
+    import numpy as np
+    from pipeline.models import Event
+    from pipeline.state import load_state, save_state
+    t = NOW - timedelta(hours=2)
+    pages = {GB.url: rss([item("Quake hits Kobe", "https://bbc.example/q", t, "A strong quake.")]),
+             TR.url: rss([item("Kobe'de deprem", "https://aa.example/d", t, "Deprem.")]), JP.url: rss([])}
+    go(tmp_path, pages, NOW)
+    st = load_state(tmp_path / "state")
+    [eid] = list(st.events)
+    st.events[eid].centroid = np.ones(4, np.float32) / 2  # stored by an older, 4-dim model
+    old = st.articles[st.events[eid].article_ids[0]]
+    st.events["stale"] = Event("stale", [old.id], np.ones(4, np.float32) / 2,
+                               NOW - timedelta(hours=20), NOW - timedelta(hours=20))
+    save_state(st, tmp_path / "state")
+    go(tmp_path, pages, NOW + timedelta(minutes=10))
+    st = load_state(tmp_path / "state")
+    assert st.events[eid].centroid.shape == (16,)
+    assert st.events["stale"].centroid is None
+
+
+def test_split_events_are_merged_after_a_run(tmp_path):
+    from pipeline.state import load_state
+    t = NOW - timedelta(hours=2)
+    pages = {GB.url: rss([item("Quake hits Kobe", "https://bbc.example/q", t, "")]),
+             TR.url: rss([item("Budget passes", "https://aa.example/b", t, "")]), JP.url: rss([])}
+    go(tmp_path, pages, NOW)
+    pages[JP.url] = rss([item("Quake: Kobe toll rises", "https://nhk.example/k", t + timedelta(minutes=30), "")])
+    go(tmp_path, pages, NOW + timedelta(minutes=40))
+    st = load_state(tmp_path / "state")
+    quake = [e for e in st.events.values() if any("Kobe" in st.articles[a].title for a in e.article_ids)]
+    assert len(quake) == 1 and len(quake[0].article_ids) == 2

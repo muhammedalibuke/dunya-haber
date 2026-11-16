@@ -7,7 +7,9 @@ import numpy as np
 
 from .models import Article
 
-DEFAULT_MODEL = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"  # Apache-2.0
+DEFAULT_MODEL = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"  # Apache-2.0; topic tagging
+# Story matching: best of 5 multilingual models on 54 hand-labelled hard pairs (scripts/calibrate.py)
+CLUSTER_MODEL = "BAAI/bge-m3"  # MIT
 
 
 class Embedder(Protocol):

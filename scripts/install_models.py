@@ -1,7 +1,7 @@
 """Download the models the pipeline needs (runs in CI before the pipeline, cached between runs).
 
 - Argos Translate packages: every source language -> en, plus en -> tr and tr -> en.
-- The multilingual sentence-transformers model.
+- The sentence models: MiniLM (topic tagging) and bge-m3 (story matching).
 """
 from __future__ import annotations
 
@@ -12,7 +12,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from pipeline.embed import SentenceEmbedder  # noqa: E402
+from pipeline.embed import CLUSTER_MODEL, SentenceEmbedder  # noqa: E402
 from pipeline.sources import load_sources  # noqa: E402
 from pipeline.translate import ArgosTranslator  # noqa: E402
 
@@ -26,7 +26,8 @@ def main() -> None:
         ok = tr._ensure(src, tgt)
         print(f"argos {src}->{tgt}: {'ok' if ok else 'not available'}")
     SentenceEmbedder()
-    print("sentence model: ok")
+    SentenceEmbedder(CLUSTER_MODEL)
+    print("sentence models: ok")
 
 
 if __name__ == "__main__":

@@ -165,3 +165,11 @@ def test_conditional_getter_gives_up_on_slow_feeds(tmp_path):
                           deadline_s=0)
     with pytest.raises(TimeoutError):
         g("https://slow.example/rss")
+
+
+def test_garbled_repeating_titles_dropped():
+    xml = (b'<?xml version="1.0"?><rss version="2.0"><channel><title>x</title>'
+           b'<item><title>mainstremainstremainstremainstremainstremainstre</title><link>https://example.com/1</link></item>'
+           b'<item><title>Normal headline about events</title><link>https://example.com/2</link></item>'
+           b'</channel></rss>')
+    assert [a.title for a in parse_feed(xml, SRC, NOW)] == ["Normal headline about events"]

@@ -29,6 +29,7 @@ FUTURE_TOLERANCE = timedelta(minutes=10)
 _BLOCK_RE = re.compile(r"<(script|style|ul|ol)\b[^>]*>.*?</\1\s*>", re.I | re.S)
 _TAG_RE = re.compile(r"<[^>]+>")
 _WS_RE = re.compile(r"\s+")
+_GARBLED = re.compile(r"(.{3,15}?)\1{3,}", re.S)  # "mainstremainstremainstre…" from a broken feed
 
 
 def canonical_url(url: str) -> str:
@@ -102,7 +103,7 @@ def parse_feed(content: bytes, source: Source, fetched_at: datetime) -> list[Art
     for e in parsed.entries:
         title = clean_text(e.get("title", ""), max_chars=300)
         link = safe_http_url(e.get("link"), source.url)
-        if not title or not link:
+        if not title or not link or _GARBLED.search(title.lower()):
             continue
         url = canonical_url(link)
         out.append(Article(

@@ -88,3 +88,45 @@ def test_name_tokens_picks_names_and_acronyms():
     assert "nypd" in toks and "depardieu" in toks and "gerard" in toks and "paulo" in toks
     assert "shoots" not in toks and "2027" not in toks and "sao" not in toks  # short / lowercase / digits out
     assert name_tokens("神戸で地震") == []
+
+
+def test_borderline_match_merges_only_with_rescue():
+    emb = FakeEmbedder({"alpha": [1, 0.9] + [0] * 14})  # cos with axis(0) ≈ 0.74 → set thresholds around it
+    e = Event("e1", ["x"], unit(axis(0)), NOW, NOW)
+    a = art("a1", "alpha story", NOW)
+    v = emb.encode([embed_text(a)])
+    sim = float(v[0] @ e.centroid)
+    events = {"e1": e}
+    assign(events, [a], v, NOW, threshold=sim + 0.05, low=sim - 0.05, rescue=lambda art_, ev: False)
+    assert len(events) == 2
+    e2 = Event("e1", ["x"], unit(axis(0)), NOW, NOW)
+    events = {"e1": e2}
+    assign(events, [a], v, NOW, threshold=sim + 0.05, low=sim - 0.05, rescue=lambda art_, ev: ev.id == "e1")
+    assert events["e1"].article_ids == ["x", "a1"] and len(events) == 1
+
+
+def test_name_rescue_uses_names_rare_across_events():
+    from pipeline.cluster import NameRescue
+    arts = {
+        "r1": art("r1", "Ronaldinho returns to football", NOW, source_id="s1"),
+        "t1": art("t1", "Trump speaks", NOW, source_id="s2"),
+        **{f"t{i}": art(f"t{i}", f"Trump story {i}", NOW, source_id=f"s{i}") for i in range(2, 9)},
+    }
+    events = {k: Event(k, [k], unit(axis(0)), NOW, NOW) for k in arts}
+    rescue = NameRescue(arts, events, max_events=5)
+    assert rescue(art("n1", "Icon Ronaldinho makes winning return", NOW), events["r1"])
+    assert not rescue(art("n2", "Trump again", NOW), events["t1"])  # Trump is in 8 events: too common
+
+
+def test_merge_split_events():
+    from pipeline.cluster import merge_events
+    t0 = NOW - timedelta(hours=3)
+    a = Event("old", ["a1", "a2"], unit(axis(0)), t0, NOW - timedelta(hours=2))
+    b = Event("new", ["b1"], unit([1, 0.05] + [0] * 14), NOW - timedelta(hours=1), NOW)
+    c = Event("other", ["c1"], unit(axis(5)), NOW, NOW)
+    events = {"old": a, "new": b, "other": c}
+    merged = merge_events(events, {"new"}, NOW, threshold=0.9)
+    assert merged == {"new": "old"}
+    assert set(events) == {"old", "other"}
+    assert events["old"].article_ids == ["a1", "a2", "b1"]
+    assert events["old"].created_at == t0 and events["old"].updated_at == NOW
