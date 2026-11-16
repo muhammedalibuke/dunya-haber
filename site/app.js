@@ -111,17 +111,28 @@ function photos(images) {
   return { hero, thumbs: buttons.length ? el("div", { class: "thumbs" }, buttons) : null };
 }
 
+function shortPlace(ev) {
+  const loc = ev.location;
+  return loc && loc.level !== "country" && loc.name ? loc.name : ev.country.name[lang] || "";
+}
+
 function eventRow(ev, rank, now, seen, timeField = "updated_at") {
-  const meta = el("span", { class: "meta" },
-    el("span", { text: placeName(ev) }),
-    el("span", { text: formatAgo(ev[timeField] || ev.updated_at, now, lang) }),
-    isNewDevelopment(ev, seen) ? el("span", { class: "new", text: t("newDev", lang) }) : null);
-  return el("li", { class: "row" },
-    el("a", { href: `#/e/${encodeURIComponent(ev.id)}` },
-      rank ? el("span", { class: "rank", "aria-hidden": "true", text: String(rank) }) : null,
-      meta,
+  const thumb = safeUrl(ev.thumb);
+  return el("li", { class: "item" },
+    el("a", { href: `#/e/${encodeURIComponent(ev.id)}`, class: thumb ? "" : "no-thumb" },
+      thumb ? el("img", { class: "item-thumb", src: thumb, alt: "", loading: "lazy", decoding: "async",
+        referrerpolicy: "no-referrer", onerror: (e) => {
+          e.target.closest("a")?.classList.add("no-thumb");
+          e.target.remove();
+        } }) : null,
       el("span", { class: "title", text: ev.title[lang] }),
-      el("span", { class: "count", text: t("sourceCount", lang, { n: ev.source_count }) })));
+      el("span", { class: "meta" },
+        rank ? el("span", { class: "rank", text: String(rank) }) : null,
+        el("span", { text: shortPlace(ev) }),
+        el("span", { text: formatAgo(ev[timeField] || ev.updated_at, now, lang) }),
+        isNewDevelopment(ev, seen)
+          ? el("span", { class: "new", text: t("newDev", lang) })
+          : el("span", { class: "count", text: t("sourceCount", lang, { n: ev.source_count }) }))));
 }
 
 function footer(generatedAt) {
@@ -148,7 +159,7 @@ async function viewToday() {
     ...(events.length
       ? [
         el("p", { class: "lede", text: t("todayCount", lang, { n: events.length }) }),
-        el("ol", { class: "list ranked" }, events.map((ev, i) => eventRow(ev, i + 1, now, seen))),
+        el("ol", { class: "grid" }, events.map((ev, i) => eventRow(ev, i + 1, now, seen))),
       ]
       : [message(t("quiet", lang))]),
     el("p", { class: "end" },
@@ -170,7 +181,7 @@ async function viewAll() {
       el("h1", { class: "page-title", text: t("allTitle", lang) }),
       langButton()),
     data.events.length
-      ? el("ul", { class: "list" }, data.events.map((ev) => eventRow(ev, 0, now, seen, "created_at")))
+      ? el("ul", { class: "grid" }, data.events.map((ev) => eventRow(ev, 0, now, seen, "created_at")))
       : message(t("quiet", lang)),
     footer(data.generated_at));
 }
@@ -223,7 +234,7 @@ async function viewEvent(id) {
     more.length
       ? el("section", { class: "more" },
         el("h2", { class: "section", text: t("moreNews", lang) }),
-        el("ul", { class: "list" }, more.map((m) => eventRow(m, 0, now, seen))),
+        el("ul", { class: "grid" }, more.map((m) => eventRow(m, 0, now, seen))),
         el("p", { class: "end" }, el("a", { href: "#/all", text: t("seeAll", lang) })))
       : null,
     footer(null));

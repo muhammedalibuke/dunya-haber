@@ -92,6 +92,7 @@ def event_summary(event: Event, articles: dict[str, Article]) -> dict:
         "created_at": event.created_at.isoformat(),
         "topic": event.topic,
         "location": _location(event),
+        "thumb": next((i["url"] for i in _images(arts)), None),
     }
 
 

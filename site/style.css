@@ -62,14 +62,37 @@ button { font: inherit; color: inherit; }
 .row { border-top: 1px solid var(--rule); }
 .row:last-child { border-bottom: 1px solid var(--rule); }
 .row a { display: grid; grid-template-columns: 1fr; gap: 0.15rem; padding: 0.95rem 0; }
-.ranked .row a { grid-template-columns: 2rem 1fr; column-gap: 0.5rem; }
-.rank {
-  grid-row: span 3; font-size: 1.35rem; line-height: 1.25; color: var(--faint);
-  font-variant-numeric: oldstyle-nums; font-weight: 400;
-}
 .meta { font-size: 0.82rem; color: var(--muted); display: flex; flex-wrap: wrap; gap: 0 0.9rem; }
 .title { font-size: 1.12rem; line-height: 1.38; font-weight: 500; }
 .count { font-size: 0.82rem; color: var(--faint); }
+
+/* two-column news grid: small photo top-left, title beside it, one info line below */
+.grid {
+  list-style: none; margin: 0; padding: 0;
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 1.1rem;
+}
+.item { border-top: 1px solid var(--rule); }
+.item a {
+  display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: 0.6rem; row-gap: 0.45rem;
+  align-items: start; padding: 0.85rem 0 0.95rem;
+}
+.item-thumb {
+  width: 3.6rem; height: 3.6rem; object-fit: cover; border-radius: 5px; background: var(--land);
+}
+.item .title {
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 5; overflow: hidden;
+  font-size: 0.96rem; line-height: 1.33; font-weight: 500;
+}
+.item a.no-thumb .title { grid-column: 1 / -1; }
+.item .meta {
+  grid-column: 1 / -1; display: block; font-size: 0.74rem; line-height: 1.3;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.item .meta span + span { margin-left: 0.45rem; }
+.item .count { color: var(--faint); font-size: inherit; }
+.item .rank { color: var(--red); font-weight: 600; }
+.item a:hover .title { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+@media (min-width: 36rem) { .item-thumb { width: 4.4rem; height: 4.4rem; } }
 .new { color: var(--red); }
 .row a:hover .title { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
 

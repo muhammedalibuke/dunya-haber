@@ -28,7 +28,7 @@ def test_build_site_data_shapes():
     today = files["today.json"]
     assert today["generated_at"] == NOW.isoformat()
     [s] = today["events"]
-    assert set(s) == {"id", "title", "country", "source_count", "updated_at", "created_at", "topic", "location"}
+    assert set(s) == {"id", "title", "country", "source_count", "updated_at", "created_at", "topic", "location", "thumb"}
     assert s["title"] == {"tr": "Deprem Kobe'yi vurdu", "en": "Quake hits Kobe"}  # English source preferred
     assert s["country"] == {"code": "JP", "name": {"tr": "Japonya", "en": "Japan"}}
     assert s["source_count"] == 2
@@ -157,3 +157,13 @@ def test_published_events_are_today_plus_latest_only():
     ids = {e.id for e in published_events(st, ["two_hours"], NOW)}
     assert "old_big" not in ids and "fresh_single_small" not in ids
     assert {"fresh_single_big", "fresh_multi", "two_hours", "f0"} <= ids
+
+
+def test_summary_has_thumbnail_from_most_popular_source():
+    st = state_with_event()
+    st.articles["a2"].image_url = "https://img.example/bbc.jpg"
+    st.articles["a2"].source_tier = 1
+    files = build_site_data(st, ["a1"], NOW)
+    assert files["today.json"]["events"][0]["thumb"] == "https://img.example/bbc.jpg"
+    files = build_site_data(state_with_event(image=False), ["a1"], NOW)
+    assert files["today.json"]["events"][0]["thumb"] is None
