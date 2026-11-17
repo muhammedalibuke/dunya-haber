@@ -37,29 +37,45 @@ def assign(
     cutoff = now - timedelta(hours=window_hours)
     open_ids = [eid for eid, e in events.items() if e.updated_at >= cutoff and e.centroid is not None]
     touched: set[str] = set()
+    # centroids of open events as one matrix (room for one new event per article): one product
+    # per article instead of a Python loop over thousands of events
+    dim = vectors.shape[1] if len(vectors) else 0
+    mat = np.zeros((len(open_ids) + len(articles), dim), dtype=np.float32)
+    for row, eid in enumerate(open_ids):
+        mat[row] = events[eid].centroid
+    rows = len(open_ids)
 
     order = sorted(range(len(articles)), key=lambda i: articles[i].published)
     for i in order:
         a, v = articles[i], vectors[i]
         if a.id in known:
             continue
-        scored = sorted(((float(np.dot(events[eid].centroid, v)), eid) for eid in open_ids), reverse=True)
-        best_id = None
-        if scored and scored[0][0] >= threshold:
-            best_id = scored[0][1]
+        sims = mat[:rows] @ v
+        ranked = np.argsort(-sims, kind="stable")
+        best = None
+        if rows and sims[ranked[0]] >= threshold:
+            best = int(ranked[0])
         elif rescue is not None and low is not None:
-            best_id = next((eid for sim, eid in scored if sim >= low and rescue(a, events[eid])), None)
-        if best_id is not None:
-            e = events[best_id]
+            for r in ranked:
+                if sims[r] < low:
+                    break
+                if rescue(a, events[open_ids[r]]):
+                    best = int(r)
+                    break
+        if best is not None:
+            e = events[open_ids[best]]
             n = len(e.article_ids)
             e.centroid = _normalize(e.centroid * n + v)
+            mat[best] = e.centroid
             e.article_ids.append(a.id)
             e.updated_at = max(e.updated_at, a.published)
-            touched.add(best_id)
+            touched.add(e.id)
         else:
             eid = a.id
             events[eid] = Event(eid, [a.id], _normalize(v), a.published, a.published)
             open_ids.append(eid)
+            mat[rows] = events[eid].centroid
+            rows += 1
             touched.add(eid)
         known.add(a.id)
     return touched
@@ -134,19 +150,30 @@ def merge_events(events: dict[str, Event], touched: set[str], now: datetime,
     its id. Returns {merged_away_id: kept_id}."""
     cutoff = now - timedelta(hours=window_hours)
     merged: dict[str, str] = {}
+    ids = [oid for oid, o in events.items() if o.centroid is not None and o.updated_at >= cutoff]
+    if not ids:
+        return merged
+    row_of = {oid: r for r, oid in enumerate(ids)}
+    mat = np.stack([events[oid].centroid for oid in ids]).astype(np.float32)
+    alive = np.ones(len(ids), dtype=bool)
     for eid in sorted(touched):
         if eid not in events or events[eid].centroid is None:
             continue
         e = events[eid]
-        best, best_sim = None, -1.0
-        for oid, o in events.items():
-            if oid == eid or o.centroid is None or o.updated_at < cutoff:
-                continue
-            sim = float(np.dot(e.centroid, o.centroid))
-            ok = sim >= threshold or (low is not None and rescue is not None and sim >= low
-                                      and rescue.events_share(e, o))
-            if ok and sim > best_sim:
-                best, best_sim = oid, sim
+        sims = np.where(alive, mat @ e.centroid, -np.inf)
+        if eid in row_of:
+            sims[row_of[eid]] = -np.inf
+        ranked = np.argsort(-sims, kind="stable")
+        best = None
+        if sims[ranked[0]] >= threshold:
+            best = ids[ranked[0]]
+        elif low is not None and rescue is not None:
+            for r in ranked:
+                if sims[r] < low:
+                    break
+                if rescue.events_share(e, events[ids[r]]):
+                    best = ids[r]
+                    break
         if best is None:
             continue
         keep, gone = sorted((e, events[best]), key=lambda x: (x.created_at, x.id))
@@ -156,6 +183,10 @@ def merge_events(events: dict[str, Event], touched: set[str], now: datetime,
         keep.updated_at = max(keep.updated_at, gone.updated_at)
         keep.created_at = min(keep.created_at, gone.created_at)
         del events[gone.id]
+        if keep.id in row_of:
+            mat[row_of[keep.id]] = keep.centroid
+        if gone.id in row_of:
+            alive[row_of[gone.id]] = False
         for k, v in merged.items():  # earlier merges into `gone` now live on in `keep`
             if v == gone.id:
                 merged[k] = keep.id

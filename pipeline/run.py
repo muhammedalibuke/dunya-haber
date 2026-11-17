@@ -119,7 +119,7 @@ def dissolve_events(state, over: int, now: datetime) -> list:
             a = state.articles.pop(aid, None)
             if a is not None and a.published >= too_old:
                 out.append(a)
-    print(f"dissolved events over {over} articles: {len(out)} articles to regroup")
+    print(f"dissolved events over {over} articles: {len(out)} articles to regroup", flush=True)
     return out
 
 
