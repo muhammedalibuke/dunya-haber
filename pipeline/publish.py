@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import re
 import shutil
 from datetime import datetime, timedelta
 from functools import lru_cache
@@ -10,6 +11,7 @@ from pathlib import Path
 from .geo import country_of_event
 from .images import upgrade_image_url
 from .models import Article, Event, State
+from .text import is_garbled
 
 OPEN_WINDOW = timedelta(hours=48)
 LATEST_WINDOW = timedelta(hours=3)  # "Son haberler": stories that first appeared this recently
@@ -18,6 +20,8 @@ LATEST_MAX = 150
 SINGLE_SOURCE_MAX_TIER = 2  # breaking news seen in one outlet is listed only if it's a big one
 MAX_SOURCES_SHOWN = 5  # most widely read outlets only; the rest still count toward ranking
 MAX_IMAGES = 4
+MAX_DEVELOPMENTS = 3
+DETAIL_MAX_CHARS = 240
 
 
 @lru_cache(maxsize=512)
@@ -114,6 +118,59 @@ def event_detail(event: Event, articles: dict[str, Article]) -> dict:
     }
 
 
+def _words(title: str) -> set[str]:
+    return {w for w in re.findall(r"\w+", title.lower()) if len(w) >= 3}
+
+
+def developments(event: Event, articles: dict[str, Article], max_n: int = MAX_DEVELOPMENTS) -> list[Article]:
+    """Latest news within a story: newest first, one per outlet, no near-repeat headlines."""
+    out, sources, seen_words = [], set(), []
+    for a in sorted(_arts(event, articles), key=lambda a: a.published, reverse=True):
+        if a.source_id in sources or is_garbled(a.title) or is_garbled(a.title_en):
+            continue
+        w = _words(a.title_en or a.title)
+        if any(w and s and len(w & s) / min(len(w), len(s)) >= 0.5 for s in seen_words):
+            continue
+        sources.add(a.source_id)
+        seen_words.append(w)
+        out.append(a)
+        if len(out) >= max_n:
+            break
+    return out
+
+
+def lead_sentences(text: str, n: int = 2, max_chars: int = DETAIL_MAX_CHARS) -> str:
+    from .summarize import _SENT_SPLIT
+
+    out = ""
+    for sent in _SENT_SPLIT.split(text.strip())[:n]:
+        candidate = f"{out} {sent}".strip()
+        if len(candidate) > max_chars:
+            break
+        out = candidate
+    if not out:
+        out = text[:max_chars].rsplit(" ", 1)[0].rstrip(",;:—- ") + "…"
+    return out
+
+
+def featured_block(event: Event, articles: dict[str, Article], translations: dict, now: datetime) -> dict:
+    from .summarize import default_summary
+    from .translate import cached_pair
+
+    devs = []
+    for a in developments(event, articles):
+        text = default_summary(a.description)
+        detail = None
+        if text:
+            tr, en = cached_pair(text, a.lang, translations)
+            detail = {"tr": lead_sentences(tr), "en": lead_sentences(en)}
+        devs.append({"published": a.published.isoformat(), "source": a.source_name, "url": a.url,
+                     "title": _title(a), "detail": detail})
+    return {**event_summary(event, articles),
+            "days": (now.date() - event.created_at.date()).days + 1,
+            "developments": devs}
+
+
 def listable(event: Event, articles: dict[str, Article], now: datetime) -> bool:
     """Open, and either covered by ≥2 outlets or by one widely read outlet."""
     if event.updated_at < now - OPEN_WINDOW:
@@ -139,15 +196,20 @@ def published_events(state: State, today_ids: list[str], now: datetime) -> list[
     return out + [e for e in latest_events(state, now) if e.id not in seen]
 
 
-def build_site_data(state: State, today_ids: list[str], now: datetime) -> dict[str, object]:
+def build_site_data(state: State, today_ids: list[str], now: datetime,
+                    featured_id: str | None = None) -> dict[str, object]:
     arts = state.articles
     listed = latest_events(state, now)
-    detail_ids = {e.id for e in listed} | set(today_ids)
+    featured = state.events.get(featured_id) if featured_id else None
+    detail_ids = {e.id for e in listed} | set(today_ids) | ({featured.id} if featured else set())
     stamp = now.isoformat()
-    # importance decides WHICH events are in today's list; they are shown newest first
-    today = sorted((state.events[i] for i in today_ids), key=lambda e: (e.updated_at, e.id), reverse=True)
+    # importance decides WHICH events are in today's list; they are shown newest first.
+    # The featured story has its own box, so it is not repeated in the list.
+    today = sorted((state.events[i] for i in today_ids if i != featured_id),
+                   key=lambda e: (e.updated_at, e.id), reverse=True)
     files: dict[str, object] = {
         "today.json": {"generated_at": stamp,
+                       "featured": featured_block(featured, arts, state.translations, now) if featured else None,
                        "events": [event_summary(e, arts) for e in today]},
         "all.json": {"generated_at": stamp, "events": [event_summary(e, arts) for e in listed]},
     }

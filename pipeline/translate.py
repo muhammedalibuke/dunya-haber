@@ -119,3 +119,20 @@ class ArgosTranslator:
 
 __all__ = ["Translator", "ArgosTranslator", "Budget", "translate_cached", "translate_pair",
            "translate_articles", "TARGET_LANGS"]
+
+
+def cached_pair(text: str, lang: str, cache: dict) -> tuple[str, str]:
+    """Like translate_pair, but only from the cache: whatever is missing stays in the original."""
+
+    def get(t: str, src: str, tgt: str) -> str:
+        if not t or src == tgt:
+            return t
+        hit = cache.get(cache_key(t, src, tgt))
+        return hit["text"] if hit and not is_garbled(hit["text"]) else t
+
+    if lang == "en":
+        return get(text, "en", "tr"), text
+    if lang == "tr":
+        return text, get(text, "tr", "en")
+    en = get(text, lang, "en")
+    return (text, text) if en == text else (get(en, "en", "tr"), en)

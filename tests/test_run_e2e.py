@@ -104,3 +104,17 @@ def test_dissolve_over_splits_a_catch_all_event(tmp_path):
     assert sizes == [1, 3]
     [ev] = load(tmp_path, "today.json")["events"]
     assert ev["title"]["en"] == "Quake hits Kobe" and ev["source_count"] == 3
+
+
+def test_run_writes_featured_story_with_translated_developments(tmp_path):
+    srcs = [Source(f"s{i}", f"S{i}", f"https://s{i}.example/rss", "GB", "en", "europe") for i in range(10)]
+    pages = {}
+    for i, s in enumerate(srcs):
+        h = 30 if i < 4 else 1 + i / 10
+        pages[s.url] = rss([(f"Quake report {i} from Kobe area {chr(65 + i) * 3}", f"https://s{i}.example/q",
+                             f"Rescue teams arrived {i}. More soon.", NOW - timedelta(hours=h), "")])
+    run(tmp_path / "state", tmp_path / "out", NOW, srcs, pages.__getitem__, EMB, FakeTranslator(), GAZ, CFG)
+    today = load(tmp_path, "today.json")
+    f = today["featured"]
+    assert f is not None and f["source_count"] == 10 and today["events"] == []
+    assert f["developments"][0]["detail"]["tr"].startswith("[tr] ")

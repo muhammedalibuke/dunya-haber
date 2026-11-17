@@ -18,11 +18,11 @@ from .collect import ConditionalGetter, fetch_all, fetch_page_head
 from .embed import Embedder, embed_text
 from .geo import Gazetteer, locate_event
 from .models import Source
-from .publish import build_site_data, published_events, write_site_data
-from .rank import select_today
+from .publish import build_site_data, developments, published_events, write_site_data
+from .rank import select_featured, select_today
 from .sources import load_sources
 from .state import epoch_day, load_state, prune, save_state
-from .summarize import SUMMARY_VERSION, combined_summary, gemini_summary
+from .summarize import SUMMARY_VERSION, combined_summary, default_summary, gemini_summary
 from .topics import TopicConfig, article_topic, event_topic, load_topic_config, prototype_vectors
 from .translate import Budget, Translator, translate_articles, translate_pair
 
@@ -177,7 +177,9 @@ def run(state_dir: Path, out_dir: Path, now: datetime, sources: list[Source],
     # Only events that can be shown (open, ≥2 sources) get translated, located and summarized,
     # most important first, within a time budget; leftovers are picked up by the next run.
     # only what the site will show: today's important events first, then the newest stories
-    shown = published_events(state, select_today(state.events, state.articles, now), now)
+    featured = select_featured(state.events, state.articles, now)
+    featured_first = list(dict.fromkeys(([featured] if featured else []) + select_today(state.events, state.articles, now)))
+    shown = published_events(state, featured_first, now)
     budget = Budget(translate_budget_s)
     for e in shown:
         arts = [state.articles[a] for a in e.article_ids if a in state.articles]
@@ -186,11 +188,16 @@ def run(state_dir: Path, out_dir: Path, now: datetime, sources: list[Source],
             build_summary(e, arts, embedder, state.translations, translator)
         e.location = locate_event([a.title_en or a.title for a in arts], [a.country for a in arts], gaz)
 
+    if featured and not budget.exhausted:  # the box shows 1–2 sentences of each latest development
+        for a in developments(state.events[featured], state.articles):
+            translate_pair(default_summary(a.description), a.lang, state.translations, translator)
+
     if page_get is not None:
         find_covers(shown, state.articles, page_get)
 
     prune(state, now)
     today = select_today(state.events, state.articles, now)
+    featured = select_featured(state.events, state.articles, now)
     report.today = len(today)
     if gemini_key:
         for eid in today:
@@ -204,7 +211,7 @@ def run(state_dir: Path, out_dir: Path, now: datetime, sources: list[Source],
                 e.summary_tr, e.summary_en = got
                 e.summary_ai = True
     save_state(state, state_dir)
-    write_site_data(out_dir, build_site_data(state, today, now))
+    write_site_data(out_dir, build_site_data(state, today, now, featured))
     return report
 
 

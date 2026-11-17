@@ -175,3 +175,57 @@ def test_detail_images_use_large_versions_but_thumbs_stay_small():
     files = build_site_data(st, ["a1"], NOW)
     assert files["events/a1.json"]["images"][0]["url"] == "https://ichef.bbci.co.uk/ace/standard/976/x.jpg"
     assert files["today.json"]["events"][0]["thumb"] == "https://ichef.bbci.co.uk/ace/standard/240/x.jpg"
+
+
+def dev_state():
+    rows = [  # (id, source, hours ago, title, description)
+        ("d1", "reuters", 30, "Talks open in Geneva", "Delegates arrived. Talks began."),
+        ("d2", "bbc", 3, "Ceasefire deal reached in Geneva talks", "Both sides signed a deal. It starts Monday. More follows."),
+        ("d3", "cnn", 2, "Ceasefire deal reached at Geneva talks, officials say", "Same story again."),
+        ("d4", "bbc", 1, "BBC live: reactions", "Another BBC piece."),
+        ("d5", "aj", 1.5, "Protests erupt after deal", ""),
+        ("d6", "dw", 0.5, "mainstremainstremainstremainstre", "Broken."),
+        ("d7", "afp", 0.2, "Prisoner swap announced", "Ten prisoners each. Swap on Friday."),
+    ]
+    arts = {}
+    for aid, src, h, title, desc in rows:
+        a = art(aid, title, NOW - timedelta(hours=h), source_id=src, desc=desc, source_name=src.upper())
+        a.title_tr, a.title_en = f"[tr] {title}", title
+        arts[aid] = a
+    e = Event("d1", list(arts), np.zeros(4, np.float32), arts["d1"].published, arts["d7"].published)
+    return State(articles=arts, events={"d1": e})
+
+
+def test_developments_are_newest_distinct_sources_and_headlines():
+    from pipeline.publish import developments
+    st = dev_state()
+    got = [a.id for a in developments(st.events["d1"], st.articles)]
+    assert got == ["d7", "d4", "d5"]  # d6 garbled; then BBC's newest; d3 ≈ d2 skipped later
+
+
+def test_featured_block_in_today_and_not_repeated_in_list():
+    from pipeline.state import cache_key
+    st = dev_state()
+    st.translations[cache_key("Ten prisoners each. Swap on Friday.", "en", "tr")] = {"text": "Onar mahkum. Takas cuma."}
+    files = build_site_data(st, ["d1"], NOW, featured_id="d1")
+    today = files["today.json"]
+    assert today["events"] == []
+    f = today["featured"]
+    assert f["id"] == "d1" and f["days"] == 2 and f["source_count"] == 6
+    first = f["developments"][0]
+    assert first["source"] == "AFP" and first["url"].endswith("/d7")
+    assert first["title"] == {"tr": "[tr] Prisoner swap announced", "en": "Prisoner swap announced"}
+    assert first["detail"] == {"tr": "Onar mahkum. Takas cuma.", "en": "Ten prisoners each. Swap on Friday."}
+    assert f["developments"][2]["detail"] is None  # no description: headline only
+    assert "events/d1.json" in files
+
+
+def test_no_featured_story_gives_null():
+    files = build_site_data(state_with_event(), ["a1"], NOW)
+    assert files["today.json"]["featured"] is None
+
+
+def test_detail_keeps_two_sentences():
+    from pipeline.publish import lead_sentences
+    assert lead_sentences("One. Two. Three.") == "One. Two."
+    assert len(lead_sentences("word " * 100)) <= 241
