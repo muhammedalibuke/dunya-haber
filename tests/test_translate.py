@@ -49,3 +49,23 @@ def test_exhausted_budget_leaves_fields_empty_for_next_run():
     a = art("a1", "Quake hits Kobe", NOW, lang="en")
     translate_articles([a], cache, tr, budget=Budget(0))
     assert (a.title_tr, a.title_en, tr.calls) == (None, None, 0)
+
+
+class _Garbler:
+    def translate(self, text, src, tgt):
+        return "mainstremainstremainstremainstremainstre"
+
+
+def test_garbled_translation_falls_back_to_original():
+    from pipeline.state import cache_key
+    cache = {}
+    assert translate_cached("Main street reopens", "en", "tr", cache, _Garbler()) == "Main street reopens"
+    old = {cache_key("Old title", "en", "tr"): {"text": "tiptiptiptiptiptiptiptip"}}
+    assert translate_cached("Old title", "en", "tr", old, FakeTranslator()) == "[tr] Old title"
+
+
+def test_translate_articles_redoes_garbled_titles():
+    a = art("a1", "Quake hits Kobe", NOW)
+    a.title_tr, a.title_en = "depremdepremdepremdepremdeprem", "Quake hits Kobe"
+    translate_articles([a], {}, FakeTranslator())
+    assert a.title_tr == "[tr] Quake hits Kobe"

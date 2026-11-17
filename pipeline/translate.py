@@ -7,6 +7,7 @@ from typing import Callable, Protocol
 
 from .models import Article
 from .state import TARGET_LANGS, cache_key
+from .text import is_garbled
 
 
 class Translator(Protocol):
@@ -19,7 +20,7 @@ def translate_cached(text: str, src: str, tgt: str, cache: dict, tr: Translator)
         return text
     key = cache_key(text, src, tgt)
     hit = cache.get(key)
-    if hit:
+    if hit and not is_garbled(hit["text"]):
         return hit["text"]
     try:
         out = tr.translate(text, src, tgt)
@@ -27,6 +28,8 @@ def translate_cached(text: str, src: str, tgt: str, cache: dict, tr: Translator)
         out = None
     if not out:
         return text
+    if is_garbled(out) and not is_garbled(text):  # the model looped: the original reads better
+        out = text
     cache[key] = {"text": out}
     return out
 
@@ -59,7 +62,8 @@ def translate_articles(articles: list[Article], cache: dict, tr: Translator,
                        budget: Budget | None = None) -> None:
     """Fill title_tr/title_en; stops early when the budget runs out (fields stay None)."""
     for a in articles:
-        if a.title_tr is not None and a.title_en is not None:
+        if (a.title_tr is not None and a.title_en is not None
+                and not is_garbled(a.title_tr) and not is_garbled(a.title_en)):
             continue
         if budget and budget.exhausted:
             return
