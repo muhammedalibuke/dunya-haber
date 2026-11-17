@@ -38,3 +38,24 @@ def select_today(events: dict[str, Event], articles: dict[str, Article], now: da
     top = score(ranked[0], articles, now)
     keep = [e for i, e in enumerate(ranked) if i < min_n or score(e, articles, now) >= rel_cutoff * top]
     return [e.id for e in keep]
+
+
+FEATURED_MIN_AGE = timedelta(hours=24)  # "günlerdir": first report at least a day ago
+FEATURED_ACTIVE = timedelta(hours=6)  # and still developing
+FEATURED_MIN_SOURCES = 10
+
+
+def select_featured(events: dict[str, Event], articles: dict[str, Article], now: datetime) -> str | None:
+    """The story that has been in the news for days and is still developing: of those, the one
+    the most outlets wrote about in the last 24 hours."""
+    best, best_key = None, None
+    for e in events.values():
+        if (e.topic != "general" or e.created_at > now - FEATURED_MIN_AGE
+                or e.updated_at < now - FEATURED_ACTIVE or _source_count(e, articles) < FEATURED_MIN_SOURCES):
+            continue
+        recent = {articles[a].source_id for a in e.article_ids
+                  if a in articles and articles[a].published >= now - TODAY_WINDOW}
+        key = (len(recent), e.updated_at, e.id)
+        if best_key is None or key > best_key:
+            best, best_key = e.id, key
+    return best

@@ -75,3 +75,29 @@ def test_cutoff_drops_weak_tail_above_min_n():
 def test_fewer_candidates_than_min():
     events = {e.id: e for e in [ev(f"c{i}", ["US", "GB"]) for i in range(3)]}
     assert len(select_today(events, ARTS, NOW)) == 3
+
+
+def story(eid, n_old, n_recent, created_h=40.0, updated_h=1.0, topic="general"):
+    """n_old sources wrote more than 24 h ago, n_recent in the last 24 h."""
+    arts, ids = {}, []
+    for i in range(n_old + n_recent):
+        aid = f"{eid}-{i}"
+        t = NOW - timedelta(hours=created_h if i < n_old else updated_h)
+        arts[aid] = art(aid, "x", t, source_id=f"{eid}s{i}")
+        ids.append(aid)
+    e = Event(eid, ids, np.zeros(4, np.float32), NOW - timedelta(hours=created_h),
+              NOW - timedelta(hours=updated_h), topic=topic)
+    return e, arts
+
+
+def test_featured_is_the_long_running_story_most_written_about_today():
+    from pipeline.rank import select_featured
+    parts = [story("big", 5, 12), story("hot", 2, 20), story("young", 0, 30, created_h=10),
+             story("stale", 10, 10, updated_h=8), story("sport", 5, 30, topic="sport"),
+             story("small", 5, 4)]
+    events = {e.id: e for e, _ in parts}
+    arts = {k: v for _, a in parts for k, v in a.items()}
+    assert select_featured(events, arts, NOW) == "hot"
+    for gone in ("hot", "big"):
+        del events[gone]
+    assert select_featured(events, arts, NOW) is None
