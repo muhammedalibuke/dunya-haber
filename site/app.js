@@ -1,4 +1,4 @@
-import { t, isNewDevelopment, formatAgo, formatToday, formatUpdated, safeUrl, dataDir, nextEvents } from "./lib.js";
+import { t, isNewDevelopment, formatAgo, formatToday, formatUpdated, formatClock, formatDateTime, safeUrl, dataDir, nextEvents } from "./lib.js";
 import { worldMap } from "./map.js";
 
 const params = new URLSearchParams(location.search);
@@ -134,6 +134,39 @@ function eventRow(ev, rank, now, seen, timeField = "updated_at") {
       el("span", { class: "title", text: ev.title[lang] })));
 }
 
+// The story that has been in the news for days: what it is, when it last moved, what's new.
+function featuredBox(f, now) {
+  const href = `#/e/${encodeURIComponent(f.id)}`;
+  const thumb = safeUrl(f.thumb);
+  const today = formatToday(now, lang);
+  const when = (iso) => (formatToday(new Date(iso), lang) === today ? "" : `${formatToday(new Date(iso), lang)} `)
+    + formatClock(iso, lang);
+  return el("section", { class: "featured", "aria-labelledby": "featured-title" },
+    el("p", { class: "featured-kicker" },
+      el("span", { class: "featured-days", text: t("trendingDays", lang, { n: f.days }) }),
+      el("span", { text: t("sourceCount", lang, { n: f.source_count }) })),
+    el("a", { class: "featured-head", href },
+      thumb ? el("img", { class: "featured-thumb", src: thumb, alt: "", loading: "lazy", decoding: "async",
+        referrerpolicy: "no-referrer", onerror: (e) => e.target.remove() }) : null,
+      el("h2", { id: "featured-title", class: "featured-title", text: f.title[lang] })),
+    el("p", { class: "featured-updated", text: t("updated", lang, { t: formatDateTime(f.updated_at, lang) }) }),
+    f.developments?.length
+      ? el("div", { class: "devs" },
+        el("h3", { class: "devs-title", text: t("developments", lang) }),
+        el("ol", { class: "devs-list" }, f.developments.map((d) => {
+          const url = safeUrl(d.url);
+          return el("li", { class: "dev" },
+            el("p", { class: "dev-meta" },
+              el("time", { class: "dev-time", datetime: d.published, text: when(d.published) }),
+              el("span", { class: "dev-source", text: d.source })),
+            el(url ? "a" : "span", url ? { class: "dev-title", href: url, target: "_blank", rel: "noopener noreferrer" }
+              : { class: "dev-title" }, d.title[lang]),
+            d.detail?.[lang] ? el("p", { class: "dev-detail", text: d.detail[lang] }) : null);
+        })))
+      : null,
+    el("a", { class: "featured-more", href, text: t("readFull", lang) }));
+}
+
 function footer(generatedAt) {
   return el("footer", { class: "foot" },
     generatedAt ? el("p", { text: t("updated", lang, { t: formatUpdated(generatedAt, new Date(), lang) }) }) : null,
@@ -156,6 +189,7 @@ async function viewToday() {
       el("div", { class: "masthead-line" },
         el("span", { text: formatToday(now, lang, true) }),
         langButton())),
+    data.featured ? featuredBox(data.featured, now) : null,
     mapBox,
     ...(events.length
       ? [

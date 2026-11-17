@@ -22,6 +22,7 @@ MAX_SOURCES_SHOWN = 5  # most widely read outlets only; the rest still count tow
 MAX_IMAGES = 4
 MAX_DEVELOPMENTS = 3
 DETAIL_MAX_CHARS = 240
+DEVELOPMENT_WINDOW = timedelta(hours=12)
 
 
 @lru_cache(maxsize=512)
@@ -123,9 +124,17 @@ def _words(title: str) -> set[str]:
 
 
 def developments(event: Event, articles: dict[str, Article], max_n: int = MAX_DEVELOPMENTS) -> list[Article]:
-    """Latest news within a story: newest first, one per outlet, no near-repeat headlines."""
+    """Latest news within a story: one per outlet, no near-repeat headlines, widely read outlets
+    of the last 12 hours first, then the newest of the rest; shown newest first."""
+    arts = sorted(_arts(event, articles), key=lambda a: a.published, reverse=True)
+    if not arts:
+        return []
+    recent = arts[0].published - DEVELOPMENT_WINDOW
+    popular = [a for a in arts if a.source_tier <= 2 and a.published >= recent]
     out, sources, seen_words = [], set(), []
-    for a in sorted(_arts(event, articles), key=lambda a: a.published, reverse=True):
+    for a in popular + arts:
+        if len(out) >= max_n:
+            break
         if a.source_id in sources or is_garbled(a.title) or is_garbled(a.title_en):
             continue
         w = _words(a.title_en or a.title)
@@ -134,9 +143,7 @@ def developments(event: Event, articles: dict[str, Article], max_n: int = MAX_DE
         sources.add(a.source_id)
         seen_words.append(w)
         out.append(a)
-        if len(out) >= max_n:
-            break
-    return out
+    return sorted(out, key=lambda a: a.published, reverse=True)
 
 
 def lead_sentences(text: str, n: int = 2, max_chars: int = DETAIL_MAX_CHARS) -> str:

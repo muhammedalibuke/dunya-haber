@@ -21,6 +21,9 @@ export const STRINGS = {
     photo: "Fotoğraf: {s}",
     langSwitch: "EN",
     langSwitchLabel: "Switch to English",
+    trendingDays: "{n} gündür gündemde",
+    developments: "Son gelişmeler",
+    readFull: "Haberin tamamı",
   },
   en: {
     todayCount: "{n} key events today",
@@ -42,6 +45,9 @@ export const STRINGS = {
     photo: "Photo: {s}",
     langSwitch: "TR",
     langSwitchLabel: "Türkçeye geç",
+    trendingDays: "In the news for {n} days",
+    developments: "Latest developments",
+    readFull: "Full story",
   },
 };
 
@@ -83,6 +89,10 @@ export function formatClock(iso, lang) {
     hour: "2-digit",
     minute: "2-digit",
   }).format(new Date(iso));
+}
+
+export function formatDateTime(iso, lang) {
+  return `${formatToday(new Date(iso), lang, true)}, ${formatClock(iso, lang)}`;
 }
 
 export function safeUrl(u) {

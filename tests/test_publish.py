@@ -229,3 +229,12 @@ def test_detail_keeps_two_sentences():
     from pipeline.publish import lead_sentences
     assert lead_sentences("One. Two. Three.") == "One. Two."
     assert len(lead_sentences("word " * 100)) <= 241
+
+
+def test_developments_prefer_widely_read_outlets_of_the_last_12_hours():
+    from pipeline.publish import developments
+    st = dev_state()
+    st.articles["d3"].source_tier = 1  # CNN, 2 h ago
+    st.articles["d1"].source_tier = 1  # Reuters, but 30 h ago: not a latest development
+    got = [a.id for a in developments(st.events["d1"], st.articles)]
+    assert got == ["d7", "d4", "d3"]

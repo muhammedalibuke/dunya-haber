@@ -26,6 +26,7 @@ Türkçe ve İngilizce özetler ve her olayı haritada gösterir.
 |---|---|
 | **Aynı haber bir kez** | 10 farklı dilde 30 site aynı depremi yazsa da karşına tek bir olay çıkar. Altında "Bu olayı toplam 30 kaynak haberleştirdi" yazar. |
 | **Günün özeti** | Ana ekranda, ülke dengesi gözetilerek seçilmiş 5–10 önemli olay ve dünya haritasında yerleri. Spor ve magazin buraya girmez. |
+| **Günlerdir gündemde** | Birkaç gündür konuşulan ve hâlâ gelişen haber en üstte ayrı bir kutuda: kaç gündür gündemde olduğu, son güncelleme saati ve en çok okunan kaynaklardan son 3 gelişme. |
 | **Son haberler** | Son 3 saatte ilk kez ortaya çıkan haberler, en yeniden eskiye. Büyük sitelerin son dakika haberleri ilk dakikalarda görünür. |
 | **Haber sayfası** | Birden fazla kaynaktan derlenmiş özet, farklı kaynaklardan en fazla 4 fotoğraf, en çok okunan 5 kaynağa doğrudan bağlantı. |
 | **İki dil** | Bütün başlıklar ve özetler Türkçe ve İngilizce. Tek dokunuşla geçiş. |

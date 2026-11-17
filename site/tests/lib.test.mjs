@@ -105,3 +105,14 @@ test("formatToday can include the weekday", () => {
   assert.equal(formatToday(d, "tr", true), "16 Kasım Pazartesi");
   assert.equal(formatToday(d, "en", true), "Monday 16 November");
 });
+
+test("featured box strings and full date-time", async () => {
+  const { formatDateTime } = await import("../lib.js");
+  assert.equal(t("trendingDays", "tr", { n: 3 }), "3 gündür gündemde");
+  assert.equal(t("trendingDays", "en", { n: 3 }), "In the news for 3 days");
+  assert.equal(t("developments", "tr"), "Son gelişmeler");
+  assert.equal(t("readFull", "tr"), "Haberin tamamı");
+  assert.equal(formatDateTime("2026-11-17T16:12:00+00:00", "tr"), "17 Kasım Salı, 19:12");
+  assert.equal(formatDateTime("2026-11-17T16:12:00+00:00", "en"), "Tuesday 17 November, 19:12");
+  for (const k of ["trendingDays", "developments", "readFull"]) assert.ok(STRINGS.en[k] && STRINGS.tr[k]);
+});
