@@ -115,3 +115,20 @@ def test_prune_forgets_seen_ids_after_14_days():
     s = State(seen={"old": today - 15, "new": today - 13})
     prune(s, NOW)
     assert s.seen == {"new": today - 13}
+
+
+def test_event_cohesion_roundtrips_and_defaults_to_one(tmp_path):
+    import gzip, json
+    from pipeline.models import Event, State
+    from pipeline.state import load_state, save_state
+    from tests.fakes import NOW, axis, unit
+    st = State(events={"e": Event("e", ["a"], unit(axis(0)), NOW, NOW, cohesion=0.8)})
+    save_state(st, tmp_path)
+    assert abs(load_state(tmp_path).events["e"].cohesion - 0.8) < 1e-6
+    p = tmp_path / "events.json.gz"
+    data = json.loads(gzip.open(p, "rt").read())
+    for d in (data.values() if isinstance(data, dict) else data):
+        d.pop("cohesion", None)
+    with gzip.open(p, "wt") as f:
+        json.dump(data, f)
+    assert load_state(tmp_path).events["e"].cohesion == 1.0

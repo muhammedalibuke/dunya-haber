@@ -143,7 +143,7 @@ def test_merge_chain_points_to_surviving_event():
 
     z = Event("z", ["z1"], at(0), NOW - timedelta(hours=3), NOW - timedelta(hours=3))
     y = Event("y", ["y1"], at(20), NOW - timedelta(hours=2), NOW - timedelta(hours=2))
-    x = Event("x", ["x1"], at(60), NOW - timedelta(hours=1), NOW)
+    x = Event("x", ["x1"], at(55), NOW - timedelta(hours=1), NOW)
     events = {"x": x, "y": y, "z": z}
     merged = merge_events(events, {"x", "y"}, NOW, threshold=0.72)
     assert set(events) == {"z"}
@@ -176,3 +176,38 @@ def test_events_share_uses_each_events_core_names():
     ea = Event("ea", [k for k in arts if k[0] == "a"], unit(axis(0)), NOW, NOW)
     eb = Event("eb", [k for k in arts if k[0] == "b"], unit(axis(0)), NOW, NOW)
     assert not NameRescue(arts, {"ea": ea, "eb": eb}).events_share(ea, eb)
+
+
+def test_diffuse_event_does_not_absorb_an_article_between_its_members():
+    """Two unrelated members average to a vector 'close' to anything between them. Similarity must
+    be the article's average similarity to the members, not to their normalized average."""
+    mid = unit([1, 1] + [0] * 14)
+    diffuse = Event("d", ["x1", "x2"], mid, NOW, NOW, cohesion=float(np.linalg.norm((np.array(axis(0)) + axis(1)) / 2)))
+    events = {"d": diffuse}
+    assign(events, [art("n", "between", NOW)], np.array([mid]), NOW, threshold=0.72)
+    assert len(events) == 2 and events["d"].article_ids == ["x1", "x2"]
+
+
+def test_tight_event_still_takes_a_close_article():
+    tight = Event("t", ["x1", "x2"], unit(axis(0)), NOW, NOW, cohesion=1.0)
+    events = {"t": tight}
+    assign(events, [art("n", "same story", NOW)], np.array([unit([1, 0.2] + [0] * 14)]), NOW, threshold=0.72)
+    assert events["t"].article_ids == ["x1", "x2", "n"]
+
+
+def test_assign_tracks_cohesion_as_length_of_mean_vector():
+    e = Event("e", ["x1"], unit(axis(0)), NOW, NOW)
+    events = {"e": e}
+    v = unit([1, 1] + [0] * 14)  # cos 45° ≈ 0.707
+    assign(events, [art("n", "near", NOW)], np.array([v]), NOW, threshold=0.7)
+    expected = np.linalg.norm((np.array(axis(0)) + v) / 2)
+    assert abs(events["e"].cohesion - expected) < 1e-5
+
+
+def test_merge_uses_average_similarity_between_members():
+    from pipeline.cluster import merge_events
+    c = unit(axis(0))
+    a = Event("a", ["a1", "a2"], c, NOW - timedelta(hours=1), NOW, cohesion=0.6)
+    b = Event("b", ["b1", "b2"], c, NOW, NOW, cohesion=0.6)
+    events = {"a": a, "b": b}
+    assert merge_events(events, {"b"}, NOW, threshold=0.72) == {}

@@ -21,6 +21,15 @@ def _normalize(v: np.ndarray) -> np.ndarray:
     return (v / n).astype(np.float32) if n else v.astype(np.float32)
 
 
+def _add(e: Event, v: np.ndarray, n_v: int = 1, cohesion_v: float = 1.0) -> None:
+    """Fold `n_v` members whose mean is `v` (unit vector, length `cohesion_v`) into the event."""
+    n = len(e.article_ids)
+    total = e.centroid * (e.cohesion * n) + v * (cohesion_v * n_v)
+    mean = total / (n + n_v)
+    e.cohesion = float(np.linalg.norm(mean))
+    e.centroid = _normalize(mean)
+
+
 def assign(
     events: dict[str, Event],
     articles: list[Article],
@@ -41,8 +50,10 @@ def assign(
     # per article instead of a Python loop over thousands of events
     dim = vectors.shape[1] if len(vectors) else 0
     mat = np.zeros((len(open_ids) + len(articles), dim), dtype=np.float32)
+    coh = np.ones(len(open_ids) + len(articles), dtype=np.float32)
     for row, eid in enumerate(open_ids):
         mat[row] = events[eid].centroid
+        coh[row] = events[eid].cohesion
     rows = len(open_ids)
 
     order = sorted(range(len(articles)), key=lambda i: articles[i].published)
@@ -50,7 +61,7 @@ def assign(
         a, v = articles[i], vectors[i]
         if a.id in known:
             continue
-        sims = mat[:rows] @ v
+        sims = (mat[:rows] @ v) * coh[:rows]  # average similarity to each event's members
         ranked = np.argsort(-sims, kind="stable")
         best = None
         if rows and sims[ranked[0]] >= threshold:
@@ -64,9 +75,9 @@ def assign(
                     break
         if best is not None:
             e = events[open_ids[best]]
-            n = len(e.article_ids)
-            e.centroid = _normalize(e.centroid * n + v)
+            _add(e, v)
             mat[best] = e.centroid
+            coh[best] = e.cohesion
             e.article_ids.append(a.id)
             e.updated_at = max(e.updated_at, a.published)
             touched.add(e.id)
@@ -155,12 +166,13 @@ def merge_events(events: dict[str, Event], touched: set[str], now: datetime,
         return merged
     row_of = {oid: r for r, oid in enumerate(ids)}
     mat = np.stack([events[oid].centroid for oid in ids]).astype(np.float32)
+    coh = np.array([events[oid].cohesion for oid in ids], dtype=np.float32)
     alive = np.ones(len(ids), dtype=bool)
     for eid in sorted(touched):
         if eid not in events or events[eid].centroid is None:
             continue
         e = events[eid]
-        sims = np.where(alive, mat @ e.centroid, -np.inf)
+        sims = np.where(alive, (mat @ e.centroid) * coh * e.cohesion, -np.inf)
         if eid in row_of:
             sims[row_of[eid]] = -np.inf
         ranked = np.argsort(-sims, kind="stable")
@@ -177,14 +189,14 @@ def merge_events(events: dict[str, Event], touched: set[str], now: datetime,
         if best is None:
             continue
         keep, gone = sorted((e, events[best]), key=lambda x: (x.created_at, x.id))
-        n1, n2 = len(keep.article_ids), len(gone.article_ids)
-        keep.centroid = _normalize(keep.centroid * n1 + gone.centroid * n2)
+        _add(keep, gone.centroid, len(gone.article_ids), gone.cohesion)
         keep.article_ids += [a for a in gone.article_ids if a not in keep.article_ids]
         keep.updated_at = max(keep.updated_at, gone.updated_at)
         keep.created_at = min(keep.created_at, gone.created_at)
         del events[gone.id]
         if keep.id in row_of:
             mat[row_of[keep.id]] = keep.centroid
+            coh[row_of[keep.id]] = keep.cohesion
         if gone.id in row_of:
             alive[row_of[gone.id]] = False
         for k, v in merged.items():  # earlier merges into `gone` now live on in `keep`

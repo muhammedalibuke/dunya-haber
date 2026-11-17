@@ -64,6 +64,7 @@ def _event_to_json(e: Event) -> dict:
         "summary_en": e.summary_en,
         "summary_ai": e.summary_ai,
         "summary_v": e.summary_v,
+        "cohesion": round(float(e.cohesion), 5),
     }
 
 
@@ -80,6 +81,7 @@ def _event_from_json(d: dict) -> Event:
         summary_en=d.get("summary_en", ""),
         summary_ai=d.get("summary_ai", False),
         summary_v=d.get("summary_v", 0),
+        cohesion=d.get("cohesion", 1.0),
     )
 
 

@@ -63,6 +63,9 @@ class Event:
     summary_en: str = ""
     summary_ai: bool = False
     summary_v: int = 0  # summarize.SUMMARY_VERSION the summary was built with
+    # length of the (unnormalized) mean of the members' vectors: 1.0 = all alike, lower = spread out.
+    # centroid · v · cohesion is the average similarity of v to the members.
+    cohesion: float = 1.0
 
 
 @dataclass

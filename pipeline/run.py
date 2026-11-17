@@ -6,6 +6,8 @@ from __future__ import annotations
 
 import argparse
 import os
+
+import numpy as np
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -103,7 +105,9 @@ def migrate_centroids(state, embedder: Embedder, dim: int, now: datetime,
     for e in stale:
         arts = [state.articles[a] for a in e.article_ids if a in state.articles]
         if arts and e.updated_at >= now - timedelta(hours=recent_hours) and len(arts) <= budget:
-            e.centroid = _normalize(embedder.encode([embed_text(a) for a in arts]).mean(axis=0))
+            mean = embedder.encode([embed_text(a) for a in arts]).mean(axis=0)
+            e.centroid = _normalize(mean)
+            e.cohesion = float(np.linalg.norm(mean))
             budget -= len(arts)
         else:
             e.centroid = None
