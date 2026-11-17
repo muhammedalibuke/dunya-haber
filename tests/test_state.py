@@ -132,3 +132,17 @@ def test_event_cohesion_roundtrips_and_defaults_to_one(tmp_path):
     with gzip.open(p, "wt") as f:
         json.dump(data, f)
     assert load_state(tmp_path).events["e"].cohesion == 1.0
+
+
+def test_prune_keeps_second_step_of_pivot_translations():
+    """es → en → tr: the en → tr entry is keyed by the English text and must survive too."""
+    from pipeline.summarize import default_summary
+    a = make_article("k1", desc="La cita duró 42 minutos.")
+    a.lang = "es"
+    text = default_summary(a.description)
+    s = State(articles={"k1": a}, events={"k1": make_event("k1", ["k1"])}, translations={
+        cache_key(text, "es", "en"): {"text": "The meeting lasted 42 minutes."},
+        cache_key("The meeting lasted 42 minutes.", "en", "tr"): {"text": "Görüşme 42 dakika sürdü."},
+    })
+    prune(s, NOW)
+    assert cache_key("The meeting lasted 42 minutes.", "en", "tr") in s.translations

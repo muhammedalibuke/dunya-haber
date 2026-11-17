@@ -143,6 +143,14 @@ def prune(state: State, now: datetime) -> None:
         for text in (a.title, a.description, default_summary(a.description))
         for tgt in TARGET_LANGS
     }
+    # other languages go X → en → tr: keep the en → tr step, keyed by the English text
+    for a in state.articles.values():
+        if a.lang in ("en", "tr"):
+            continue
+        for text in (a.title, a.description, default_summary(a.description)):
+            hit = state.translations.get(cache_key(text, a.lang, "en"))
+            if hit:
+                needed.add(cache_key(hit["text"], "en", "tr"))
     for k in [k for k in state.translations if k not in needed]:
         del state.translations[k]
     oldest = epoch_day(now) - SEEN_DAYS
