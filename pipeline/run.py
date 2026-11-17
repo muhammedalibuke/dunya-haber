@@ -109,14 +109,32 @@ def migrate_centroids(state, embedder: Embedder, dim: int, now: datetime,
             e.centroid = None
 
 
+def dissolve_events(state, over: int, now: datetime) -> list:
+    """Remove events with more than `over` articles. Their articles from the last
+    OPEN_WINDOW_HOURS are returned to be grouped again; older ones are dropped."""
+    too_old = now - timedelta(hours=OPEN_WINDOW_HOURS)
+    out = []
+    for eid in [eid for eid, e in state.events.items() if len(e.article_ids) > over]:
+        for aid in state.events.pop(eid).article_ids:
+            a = state.articles.pop(aid, None)
+            if a is not None and a.published >= too_old:
+                out.append(a)
+    print(f"dissolved events over {over} articles: {len(out)} articles to regroup")
+    return out
+
+
 def run(state_dir: Path, out_dir: Path, now: datetime, sources: list[Source],
         get: Callable[[str], bytes], embedder: Embedder, translator: Translator,
         gaz: Gazetteer, topic_cfg: TopicConfig, gemini_key: str | None = None,
         post=None, translate_budget_s: float = TRANSLATE_BUDGET_S,
-        topic_embedder: Embedder | None = None, page_get=None) -> RunReport:
-    """`embedder` groups articles into events; `topic_embedder` (default: the same) tags topics."""
+        topic_embedder: Embedder | None = None, page_get=None,
+        dissolve_over: int | None = None) -> RunReport:
+    """`embedder` groups articles into events; `topic_embedder` (default: the same) tags topics.
+    `dissolve_over` (manual repair): events with more articles than this are broken up and their
+    recent articles grouped again from scratch."""
     topic_embedder = topic_embedder or embedder
     state = load_state(state_dir)
+    requeue = dissolve_events(state, dissolve_over, now) if dissolve_over else []
     tiers = {src.id: src.tier for src in sources}
     for a in state.articles.values():  # popularity can be edited in sources.yaml at any time
         a.source_tier = tiers.get(a.source_id, a.source_tier)
@@ -130,6 +148,7 @@ def run(state_dir: Path, out_dir: Path, now: datetime, sources: list[Source],
         state.seen[a.id] = today_n  # remembered even after pruning: never processed twice
         if a.published >= too_old:
             new.append(a)
+    new += requeue
     report = RunReport(new_articles=len(new), failures=failures)
     if any(e.centroid is not None for e in state.events.values()):
         migrate_centroids(state, embedder, embedder.encode(["dimension probe"]).shape[1], now)
@@ -189,6 +208,8 @@ def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--state", type=Path, default=Path("state"))
     ap.add_argument("--out", type=Path, default=Path("build/data"))
+    ap.add_argument("--dissolve-over", type=int, default=None,
+                    help="repair: break up events with more articles than this")
     args = ap.parse_args()
 
     from .embed import CLUSTER_MODEL, SentenceEmbedder
@@ -209,6 +230,7 @@ def main() -> None:
         topic_cfg=load_topic_config(ROOT / "config" / "topics.yaml"),
         gemini_key=os.environ.get("GEMINI_API_KEY") or None,
         page_get=fetch_page_head,
+        dissolve_over=args.dissolve_over,
     )
     getter.save()  # only after the state was saved: a failed run must refetch everything it saw
     print(report.line())

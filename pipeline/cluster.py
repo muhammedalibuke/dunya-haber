@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from datetime import datetime, timedelta
 
+import math
 import re
 
 import numpy as np
@@ -11,6 +12,7 @@ from .models import Article, Event
 
 CLUSTER_THRESHOLD = 0.72
 CLUSTER_LOW = 0.55  # borderline band [0.55, 0.72): merged only with a shared rare name
+CORE_NAME_SHARE = 0.25  # an event's own names: those in at least this share of its articles
 OPEN_WINDOW_HOURS = 48
 
 
@@ -98,13 +100,20 @@ class NameRescue:
         return set(name_tokens(a.title + " " + a.description[:200]))
 
     def event_names(self, e) -> set[str]:
+        """Names the event is about: in at least CORE_NAME_SHARE of its articles. A name from one
+        article out of many says nothing about the event (and would let it match everything)."""
         hit = self._cache.get(e.id)
         if hit and hit[0] == len(e.article_ids):
             return hit[1]
-        names: set[str] = set()
+        counts: dict[str, int] = {}
+        n = 0
         for aid in e.article_ids:
             if aid in self.articles:
-                names |= self.article_names(self.articles[aid])
+                n += 1
+                for t in self.article_names(self.articles[aid]):
+                    counts[t] = counts.get(t, 0) + 1
+        need = max(1, math.ceil(CORE_NAME_SHARE * n))
+        names = {t for t, c in counts.items() if c >= need}
         self._cache[e.id] = (len(e.article_ids), names)
         return names
 

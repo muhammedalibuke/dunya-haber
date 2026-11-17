@@ -85,3 +85,22 @@ def test_e2e_first_run_empty_state_and_no_today(tmp_path):
     assert load(tmp_path, "today.json")["events"] == []
     assert load(tmp_path, "all.json")["events"] == []
     assert (tmp_path / "state" / "events.json.gz").exists()
+
+
+def test_dissolve_over_splits_a_catch_all_event(tmp_path):
+    from pipeline.state import load_state, save_state
+    do_run(tmp_path, pages_run1(), NOW)
+    st = load_state(tmp_path / "state")
+    quake = next(e for e in st.events.values() if len(e.article_ids) == 3)
+    budget = next(e for e in st.events.values() if len(e.article_ids) == 1)
+    quake.article_ids += budget.article_ids  # what the bug did: an unrelated story swallowed
+    del st.events[budget.id]
+    save_state(st, tmp_path / "state")
+
+    run(tmp_path / "state", tmp_path / "out", NOW + timedelta(minutes=10), [GB, TR, JP],
+        pages_run1().__getitem__, EMB, FakeTranslator(), GAZ, CFG, dissolve_over=3)
+    st2 = load_state(tmp_path / "state")
+    sizes = sorted(len(e.article_ids) for e in st2.events.values())
+    assert sizes == [1, 3]
+    [ev] = load(tmp_path, "today.json")["events"]
+    assert ev["title"]["en"] == "Quake hits Kobe" and ev["source_count"] == 3

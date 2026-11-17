@@ -6,6 +6,11 @@ on:
   schedule:
     - cron: "37 * * * *"
   workflow_dispatch:
+    inputs:
+      dissolve_over:
+        description: "Repair: break up events with more articles than this (leave empty normally)"
+        required: false
+        default: ""
 
 permissions:
   contents: write
@@ -96,7 +101,8 @@ jobs:
       - name: Run pipeline
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-        run: python -m pipeline.run --state state --out build/data
+          DISSOLVE_OVER: ${{ inputs.dissolve_over }}
+        run: python -m pipeline.run --state state --out build/data ${DISSOLVE_OVER:+--dissolve-over "$DISSOLVE_OVER"}
 
       - name: Save state to the data branch
         env:

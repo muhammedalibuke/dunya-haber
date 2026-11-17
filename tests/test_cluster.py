@@ -149,3 +149,30 @@ def test_merge_chain_points_to_surviving_event():
     assert set(events) == {"z"}
     assert merged == {"x": "z", "y": "z"}
     assert all(kept in events for kept in merged.values())
+
+
+def test_name_rescue_ignores_names_from_a_few_members_of_a_big_event():
+    """A large event must not match anything that shares a name with just one of its articles:
+    that is how one story grew into a 7,000-article catch-all."""
+    from pipeline.cluster import NameRescue
+    titles = ["Ebola outbreak in Congo", "Ebola cases rise in Congo", "Congo Ebola response slows",
+              "Ebola vaccine reaches Congo", "Ebola toll climbs", "Uvira clashes as Ebola spreads",
+              "Congo Ebola: WHO warns", "Ebola in Congo: aid blocked"]
+    arts = {f"b{i}": art(f"b{i}", t, NOW, source_id=f"s{i}") for i, t in enumerate(titles)}
+    big = Event("big", list(arts), unit(axis(0)), NOW, NOW)
+    rescue = NameRescue(arts, {"big": big})
+    assert not rescue(art("n1", "Uvira market reopens", NOW), big)  # Uvira: 1 of 8 articles
+    assert rescue(art("n2", "Ebola survivors return home", NOW), big)  # the event's own subject
+
+
+def test_events_share_uses_each_events_core_names():
+    from pipeline.cluster import NameRescue
+    a_titles = ["Baguio food stalls", "Baguio food sale", "Baguio vendors", "Baguio market", "Lumbini note"]
+    b_titles = ["Lumbini Lions win", "Lumbini Lions final", "Lumbini cricket", "Lumbini Lions coach"]
+    arts = {}
+    for p, ts in (("a", a_titles), ("b", b_titles)):
+        for i, t in enumerate(ts):
+            arts[f"{p}{i}"] = art(f"{p}{i}", t, NOW, source_id=f"{p}s{i}")
+    ea = Event("ea", [k for k in arts if k[0] == "a"], unit(axis(0)), NOW, NOW)
+    eb = Event("eb", [k for k in arts if k[0] == "b"], unit(axis(0)), NOW, NOW)
+    assert not NameRescue(arts, {"ea": ea, "eb": eb}).events_share(ea, eb)
