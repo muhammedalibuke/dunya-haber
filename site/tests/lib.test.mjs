@@ -116,3 +116,8 @@ test("featured box strings and full date-time", async () => {
   assert.equal(formatDateTime("2026-11-17T16:12:00+00:00", "en"), "Tuesday 17 November, 19:12");
   for (const k of ["trendingDays", "developments", "readFull"]) assert.ok(STRINGS.en[k] && STRINGS.tr[k]);
 });
+
+test("masthead date with clock from a Date", async () => {
+  const { formatDateTime } = await import("../lib.js");
+  assert.equal(formatDateTime(new Date("2026-11-17T16:48:00Z"), "tr"), "17 Kasım Salı, 19:48");
+});

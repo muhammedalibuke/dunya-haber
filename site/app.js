@@ -167,6 +167,18 @@ function featuredBox(f, now) {
     el("a", { class: "featured-more", href, text: t("readFull", lang) }));
 }
 
+// Date and time in the masthead, kept current while the page is open.
+let clockTimer = null;
+function mastheadClock(now) {
+  const node = el("time", { class: "masthead-date", text: formatDateTime(now, lang) });
+  clearInterval(clockTimer);
+  clockTimer = setInterval(() => {
+    if (!node.isConnected) { clearInterval(clockTimer); return; }
+    node.textContent = formatDateTime(new Date(), lang);
+  }, 15000);
+  return node;
+}
+
 function footer(generatedAt) {
   return el("footer", { class: "foot" },
     generatedAt ? el("p", { text: t("updated", lang, { t: formatUpdated(generatedAt, new Date(), lang) }) }) : null,
@@ -187,7 +199,7 @@ async function viewToday() {
     el("header", { class: "masthead" },
       el("h1", { class: "masthead-name", text: "Dünya Haber" }),
       el("div", { class: "masthead-line" },
-        el("span", { text: formatToday(now, lang, true) }),
+        mastheadClock(now),
         langButton())),
     data.featured ? featuredBox(data.featured, now) : null,
     mapBox,
