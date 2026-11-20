@@ -197,7 +197,7 @@ async function viewToday() {
   const events = data.events;
   app.replaceChildren(
     el("header", { class: "masthead" },
-      el("h1", { class: "masthead-name", text: "Dünya Haber" }),
+      el("h1", { class: "masthead-name", text: "Nunti Orbis" }),
       el("div", { class: "masthead-line" },
         mastheadClock(now),
         langButton())),

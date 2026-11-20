@@ -1,6 +1,6 @@
 <div align="center">
 
-# Dünya Haber
+# Nunti Orbis
 
 **Dünyada bugün ne oldu? Tek sayfada, sade ve ücretsiz.**
 
