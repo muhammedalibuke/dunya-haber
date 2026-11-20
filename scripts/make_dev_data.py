@@ -98,6 +98,25 @@ def add_featured(state: State, base: str) -> None:
                               location=Location("city", "Geneva", 46.2, 6.14, "CH"))
 
 
+def sample_history(base: str) -> dict:
+    """A day's 'Tarihte bugün' list (20 November, written for previews)."""
+    def it(year, tr, en, img=None):
+        return {"year": year, "text": {"tr": tr, "en": en}, "title": None,
+                "url": "https://en.wikipedia.org/wiki/November_20", "thumb": f"{base}{img}" if img else None,
+                "image": f"{base}{img}" if img else None}
+    return {"date": NOW.date().isoformat(), "events": [
+        it(1998, "Uluslararası Uzay İstasyonu'nun ilk parçası Zarya modülü fırlatıldı.",
+           "Zarya, the first module of the International Space Station, is launched.", "sample3.svg"),
+        it(1989, "BM Genel Kurulu, Çocuk Haklarına Dair Sözleşme'yi kabul etti.",
+           "The UN General Assembly adopts the Convention on the Rights of the Child."),
+        it(1985, "Microsoft, Windows'un ilk sürümünü piyasaya sürdü.", "Microsoft releases the first version of Windows.",
+           "sample1.svg"),
+        it(1945, "Nürnberg duruşmaları başladı.", "The Nuremberg trials begin.", "sample0.svg"),
+        it(1910, "Meksika Devrimi başladı.", "The Mexican Revolution begins.", "sample2.svg"),
+    ], "births": [it(1889, "Edwin Hubble, Amerikalı gökbilimci", "Edwin Hubble, American astronomer", "sample0.svg")],
+       "deaths": [it(1910, "Lev Tolstoy, Rus yazar", "Leo Tolstoy, Russian writer", "sample2.svg")]}
+
+
 def main() -> None:
     state = State()
     base = sys.argv[1] if len(sys.argv) > 1 else "http://localhost:8000/site/dev-data/"
@@ -117,6 +136,7 @@ def main() -> None:
                                   location=loc, summary_tr=str_, summary_en=sen)
     out = ROOT / "site" / "dev-data"
     add_featured(state, base)
+    state.history = sample_history(base)
     write_site_data(out, build_site_data(state, [e[0] for e in EVENTS], NOW, featured_id="f"))
     for i, (sky, land) in enumerate([("#9fb3c8", "#5d7690"), ("#c8b59f", "#90745d"),
                                      ("#a9c8a0", "#5d8a5a"), ("#b9a9c8", "#6f5d90")]):

@@ -24,6 +24,15 @@ export const STRINGS = {
     trendingDays: "{n} gündür gündemde",
     developments: "Son gelişmeler",
     readFull: "Haberin tamamı",
+    historyLink: "Tarihte bugün",
+    historySub: "Dünyada bu tarihte yaşananlar",
+    hEvents: "Olaylar",
+    hBirths: "Doğumlar",
+    hDeaths: "Ölümler",
+    yearsAgo: "{n} yıl önce",
+    readWiki: "Vikipedi'de oku",
+    historySource: "Kaynak: İngilizce Vikipedi, \"On this day\". Metinler CC BY-SA lisanslıdır; Türkçeleri otomatik çeviridir.",
+    historyNotReady: "Bugünün listesi henüz hazır değil. Birazdan tekrar bak.",
   },
   en: {
     todayCount: "{n} key events today",
@@ -48,12 +57,22 @@ export const STRINGS = {
     trendingDays: "In the news for {n} days",
     developments: "Latest developments",
     readFull: "Full story",
+    historyLink: "On this day",
+    historySub: "What happened in the world on this date",
+    hEvents: "Events",
+    hBirths: "Births",
+    hDeaths: "Deaths",
+    yearsAgo: "{n} years ago",
+    readWiki: "Read on Wikipedia",
+    historySource: "Source: English Wikipedia, \"On this day\". Text available under CC BY-SA.",
+    historyNotReady: "Today's list isn't ready yet. Check back shortly.",
   },
 };
 
 export function t(key, lang, vars = {}) {
   let s = STRINGS[lang]?.[key] ?? STRINGS.tr[key] ?? key;
   if (key === "sourceCount" && lang === "en" && vars.n === 1) s = "{n} source";
+  if (key === "yearsAgo" && lang === "en" && vars.n === 1) s = "{n} year ago";
   return s.replace(/\{(\w+)\}/g, (_, k) => String(vars[k] ?? ""));
 }
 
@@ -93,6 +112,16 @@ export function formatClock(iso, lang) {
 
 export function formatDateTime(iso, lang) {
   return `${formatToday(new Date(iso), lang, true)}, ${formatClock(iso, lang)}`;
+}
+
+export function yearsAgo(year, now) {
+  return now.getFullYear() - year;
+}
+
+// "2026-11-20" → "20 Kasım" (the date itself, not shifted by the reader's time zone)
+export function formatDayMonth(isoDate, lang) {
+  return new Intl.DateTimeFormat(lang === "tr" ? "tr-TR" : "en-GB", { day: "numeric", month: "long", timeZone: "UTC" })
+    .format(new Date(`${isoDate}T12:00:00Z`));
 }
 
 export function safeUrl(u) {

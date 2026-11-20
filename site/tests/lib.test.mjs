@@ -121,3 +121,15 @@ test("masthead date with clock from a Date", async () => {
   const { formatDateTime } = await import("../lib.js");
   assert.equal(formatDateTime(new Date("2026-11-17T16:48:00Z"), "tr"), "17 Kasım Salı, 19:48");
 });
+
+test("on this day helpers and strings", async () => {
+  const { yearsAgo, formatDayMonth } = await import("../lib.js");
+  assert.equal(yearsAgo(1945, new Date("2026-11-20T12:00:00Z")), 81);
+  assert.equal(formatDayMonth("2026-11-20", "tr"), "20 Kasım");
+  assert.equal(formatDayMonth("2026-11-20", "en"), "20 November");
+  assert.equal(t("yearsAgo", "tr", { n: 81 }), "81 yıl önce");
+  assert.equal(t("yearsAgo", "en", { n: 1 }), "1 year ago");
+  assert.equal(t("yearsAgo", "en", { n: 81 }), "81 years ago");
+  for (const k of ["historyLink", "historySub", "hEvents", "hBirths", "hDeaths", "readWiki", "historySource", "historyNotReady"])
+    assert.ok(STRINGS.tr[k] && STRINGS.en[k], k);
+});

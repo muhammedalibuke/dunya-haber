@@ -1,4 +1,4 @@
-import { t, isNewDevelopment, formatAgo, formatToday, formatUpdated, formatClock, formatDateTime, safeUrl, dataDir, nextEvents } from "./lib.js";
+import { t, isNewDevelopment, formatAgo, formatToday, formatUpdated, formatClock, formatDateTime, safeUrl, dataDir, nextEvents, yearsAgo, formatDayMonth } from "./lib.js";
 import { worldMap } from "./map.js";
 
 const params = new URLSearchParams(location.search);
@@ -200,6 +200,7 @@ async function viewToday() {
       el("h1", { class: "masthead-name", text: "Nunti Orbis" }),
       el("div", { class: "masthead-line" },
         mastheadClock(now),
+        el("a", { class: "history-link", href: "#/tarih", text: t("historyLink", lang) }),
         langButton())),
     data.featured ? featuredBox(data.featured, now) : null,
     mapBox,
@@ -287,12 +288,66 @@ async function viewEvent(id) {
     footer(null));
 }
 
+// "Tarihte bugün": world events, births and deaths on today's date (from Wikipedia)
+let historyTab = "events";
+async function viewHistory() {
+  const now = new Date();
+  let data = null;
+  try { data = await getJSON("history.json"); } catch (e) { console.warn(e); }
+  const top = [
+    el("div", { class: "hist-top" },
+      el("a", { class: "back", href: "#/", text: `← ${t("back", lang)}` }),
+      langButton()),
+    el("p", { class: "hist-kicker", text: t("historyLink", lang) }),
+    el("h1", { class: "hist-date", text: data ? formatDayMonth(data.date, lang) : formatToday(now, lang) }),
+    el("p", { class: "hist-sub", text: t("historySub", lang) }),
+  ];
+  if (!data) {
+    app.replaceChildren(el("main", { class: "hist" }, ...top, message(t("historyNotReady", lang))));
+    return;
+  }
+  const listBox = el("div", { class: "hist-list" });
+  const tabs = ["events", "births", "deaths"].filter((k) => data[k]?.length);
+  if (!tabs.includes(historyTab)) historyTab = tabs[0] || "events";
+  const tabKey = { events: "hEvents", births: "hBirths", deaths: "hDeaths" };
+  const tabBar = el("div", { class: "hist-tabs", role: "group" }, tabs.map((k) => el("button", {
+    class: "hist-tab", type: "button", "aria-pressed": String(k === historyTab), text: t(tabKey[k], lang),
+    onclick: () => { historyTab = k; tabBar.querySelectorAll("button").forEach((b, i) => b.setAttribute("aria-pressed", String(tabs[i] === k))); fill(); },
+  })));
+  const ago = (y) => (y > 0 ? t("yearsAgo", lang, { n: yearsAgo(y, now) }) : "");
+  const img = (src, cls) => (safeUrl(src) ? el("img", { class: cls, src: safeUrl(src), alt: "", loading: "lazy",
+    decoding: "async", referrerpolicy: "no-referrer", onerror: (e) => e.target.remove() }) : null);
+  const wiki = (it) => (safeUrl(it.url) ? el("a", { class: "hist-more", href: safeUrl(it.url), target: "_blank",
+    rel: "noopener noreferrer", text: t("readWiki", lang) }) : null);
+  function fill() {
+    const items = data[historyTab] || [];
+    const [lead, ...rest] = items;
+    listBox.replaceChildren(
+      lead ? el("section", { class: "hist-lead" },
+        img(lead.image || lead.thumb, "hist-lead-img"),
+        el("p", { class: "hist-year" }, el("b", { text: String(lead.year) }), el("span", { text: ago(lead.year) })),
+        el("p", { class: "hist-lead-text", text: lead.text[lang] }),
+        wiki(lead)) : null,
+      el("ol", { class: "hist-tl" }, rest.map((it) => el("li", {},
+        el("div", { class: "hist-y" }, String(it.year), el("span", { class: "hist-ago", text: ago(it.year) })),
+        el("div", { class: "hist-body" },
+          el("div", { class: "hist-row" },
+            el("p", { class: "hist-text", text: it.text[lang] }),
+            img(it.thumb, "hist-thumb")),
+          wiki(it))))));
+  }
+  fill();
+  app.replaceChildren(el("main", { class: "hist" }, ...top, tabBar, listBox,
+    el("p", { class: "hist-src", text: t("historySource", lang) })));
+}
+
 async function render() {
   document.documentElement.lang = lang;
   const hash = location.hash || "#/";
   try {
     if (hash.startsWith("#/e/")) await viewEvent(decodeURIComponent(hash.slice(4)));
     else if (hash === "#/all") await viewAll();
+    else if (hash === "#/tarih") await viewHistory();
     else await viewToday();
   } catch (e) {
     console.error(e);
