@@ -217,7 +217,9 @@ a.dev-title:hover { text-decoration: underline; text-underline-offset: 2px; }
 .hist-y { font: 800 1.35rem/1.1 var(--serif); font-variant-numeric: lining-nums; }
 .hist-ago { display: block; margin-top: 0.2rem; font-size: 0.74rem; }
 .hist-row { display: flex; gap: 0.7rem; align-items: flex-start; }
-.hist-text { margin: 0; flex: 1; font: 500 1.02rem/1.4 var(--serif); }
+.hist-main { flex: 1; min-width: 0; }
+.hist-life { margin: 0.25rem 0 0; font: 600 0.85rem/1.3 var(--sans); color: var(--muted); font-variant-numeric: tabular-nums; }
+.hist-text { margin: 0; font: 500 1.02rem/1.4 var(--serif); }
 .hist-thumb { flex: none; width: 3.6rem; height: 3.6rem; object-fit: cover; border-radius: 4px; background: var(--land); }
 .hist-src {
   margin: 1.4rem 0 0; padding-top: 0.8rem; border-top: 1px solid var(--rule-strong);

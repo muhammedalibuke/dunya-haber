@@ -72,3 +72,24 @@ def test_refresh_keeps_old_data_when_fetch_fails_and_english_when_translation_fa
 
     h = refresh_history(None, now, lambda u: PAYLOAD, Broken())
     assert h["events"][0]["text"]["tr"] == h["events"][0]["text"]["en"]
+
+
+def test_life_years_move_out_of_parentheses():
+    h = parse_onthisday({
+        "deaths": [{"text": "Andy Paley, American songwriter (born 1952)", "year": 2024, "pages": [page("Andy Paley")]}],
+        "births": [{"text": "Edwin Hubble, American astronomer (died 1953)", "year": 1889, "pages": [page("Edwin Hubble")]},
+                   {"text": "Blaž Janc, Slovenian handballer", "year": 1996, "pages": [page("Blaz Janc")]}],
+    })
+    d = h["deaths"][0]
+    assert d["text"] == "Andy Paley, American songwriter" and d["born"] == "1952" and d["died"] is None
+    hubble = next(b for b in h["births"] if b["year"] == 1889)
+    assert hubble["text"] == "Edwin Hubble, American astronomer" and hubble["died"] == "1953"
+    assert next(b for b in h["births"] if b["year"] == 1996)["died"] is None
+
+
+def test_refresh_redoes_a_list_made_by_an_older_version():
+    calls = []
+    now = datetime(2026, 11, 20, 9, 0, tzinfo=timezone.utc)
+    old = {"date": "2026-11-20", "events": []}  # no version: made before life years were split out
+    h = refresh_history(old, now, lambda u: calls.append(u) or PAYLOAD, FakeTranslator())
+    assert calls and h is not old

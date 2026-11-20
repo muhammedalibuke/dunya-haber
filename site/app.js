@@ -1,4 +1,4 @@
-import { t, isNewDevelopment, formatAgo, formatToday, formatUpdated, formatClock, formatDateTime, safeUrl, dataDir, nextEvents, yearsAgo, formatDayMonth } from "./lib.js";
+import { t, isNewDevelopment, formatAgo, formatToday, formatUpdated, formatClock, formatDateTime, safeUrl, dataDir, nextEvents, yearsAgo, formatDayMonth, lifeYears } from "./lib.js";
 import { worldMap } from "./map.js";
 
 const params = new URLSearchParams(location.search);
@@ -319,6 +319,7 @@ async function viewHistory() {
     decoding: "async", referrerpolicy: "no-referrer", onerror: (e) => e.target.remove() }) : null);
   const wiki = (it) => (safeUrl(it.url) ? el("a", { class: "hist-more", href: safeUrl(it.url), target: "_blank",
     rel: "noopener noreferrer", text: t("readWiki", lang) }) : null);
+  const life = (it) => (lifeYears(it, historyTab) ? el("p", { class: "hist-life", text: lifeYears(it, historyTab) }) : null);
   function fill() {
     const items = data[historyTab] || [];
     const [lead, ...rest] = items;
@@ -327,12 +328,13 @@ async function viewHistory() {
         img(lead.image || lead.thumb, "hist-lead-img"),
         el("p", { class: "hist-year" }, el("b", { text: String(lead.year) }), el("span", { text: ago(lead.year) })),
         el("p", { class: "hist-lead-text", text: lead.text[lang] }),
+        life(lead),
         wiki(lead)) : null,
       el("ol", { class: "hist-tl" }, rest.map((it) => el("li", {},
         el("div", { class: "hist-y" }, String(it.year), el("span", { class: "hist-ago", text: ago(it.year) })),
         el("div", { class: "hist-body" },
           el("div", { class: "hist-row" },
-            el("p", { class: "hist-text", text: it.text[lang] }),
+            el("div", { class: "hist-main" }, el("p", { class: "hist-text", text: it.text[lang] }), life(it)),
             img(it.thumb, "hist-thumb")),
           wiki(it))))));
   }

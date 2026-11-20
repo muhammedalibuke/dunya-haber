@@ -12,8 +12,11 @@ from .translate import translate_cached
 
 FEED = "https://en.wikipedia.org/api/rest_v1/feed/onthisday/all/{m:02d}/{d:02d}"
 DAY_ZONE = ZoneInfo("Europe/Istanbul")
+VERSION = 2  # bump when the stored shape changes: the day's list is then made again
 MAX_PEOPLE = 20  # births/deaths are not curated by Wikipedia: keep the newest with a photo
 _WIKI = re.compile(r"^https://[a-z\-]+\.wikipedia\.org/wiki/[^\s\"'<>]+$")
+# "…, American songwriter (born 1952)": the years are shown apart, with a dash
+_LIFE = re.compile(r"\s*\((born|died|b\.|d\.)\s+([^()]{1,30})\)\s*$", re.I)
 _IMG = re.compile(r"^https://upload\.wikimedia\.org/[^\s\"'<>]+$")
 
 
@@ -32,9 +35,20 @@ def _item(raw: dict) -> dict:
     url = url if url and _WIKI.match(url) else None
     thumb = thumb if thumb and _IMG.match(thumb) else None
     title = _first(pages, lambda p: (p.get("titles") or {}).get("normalized"))
+    text = (raw.get("text") or "").strip()
+    born = died = None
+    m = _LIFE.search(text)
+    if m:
+        text = text[:m.start()].rstrip(" ,;")
+        if m.group(1).lower().startswith("b"):
+            born = m.group(2).strip()
+        else:
+            died = m.group(2).strip()
     return {
         "year": int(raw.get("year") or 0),
-        "text": (raw.get("text") or "").strip(),
+        "text": text,
+        "born": born,
+        "died": died,
         "title": title,
         "url": url,
         "thumb": thumb,
@@ -58,7 +72,7 @@ def refresh_history(current: dict | None, now: datetime, get_json: Callable[[str
     """Today's list, fetched and translated when the Istanbul date changes; otherwise `current`.
     A failed fetch keeps `current`; a failed translation leaves the English text."""
     day = now.astimezone(DAY_ZONE).date()
-    if current and current.get("date") == day.isoformat():
+    if current and current.get("date") == day.isoformat() and current.get("v") == VERSION:
         return current
     try:
         parsed = parse_onthisday(get_json(FEED.format(m=day.month, d=day.day)))
@@ -74,4 +88,4 @@ def refresh_history(current: dict | None, now: datetime, get_json: Callable[[str
             except Exception:  # noqa: BLE001
                 tr = en
             it["text"] = {"tr": tr or en, "en": en}
-    return {"date": day.isoformat(), **parsed}
+    return {"date": day.isoformat(), "v": VERSION, **parsed}

@@ -133,3 +133,11 @@ test("on this day helpers and strings", async () => {
   for (const k of ["historyLink", "historySub", "hEvents", "hBirths", "hDeaths", "readWiki", "historySource", "historyNotReady"])
     assert.ok(STRINGS.tr[k] && STRINGS.en[k], k);
 });
+
+test("life years shown with a dash", async () => {
+  const { lifeYears } = await import("../lib.js");
+  assert.equal(lifeYears({ year: 2024, born: "1952" }, "deaths"), "1952 – 2024");
+  assert.equal(lifeYears({ year: 1889, died: "1953" }, "births"), "1889 – 1953");
+  assert.equal(lifeYears({ year: 1996, died: null }, "births"), "");
+  assert.equal(lifeYears({ year: 1945 }, "events"), "");
+});

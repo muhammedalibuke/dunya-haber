@@ -100,11 +100,11 @@ def add_featured(state: State, base: str) -> None:
 
 def sample_history(base: str) -> dict:
     """A day's 'Tarihte bugün' list (20 November, written for previews)."""
-    def it(year, tr, en, img=None):
-        return {"year": year, "text": {"tr": tr, "en": en}, "title": None,
+    def it(year, tr, en, img=None, born=None, died=None):
+        return {"year": year, "text": {"tr": tr, "en": en}, "title": None, "born": born, "died": died,
                 "url": "https://en.wikipedia.org/wiki/November_20", "thumb": f"{base}{img}" if img else None,
                 "image": f"{base}{img}" if img else None}
-    return {"date": NOW.date().isoformat(), "events": [
+    return {"date": NOW.date().isoformat(), "v": 2, "events": [
         it(1998, "Uluslararası Uzay İstasyonu'nun ilk parçası Zarya modülü fırlatıldı.",
            "Zarya, the first module of the International Space Station, is launched.", "sample3.svg"),
         it(1989, "BM Genel Kurulu, Çocuk Haklarına Dair Sözleşme'yi kabul etti.",
@@ -113,8 +113,9 @@ def sample_history(base: str) -> dict:
            "sample1.svg"),
         it(1945, "Nürnberg duruşmaları başladı.", "The Nuremberg trials begin.", "sample0.svg"),
         it(1910, "Meksika Devrimi başladı.", "The Mexican Revolution begins.", "sample2.svg"),
-    ], "births": [it(1889, "Edwin Hubble, Amerikalı gökbilimci", "Edwin Hubble, American astronomer", "sample0.svg")],
-       "deaths": [it(1910, "Lev Tolstoy, Rus yazar", "Leo Tolstoy, Russian writer", "sample2.svg")]}
+    ], "births": [it(1889, "Edwin Hubble, Amerikalı gökbilimci", "Edwin Hubble, American astronomer", "sample0.svg", died="1953")],
+       "deaths": [it(1910, "Lev Tolstoy, Rus yazar", "Leo Tolstoy, Russian writer", "sample2.svg", born="1828"),
+                  it(2024, "Andy Paley, Amerikalı söz yazarı", "Andy Paley, American songwriter", "sample1.svg", born="1952")]}
 
 
 def main() -> None:

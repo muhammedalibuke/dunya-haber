@@ -114,6 +114,13 @@ export function formatDateTime(iso, lang) {
   return `${formatToday(new Date(iso), lang, true)}, ${formatClock(iso, lang)}`;
 }
 
+// births: "1889 – 1953", deaths: "1952 – 2024"; nothing when the other year is unknown
+export function lifeYears(it, kind) {
+  if (kind === "deaths" && it.born) return `${it.born} – ${it.year}`;
+  if (kind === "births" && it.died) return `${it.year} – ${it.died}`;
+  return "";
+}
+
 export function yearsAgo(year, now) {
   return now.getFullYear() - year;
 }
