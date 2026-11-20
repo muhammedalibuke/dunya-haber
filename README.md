@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src="site/icon.svg" alt="" width="96">
+
 # Nunti Orbis
 
 **Dünyada bugün ne oldu? Tek sayfada, sade ve ücretsiz.**

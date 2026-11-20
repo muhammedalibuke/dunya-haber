@@ -17,6 +17,7 @@ sys.path.insert(0, str(ROOT))
 
 from pipeline.models import Article, Event, Location, State  # noqa: E402
 from pipeline.publish import build_site_data, write_site_data  # noqa: E402
+from pipeline.state import cache_key  # noqa: E402
 
 NOW = datetime.now(timezone.utc).replace(microsecond=0)
 
@@ -61,6 +62,42 @@ EVENTS = [
 ]
 
 
+# a story running for days, for the "günlerdir gündemde" box:
+# (source, cc, hours ago, title_tr, title_en, detail_tr, detail_en)
+FEATURED = [
+    ("Le Temps", "CH", 52, "Cenevre'de ateşkes görüşmeleri başladı", "Ceasefire talks open in Geneva", "", ""),
+    ("AFP", "FR", 0.3, "Taraflar esir takasında uzlaştı", "Sides agree on prisoner swap",
+     "Her iki taraf da onar esiri cuma günü serbest bırakacak. Takası Kızılhaç yürütecek.",
+     "Each side will free ten prisoners on Friday. The Red Cross will oversee the swap."),
+    ("BBC", "GB", 1.2, "Ateşkesin ilk gününde çatışma bildirilmedi", "No clashes reported on first day of truce",
+     "Gözlemciler cephe hattında sakin bir gün geçtiğini söyledi.", "Monitors said the front line was quiet all day."),
+    ("Reuters", "GB", 2.5, "Ateşkes anlaşması Cenevre'de imzalandı", "Ceasefire deal signed in Geneva",
+     "Anlaşma pazartesi yürürlüğe girecek. Ayrıntılar bu hafta açıklanacak.",
+     "The deal takes effect on Monday. Details will be published this week."),
+] + [(n, cc, 20 + i * 3, "Cenevre görüşmeleri sürüyor", "Geneva talks continue", "", "")
+     for i, (n, cc) in enumerate([("DW", "DE"), ("ANSA", "IT"), ("NHK", "JP"), ("AA", "TR"), ("Al Jazeera", "QA"),
+                                  ("EFE", "ES"), ("Yonhap", "KR"), ("ABC", "AU")])]
+
+
+def add_featured(state: State, base: str) -> None:
+    ids = []
+    for i, (name, cc, hours, ttr, ten, dtr, den) in enumerate(FEATURED):
+        aid = f"f{i}"
+        state.articles[aid] = Article(
+            id=aid, url=f"https://example.com/f/{i}", title=ten, description=den,
+            source_id=name.lower().replace(" ", "-"), source_name=name, country=cc, lang="en",
+            published=NOW - timedelta(hours=hours), image_url=f"{base}sample2.svg" if i < 2 else None, tags=[],
+            title_tr=ttr, title_en=ten,
+            source_tier=1 if name in ("AFP", "BBC", "Reuters") else 3)
+        if den:
+            state.translations[cache_key(den, "en", "tr")] = {"text": dtr}
+        ids.append(aid)
+    created = min(state.articles[a].published for a in ids)
+    updated = max(state.articles[a].published for a in ids)
+    state.events["f"] = Event("f", ids, np.zeros(4, np.float32), created, updated,
+                              location=Location("city", "Geneva", 46.2, 6.14, "CH"))
+
+
 def main() -> None:
     state = State()
     base = sys.argv[1] if len(sys.argv) > 1 else "http://localhost:8000/site/dev-data/"
@@ -79,7 +116,8 @@ def main() -> None:
         state.events[eid] = Event(eid, ids, np.zeros(4, np.float32), t - timedelta(hours=1), t,
                                   location=loc, summary_tr=str_, summary_en=sen)
     out = ROOT / "site" / "dev-data"
-    write_site_data(out, build_site_data(state, [e[0] for e in EVENTS], NOW))
+    add_featured(state, base)
+    write_site_data(out, build_site_data(state, [e[0] for e in EVENTS], NOW, featured_id="f"))
     for i, (sky, land) in enumerate([("#9fb3c8", "#5d7690"), ("#c8b59f", "#90745d"),
                                      ("#a9c8a0", "#5d8a5a"), ("#b9a9c8", "#6f5d90")]):
         (out / f"sample{i}.svg").write_text(
