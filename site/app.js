@@ -301,6 +301,14 @@ async function viewHistory() {
     el("p", { class: "hist-kicker", text: t("historyLink", lang) }),
     el("h1", { class: "hist-date", text: data ? formatDayMonth(data.date, lang) : formatToday(now, lang) }),
     el("p", { class: "hist-sub", text: t("historySub", lang) }),
+    data?.holidays?.length
+      ? el("div", { class: "hist-days" },
+        el("p", { class: "hist-days-title", text: t("holidaysTitle", lang) }),
+        el("ul", { class: "hist-days-list" }, data.holidays.map((h) => el("li", {},
+          safeUrl(h.url)
+            ? el("a", { href: safeUrl(h.url), target: "_blank", rel: "noopener noreferrer", text: h.text[lang] })
+            : el("span", { text: h.text[lang] })))))
+      : null,
   ];
   if (!data) {
     app.replaceChildren(el("main", { class: "hist" }, ...top, message(t("historyNotReady", lang))));
@@ -320,27 +328,42 @@ async function viewHistory() {
   const wiki = (it) => (safeUrl(it.url) ? el("a", { class: "hist-more", href: safeUrl(it.url), target: "_blank",
     rel: "noopener noreferrer", text: t("readWiki", lang) }) : null);
   const life = (it) => (lifeYears(it, historyTab) ? el("p", { class: "hist-life", text: lifeYears(it, historyTab) }) : null);
+  const ctx = (it) => (it.extract?.[lang] ? el("details", { class: "hist-ctx" },
+    el("summary", { text: t("whatHappened", lang) }),
+    el("p", { text: it.extract[lang] })) : null);
   function fill() {
-    const items = data[historyTab] || [];
+    const items = (data[historyTab] || []).map((it, i) => ({ ...it, id: `h${i}` }));
     const [lead, ...rest] = items;
+    const located = historyTab === "events" ? items.filter((it) => it.location) : [];
+    const mapBox = located.length ? el("div", { class: "map hist-map" }) : null;
     listBox.replaceChildren(
-      lead ? el("section", { class: "hist-lead" },
+      mapBox,
+      lead ? el("section", { class: "hist-lead", id: lead.id },
         img(lead.image || lead.thumb, "hist-lead-img"),
         el("p", { class: "hist-year" }, el("b", { text: String(lead.year) }), el("span", { text: ago(lead.year) })),
         el("p", { class: "hist-lead-text", text: lead.text[lang] }),
         life(lead),
+        ctx(lead),
         wiki(lead)) : null,
-      el("ol", { class: "hist-tl" }, rest.map((it) => el("li", {},
+      el("ol", { class: "hist-tl" }, rest.map((it) => el("li", { id: it.id },
         el("div", { class: "hist-y" }, String(it.year), el("span", { class: "hist-ago", text: ago(it.year) })),
         el("div", { class: "hist-body" },
           el("div", { class: "hist-row" },
             el("div", { class: "hist-main" }, el("p", { class: "hist-text", text: it.text[lang] }), life(it)),
             img(it.thumb, "hist-thumb")),
+          ctx(it),
           wiki(it))))));
+    if (mapBox) {
+      worldMap(mapBox, located, (id) => {
+        const target = document.getElementById(id);
+        target?.querySelector("details")?.setAttribute("open", "");
+        target?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, { numbered: false, label: (e) => String(e.year), aria: (e) => `${e.year}: ${e.text[lang]}` });
+    }
   }
-  fill();
   app.replaceChildren(el("main", { class: "hist" }, ...top, tabBar, listBox,
     el("p", { class: "hist-src", text: t("historySource", lang) })));
+  fill(); // after the page is on screen: the map measures its box
 }
 
 async function render() {

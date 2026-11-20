@@ -212,7 +212,7 @@ def run(state_dir: Path, out_dir: Path, now: datetime, sources: list[Source],
                 e.summary_tr, e.summary_en = got
                 e.summary_ai = True
     if history_get is not None:
-        state.history = refresh_history(state.history, now, history_get, translator)
+        state.history = refresh_history(state.history, now, history_get, translator, gaz)
     save_state(state, state_dir)
     write_site_data(out_dir, build_site_data(state, today, now, featured))
     return report

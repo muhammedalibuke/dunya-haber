@@ -225,3 +225,26 @@ a.dev-title:hover { text-decoration: underline; text-underline-offset: 2px; }
   margin: 1.4rem 0 0; padding-top: 0.8rem; border-top: 1px solid var(--rule-strong);
   font: 400 0.82rem/1.45 var(--sans); color: var(--faint);
 }
+.hist-days { margin: 1rem 0 0; }
+.hist-days-title { margin: 0 0 0.4rem; font: 700 0.82rem/1.2 var(--sans); color: var(--muted); }
+.hist-days-list { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.hist-days-list li > * {
+  display: inline-block; padding: 0.35rem 0.7rem; border-radius: 4px; background: #FBEAEA;
+  font: 600 0.86rem/1.25 var(--sans); color: var(--ink);
+}
+.hist-days-list a:hover { text-decoration: underline; text-underline-offset: 2px; }
+.hist-map { margin: 1rem 0 0.2rem; }
+.hist-ctx { margin-top: 0.45rem; }
+.hist-ctx summary {
+  display: inline-flex; align-items: center; gap: 0.3rem; cursor: pointer; list-style: none;
+  font: 700 0.84rem/1.3 var(--sans); color: var(--red);
+}
+.hist-ctx summary::-webkit-details-marker { display: none; }
+.hist-ctx summary::after { content: "+"; font-weight: 700; }
+.hist-ctx[open] summary::after { content: "–"; }
+.hist-ctx summary:focus-visible { outline: 2px solid var(--red); outline-offset: 2px; }
+.hist-ctx p {
+  margin: 0.4rem 0 0; padding-left: 0.7rem; border-left: 2px solid var(--rule);
+  font: 400 0.93rem/1.5 var(--sans); color: var(--muted);
+}
+.hist-lead .hist-ctx p { font-size: 0.98rem; }

@@ -93,3 +93,28 @@ def test_refresh_redoes_a_list_made_by_an_older_version():
     old = {"date": "2026-11-20", "events": []}  # no version: made before life years were split out
     h = refresh_history(old, now, lambda u: calls.append(u) or PAYLOAD, FakeTranslator())
     assert calls and h is not old
+
+
+def test_context_holidays_and_places():
+    from pipeline.geo import Gazetteer, Place
+
+    def gazetteer_fixture():
+        return Gazetteer.from_entries([Place("Mexico", "country", 23.6, -102.5, "MX", 126_000_000)])
+    payload = {
+        "selected": [{"text": "The Mexican Revolution begins in Mexico.", "year": 1910, "pages": [
+            {**page("Mexican Revolution"), "extract": "The Mexican Revolution was an armed struggle. It lasted a decade. "
+                                                      "It changed Mexico. Many died."}]}],
+        "holidays": [{"text": "World Children's Day", "pages": [page("World Children's Day")]},
+                     {"text": "Christian feast day: Edmund the Martyr", "pages": []},
+                     {"text": "Revolution Day (Mexico)", "pages": []}],
+    }
+    h = parse_onthisday(payload)
+    assert h["events"][0]["extract"] == "The Mexican Revolution was an armed struggle. It lasted a decade. It changed Mexico."
+    assert [x["text"] for x in h["holidays"]] == ["World Children's Day", "Revolution Day (Mexico)"]
+
+    now = datetime(2026, 11, 20, 9, 0, tzinfo=timezone.utc)
+    out = refresh_history(None, now, lambda u: payload, FakeTranslator(), gaz=gazetteer_fixture())
+    ev = out["events"][0]
+    assert ev["extract"]["tr"].startswith("[tr] The Mexican Revolution")
+    assert ev["location"]["country"] == "MX"
+    assert out["holidays"][0]["text"]["tr"] == "[tr] World Children's Day"

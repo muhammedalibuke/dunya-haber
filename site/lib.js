@@ -33,6 +33,8 @@ export const STRINGS = {
     readWiki: "Vikipedi'de oku",
     historySource: "Kaynak: İngilizce Vikipedi, \"On this day\". Metinler CC BY-SA lisanslıdır; Türkçeleri otomatik çeviridir.",
     historyNotReady: "Bugünün listesi henüz hazır değil. Birazdan tekrar bak.",
+    holidaysTitle: "Bugün kutlananlar",
+    whatHappened: "Ne olmuştu?",
   },
   en: {
     todayCount: "{n} key events today",
@@ -66,6 +68,8 @@ export const STRINGS = {
     readWiki: "Read on Wikipedia",
     historySource: "Source: English Wikipedia, \"On this day\". Text available under CC BY-SA.",
     historyNotReady: "Today's list isn't ready yet. Check back shortly.",
+    holidaysTitle: "Observed today",
+    whatHappened: "What happened?",
   },
 };
 

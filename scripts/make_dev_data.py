@@ -100,19 +100,32 @@ def add_featured(state: State, base: str) -> None:
 
 def sample_history(base: str) -> dict:
     """A day's 'Tarihte bugün' list (20 November, written for previews)."""
-    def it(year, tr, en, img=None, born=None, died=None):
+    def it(year, tr, en, img=None, born=None, died=None, ctx=None, loc=None):
         return {"year": year, "text": {"tr": tr, "en": en}, "title": None, "born": born, "died": died,
+                "extract": {"tr": ctx[0], "en": ctx[1]} if ctx else None,
+                "location": dict(zip(("level", "name", "lat", "lon", "country"), loc)) if loc else None,
                 "url": "https://en.wikipedia.org/wiki/November_20", "thumb": f"{base}{img}" if img else None,
                 "image": f"{base}{img}" if img else None}
-    return {"date": NOW.date().isoformat(), "v": 2, "events": [
+    holidays = [{"text": {"tr": "Dünya Çocuk Günü", "en": "World Children's Day"},
+                 "url": "https://en.wikipedia.org/wiki/Universal_Children%27s_Day"},
+                {"text": {"tr": "Devrim Günü (Meksika)", "en": "Revolution Day (Mexico)"}, "url": None}]
+    return {"date": NOW.date().isoformat(), "v": 3, "holidays": holidays, "events": [
         it(1998, "Uluslararası Uzay İstasyonu'nun ilk parçası Zarya modülü fırlatıldı.",
-           "Zarya, the first module of the International Space Station, is launched.", "sample3.svg"),
+           "Zarya, the first module of the International Space Station, is launched.", "sample3.svg",
+           ctx=("Zarya, istasyonun ilk modülüdür. Kazakistan'daki Baykonur Uzay Üssü'nden bir Proton roketiyle fırlatıldı.",
+                "Zarya was the station's first module. It was launched on a Proton rocket from Baikonur in Kazakhstan."),
+           loc=("city", "Baikonur", 45.6, 63.3, "KZ")),
         it(1989, "BM Genel Kurulu, Çocuk Haklarına Dair Sözleşme'yi kabul etti.",
-           "The UN General Assembly adopts the Convention on the Rights of the Child."),
+           "The UN General Assembly adopts the Convention on the Rights of the Child.",
+           loc=("city", "New York", 40.7, -74.0, "US")),
         it(1985, "Microsoft, Windows'un ilk sürümünü piyasaya sürdü.", "Microsoft releases the first version of Windows.",
            "sample1.svg"),
-        it(1945, "Nürnberg duruşmaları başladı.", "The Nuremberg trials begin.", "sample0.svg"),
-        it(1910, "Meksika Devrimi başladı.", "The Mexican Revolution begins.", "sample2.svg"),
+        it(1945, "Nürnberg duruşmaları başladı.", "The Nuremberg trials begin.", "sample0.svg",
+           ctx=("Duruşmalarda Nazi Almanyası'nın önde gelen isimleri savaş suçlarından yargılandı.",
+                "Leading figures of Nazi Germany were tried for war crimes."),
+           loc=("city", "Nuremberg", 49.45, 11.08, "DE")),
+        it(1910, "Meksika Devrimi başladı.", "The Mexican Revolution begins.", "sample2.svg",
+           loc=("country", "Mexico", 23.6, -102.5, "MX")),
     ], "births": [it(1889, "Edwin Hubble, Amerikalı gökbilimci", "Edwin Hubble, American astronomer", "sample0.svg", died="1953")],
        "deaths": [it(1910, "Lev Tolstoy, Rus yazar", "Leo Tolstoy, Russian writer", "sample2.svg", born="1828"),
                   it(2024, "Andy Paley, Amerikalı söz yazarı", "Andy Paley, American songwriter", "sample1.svg", born="1952")]}

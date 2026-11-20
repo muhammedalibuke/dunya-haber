@@ -141,3 +141,9 @@ test("life years shown with a dash", async () => {
   assert.equal(lifeYears({ year: 1996, died: null }, "births"), "");
   assert.equal(lifeYears({ year: 1945 }, "events"), "");
 });
+
+test("history extras strings", () => {
+  assert.equal(t("holidaysTitle", "tr"), "Bugün kutlananlar");
+  assert.equal(t("whatHappened", "tr"), "Ne olmuştu?");
+  assert.ok(STRINGS.en.holidaysTitle && STRINGS.en.whatHappened);
+});

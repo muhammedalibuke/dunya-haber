@@ -109,7 +109,9 @@ function countries(topo) {
   return topojson.feature(topo, topo.objects.countries).features;
 }
 
-export async function worldMap(container, events, onSelect) {
+// opts.label(e): text beside a dot (default: place name); opts.numbered: rank inside the dot
+export async function worldMap(container, events, onSelect, opts = {}) {
+  const numbered = opts.numbered !== false;
   try {
     await ensureLibs();
     const topo = await loadTopo("world");
@@ -135,7 +137,7 @@ export async function worldMap(container, events, onSelect) {
       });
     const spread = spreadPoints(placed.map(({ id, x, y }) => ({ id, x, y })), 17);
     const lang = document.documentElement.lang === "en" ? "en" : "tr";
-    const labelText = (e) => (e.location.level === "country" ? e.country.name[lang] : e.location.name) || "";
+    const labelText = opts.label || ((e) => (e.location.level === "country" ? e.country.name[lang] : e.location.name) || "");
     const labels = placeLabels(
       spread.map((p, i) => ({ ...p, text: labelText(placed[i].e) })), width, height, { charW: 6.2, gap: 11 });
     const labelLayer = svgEl("g", { class: "m-labels", "aria-hidden": "true" });
@@ -150,12 +152,12 @@ export async function worldMap(container, events, onSelect) {
       const { e, rank } = placed[i];
       const country = e.location.level === "country";
       const g = svgEl("g", { class: "m-point", tabindex: "0", role: "link",
-        "aria-label": `${rank}. ${e.title[document.documentElement.lang] || e.title.tr}` });
+        "aria-label": opts.aria ? opts.aria(e) : `${rank}. ${e.title[document.documentElement.lang] || e.title.tr}` });
       g.append(svgEl("circle", { cx: p.x, cy: p.y, r: 16, class: "m-hit" }));
       g.append(svgEl("circle", { cx: p.x, cy: p.y, r: 8, class: country ? "m-ring" : "m-dot" }));
       const num = svgEl("text", { x: p.x, y: p.y, class: country ? "m-num m-num-ring" : "m-num",
         "text-anchor": "middle", "dominant-baseline": "central" });
-      num.textContent = String(rank);
+      num.textContent = numbered ? String(rank) : "";
       g.append(num);
       g.addEventListener("click", () => onSelect(e.id));
       g.addEventListener("keydown", (ev) => { if (ev.key === "Enter" || ev.key === " ") onSelect(e.id); });
