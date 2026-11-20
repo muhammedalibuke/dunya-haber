@@ -35,11 +35,12 @@ def test_parse_keeps_selected_events_newest_first_with_safe_links():
     assert h["events"][3]["url"] is None
 
 
-def test_births_are_the_newest_twenty_with_a_photo():
-    h = parse_onthisday(PAYLOAD)
-    years = [b["year"] for b in h["births"]]
+def test_deaths_are_the_newest_twenty_with_a_photo_and_births_are_dropped():
+    payload = {**PAYLOAD, "deaths": PAYLOAD["births"]}
+    h = parse_onthisday(payload)
+    years = [d["year"] for d in h["deaths"]]
     assert len(years) == 20 and years[0] == 1848 and all(y % 2 == 0 for y in years)
-    assert [d["year"] for d in h["deaths"]] == [1910]
+    assert "births" not in h
 
 
 def test_refresh_uses_the_istanbul_date_and_translates():
@@ -76,15 +77,12 @@ def test_refresh_keeps_old_data_when_fetch_fails_and_english_when_translation_fa
 
 def test_life_years_move_out_of_parentheses():
     h = parse_onthisday({
-        "deaths": [{"text": "Andy Paley, American songwriter (born 1952)", "year": 2024, "pages": [page("Andy Paley")]}],
-        "births": [{"text": "Edwin Hubble, American astronomer (died 1953)", "year": 1889, "pages": [page("Edwin Hubble")]},
-                   {"text": "Blaž Janc, Slovenian handballer", "year": 1996, "pages": [page("Blaz Janc")]}],
+        "deaths": [{"text": "Andy Paley, American songwriter (born 1952)", "year": 2024, "pages": [page("Andy Paley")]},
+                   {"text": "Someone, painter", "year": 1990, "pages": [page("Someone")]}],
     })
     d = h["deaths"][0]
-    assert d["text"] == "Andy Paley, American songwriter" and d["born"] == "1952" and d["died"] is None
-    hubble = next(b for b in h["births"] if b["year"] == 1889)
-    assert hubble["text"] == "Edwin Hubble, American astronomer" and hubble["died"] == "1953"
-    assert next(b for b in h["births"] if b["year"] == 1996)["died"] is None
+    assert d["text"] == "Andy Paley, American songwriter" and d["born"] == "1952"
+    assert h["deaths"][1]["born"] is None
 
 
 def test_refresh_redoes_a_list_made_by_an_older_version():

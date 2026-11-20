@@ -109,7 +109,7 @@ def sample_history(base: str) -> dict:
     holidays = [{"text": {"tr": "Dünya Çocuk Günü", "en": "World Children's Day"},
                  "url": "https://en.wikipedia.org/wiki/Universal_Children%27s_Day"},
                 {"text": {"tr": "Devrim Günü (Meksika)", "en": "Revolution Day (Mexico)"}, "url": None}]
-    return {"date": NOW.date().isoformat(), "v": 3, "holidays": holidays, "events": [
+    return {"date": NOW.date().isoformat(), "v": 4, "holidays": holidays, "events": [
         it(1998, "Uluslararası Uzay İstasyonu'nun ilk parçası Zarya modülü fırlatıldı.",
            "Zarya, the first module of the International Space Station, is launched.", "sample3.svg",
            ctx=("Zarya, istasyonun ilk modülüdür. Kazakistan'daki Baykonur Uzay Üssü'nden bir Proton roketiyle fırlatıldı.",
@@ -126,7 +126,7 @@ def sample_history(base: str) -> dict:
            loc=("city", "Nuremberg", 49.45, 11.08, "DE")),
         it(1910, "Meksika Devrimi başladı.", "The Mexican Revolution begins.", "sample2.svg",
            loc=("country", "Mexico", 23.6, -102.5, "MX")),
-    ], "births": [it(1889, "Edwin Hubble, Amerikalı gökbilimci", "Edwin Hubble, American astronomer", "sample0.svg", died="1953")],
+    ],
        "deaths": [it(1910, "Lev Tolstoy, Rus yazar", "Leo Tolstoy, Russian writer", "sample2.svg", born="1828"),
                   it(2024, "Andy Paley, Amerikalı söz yazarı", "Andy Paley, American songwriter", "sample1.svg", born="1952")]}
 

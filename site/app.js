@@ -288,7 +288,7 @@ async function viewEvent(id) {
     footer(null));
 }
 
-// "Tarihte bugün": world events, births and deaths on today's date (from Wikipedia)
+// "Tarihte bugün": world events and deaths on today's date (from Wikipedia)
 let historyTab = "events";
 async function viewHistory() {
   const now = new Date();
@@ -301,23 +301,15 @@ async function viewHistory() {
     el("p", { class: "hist-kicker", text: t("historyLink", lang) }),
     el("h1", { class: "hist-date", text: data ? formatDayMonth(data.date, lang) : formatToday(now, lang) }),
     el("p", { class: "hist-sub", text: t("historySub", lang) }),
-    data?.holidays?.length
-      ? el("div", { class: "hist-days" },
-        el("p", { class: "hist-days-title", text: t("holidaysTitle", lang) }),
-        el("ul", { class: "hist-days-list" }, data.holidays.map((h) => el("li", {},
-          safeUrl(h.url)
-            ? el("a", { href: safeUrl(h.url), target: "_blank", rel: "noopener noreferrer", text: h.text[lang] })
-            : el("span", { text: h.text[lang] })))))
-      : null,
   ];
   if (!data) {
     app.replaceChildren(el("main", { class: "hist" }, ...top, message(t("historyNotReady", lang))));
     return;
   }
   const listBox = el("div", { class: "hist-list" });
-  const tabs = ["events", "births", "deaths"].filter((k) => data[k]?.length);
+  const tabs = ["events", "deaths"].filter((k) => data[k]?.length);
   if (!tabs.includes(historyTab)) historyTab = tabs[0] || "events";
-  const tabKey = { events: "hEvents", births: "hBirths", deaths: "hDeaths" };
+  const tabKey = { events: "hEvents", deaths: "hDeaths" };
   const tabBar = el("div", { class: "hist-tabs", role: "group" }, tabs.map((k) => el("button", {
     class: "hist-tab", type: "button", "aria-pressed": String(k === historyTab), text: t(tabKey[k], lang),
     onclick: () => { historyTab = k; tabBar.querySelectorAll("button").forEach((b, i) => b.setAttribute("aria-pressed", String(tabs[i] === k))); fill(); },
@@ -361,7 +353,16 @@ async function viewHistory() {
       }, { numbered: false, label: (e) => String(e.year), aria: (e) => `${e.year}: ${e.text[lang]}` });
     }
   }
-  app.replaceChildren(el("main", { class: "hist" }, ...top, tabBar, listBox,
+  // observances get a box of their own after the list
+  const daysBox = data.holidays?.length
+    ? el("section", { class: "hist-days", "aria-labelledby": "hist-days-title" },
+      el("h2", { id: "hist-days-title", class: "hist-days-title", text: t("holidaysTitle", lang) }),
+      el("ul", { class: "hist-days-list" }, data.holidays.map((h) => el("li", {},
+        safeUrl(h.url)
+          ? el("a", { href: safeUrl(h.url), target: "_blank", rel: "noopener noreferrer", text: h.text[lang] })
+          : el("span", { text: h.text[lang] })))))
+    : null;
+  app.replaceChildren(el("main", { class: "hist" }, ...top, tabBar, listBox, daysBox,
     el("p", { class: "hist-src", text: t("historySource", lang) })));
   fill(); // after the page is on screen: the map measures its box
 }

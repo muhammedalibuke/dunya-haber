@@ -27,7 +27,6 @@ export const STRINGS = {
     historyLink: "Tarihte bugün",
     historySub: "Dünyada bu tarihte yaşananlar",
     hEvents: "Olaylar",
-    hBirths: "Doğumlar",
     hDeaths: "Ölümler",
     yearsAgo: "{n} yıl önce",
     readWiki: "Vikipedi'de oku",
@@ -62,7 +61,6 @@ export const STRINGS = {
     historyLink: "On this day",
     historySub: "What happened in the world on this date",
     hEvents: "Events",
-    hBirths: "Births",
     hDeaths: "Deaths",
     yearsAgo: "{n} years ago",
     readWiki: "Read on Wikipedia",
@@ -118,10 +116,9 @@ export function formatDateTime(iso, lang) {
   return `${formatToday(new Date(iso), lang, true)}, ${formatClock(iso, lang)}`;
 }
 
-// births: "1889 – 1953", deaths: "1952 – 2024"; nothing when the other year is unknown
+// deaths: "1952 – 2024"; nothing when the birth year is unknown
 export function lifeYears(it, kind) {
   if (kind === "deaths" && it.born) return `${it.born} – ${it.year}`;
-  if (kind === "births" && it.died) return `${it.year} – ${it.died}`;
   return "";
 }
 

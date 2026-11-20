@@ -1,4 +1,4 @@
-"""'Tarihte bugün': world events, births and deaths on today's date, from English Wikipedia's
+"""'Tarihte bugün': world events and deaths on today's date, from English Wikipedia's
 "On this day" feed. Fetched and translated once a day (Istanbul date); the rest of the day the
 stored copy is used."""
 from __future__ import annotations
@@ -12,12 +12,12 @@ from .translate import translate_cached
 
 FEED = "https://en.wikipedia.org/api/rest_v1/feed/onthisday/all/{m:02d}/{d:02d}"
 DAY_ZONE = ZoneInfo("Europe/Istanbul")
-VERSION = 3  # bump when the stored shape changes: the day's list is then made again
-MAX_PEOPLE = 20
+VERSION = 4  # bump when the stored shape changes: the day's list is then made again
+MAX_PEOPLE = 20  # deaths are not curated by Wikipedia: keep the newest with a photo
 MAX_HOLIDAYS = 6
 EXTRACT_SENTENCES, EXTRACT_MAX_CHARS = 3, 420
 # saints' days fill the holiday list every day; keep observances the whole world can relate to
-_SKIP_HOLIDAY = re.compile(r"feast day|liturgical|commemoration|^christian|^eastern orthodox", re.I)  # births/deaths are not curated by Wikipedia: keep the newest with a photo
+_SKIP_HOLIDAY = re.compile(r"feast day|liturgical|commemoration|^christian|^eastern orthodox", re.I)
 _WIKI = re.compile(r"^https://[a-z\-]+\.wikipedia\.org/wiki/[^\s\"'<>]+$")
 # "…, American songwriter (born 1952)": the years are shown apart, with a dash
 _LIFE = re.compile(r"\s*\((born|died|b\.|d\.)\s+([^()]{1,30})\)\s*$", re.I)
@@ -81,7 +81,7 @@ def parse_onthisday(payload: dict) -> dict:
 
     events = newest(_item(r) for r in payload.get("selected") or [] if r.get("text"))
     people = {k: newest(i for i in (_item(r) for r in payload.get(k) or [] if r.get("text")) if i["thumb"])[:MAX_PEOPLE]
-              for k in ("births", "deaths")}
+              for k in ("deaths",)}
     for items in people.values():  # background is shown for events only: don't spend translation time on it
         for i in items:
             i["extract"] = None
