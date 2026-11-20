@@ -19,7 +19,7 @@ import feedparser
 from .text import is_garbled
 from .models import Article, Source
 
-USER_AGENT = "DunyaHaber/1.0 (+https://github.com/muhammedalibuke/dunya-haber)"
+USER_AGENT = "NuntiOrbis/1.0 (+https://github.com/muhammedalibuke/dunya-haber)"
 MAX_BYTES = 5 * 1024 * 1024
 TIMEOUT_S = 10
 FEED_DEADLINE_S = 20  # a slow-drip server may hold a worker at most this long
@@ -175,6 +175,15 @@ class ConditionalGetter:
         self.path.parent.mkdir(parents=True, exist_ok=True)
         with gzip.open(self.path, "wt", encoding="utf-8") as f:
             json.dump(self.cache, f)
+
+
+def fetch_json(url: str) -> dict:
+    import httpx
+
+    r = httpx.get(url, headers={"User-Agent": USER_AGENT, "Accept": "application/json"}, timeout=TIMEOUT_S,
+                  follow_redirects=True)
+    r.raise_for_status()
+    return r.json()
 
 
 def fetch_page_head(url: str, max_bytes: int = 300_000, deadline_s: float = 8) -> bytes:

@@ -101,6 +101,7 @@ def load_state(dir: Path) -> State:
         events={e["id"]: _event_from_json(e) for e in evs},
         translations=_read(dir / "translations.json.gz", {}),
         seen=_read(dir / "seen.json.gz", {}),
+        history=_read(dir / "history.json.gz", None),
     )
 
 
@@ -116,6 +117,8 @@ def save_state(state: State, dir: Path) -> None:
     dump("events.json.gz", [_event_to_json(e) for e in state.events.values()])
     dump("translations.json.gz", state.translations)
     dump("seen.json.gz", state.seen)
+    if state.history is not None:
+        dump("history.json.gz", state.history)
 
 
 def prune(state: State, now: datetime) -> None:

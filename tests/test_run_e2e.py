@@ -118,3 +118,15 @@ def test_run_writes_featured_story_with_translated_developments(tmp_path):
     f = today["featured"]
     assert f is not None and f["source_count"] == 10 and today["events"] == []
     assert f["developments"][0]["detail"]["tr"].startswith("[tr] ")
+
+
+def test_run_publishes_today_in_history(tmp_path):
+    from tests.test_history import PAYLOAD
+    run(tmp_path / "state", tmp_path / "out", NOW, [GB, TR, JP], pages_run1().__getitem__, EMB, FakeTranslator(),
+        GAZ, CFG, history_get=lambda url: PAYLOAD)
+    h = load(tmp_path, "history.json")
+    assert h["events"][0]["year"] == 1998 and h["events"][0]["text"]["tr"].startswith("[tr] ")
+    # next run, same day: not fetched again, still published
+    run(tmp_path / "state", tmp_path / "out", NOW + timedelta(minutes=10), [GB, TR, JP], pages_run1().__getitem__,
+        EMB, FakeTranslator(), GAZ, CFG, history_get=lambda url: 1 / 0)
+    assert load(tmp_path, "history.json")["date"] == h["date"]

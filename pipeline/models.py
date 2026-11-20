@@ -74,3 +74,4 @@ class State:
     events: dict[str, Event] = field(default_factory=dict)
     translations: dict[str, dict[str, str]] = field(default_factory=dict)
     seen: dict[str, int] = field(default_factory=dict)  # article id -> day first seen (days since epoch)
+    history: dict | None = None  # today's "Tarihte bugün" list (history.refresh_history)

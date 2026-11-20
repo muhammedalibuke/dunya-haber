@@ -14,9 +14,10 @@ from pathlib import Path
 from typing import Callable
 
 from .cluster import CLUSTER_LOW, OPEN_WINDOW_HOURS, NameRescue, _normalize, assign, merge_events
-from .collect import ConditionalGetter, fetch_all, fetch_page_head
+from .collect import ConditionalGetter, fetch_all, fetch_json, fetch_page_head
 from .embed import Embedder, embed_text
 from .geo import Gazetteer, locate_event
+from .history import refresh_history
 from .models import Source
 from .publish import build_site_data, developments, published_events, write_site_data
 from .rank import select_featured, select_today
@@ -132,7 +133,7 @@ def run(state_dir: Path, out_dir: Path, now: datetime, sources: list[Source],
         gaz: Gazetteer, topic_cfg: TopicConfig, gemini_key: str | None = None,
         post=None, translate_budget_s: float = TRANSLATE_BUDGET_S,
         topic_embedder: Embedder | None = None, page_get=None,
-        dissolve_over: int | None = None) -> RunReport:
+        dissolve_over: int | None = None, history_get: Callable[[str], dict] | None = None) -> RunReport:
     """`embedder` groups articles into events; `topic_embedder` (default: the same) tags topics.
     `dissolve_over` (manual repair): events with more articles than this are broken up and their
     recent articles grouped again from scratch."""
@@ -210,6 +211,8 @@ def run(state_dir: Path, out_dir: Path, now: datetime, sources: list[Source],
             if got:
                 e.summary_tr, e.summary_en = got
                 e.summary_ai = True
+    if history_get is not None:
+        state.history = refresh_history(state.history, now, history_get, translator)
     save_state(state, state_dir)
     write_site_data(out_dir, build_site_data(state, today, now, featured))
     return report
@@ -242,6 +245,7 @@ def main() -> None:
         gemini_key=os.environ.get("GEMINI_API_KEY") or None,
         page_get=fetch_page_head,
         dissolve_over=args.dissolve_over,
+        history_get=fetch_json,
     )
     getter.save()  # only after the state was saved: a failed run must refetch everything it saw
     print(report.line())

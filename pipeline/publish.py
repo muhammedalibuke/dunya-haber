@@ -214,7 +214,7 @@ def build_site_data(state: State, today_ids: list[str], now: datetime,
     # The featured story has its own box, so it is not repeated in the list.
     today = sorted((state.events[i] for i in today_ids if i != featured_id),
                    key=lambda e: (e.updated_at, e.id), reverse=True)
-    files: dict[str, object] = {
+    files: dict[str, object] = {**({"history.json": state.history} if state.history else {}),
         "today.json": {"generated_at": stamp,
                        "featured": featured_block(featured, arts, state.translations, now) if featured else None,
                        "events": [event_summary(e, arts) for e in today]},

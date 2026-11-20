@@ -146,3 +146,11 @@ def test_prune_keeps_second_step_of_pivot_translations():
     })
     prune(s, NOW)
     assert cache_key("The meeting lasted 42 minutes.", "en", "tr") in s.translations
+
+
+def test_history_roundtrips(tmp_path):
+    from pipeline.models import State
+    from pipeline.state import load_state, save_state
+    assert load_state(tmp_path).history is None
+    save_state(State(history={"date": "2026-11-20", "events": []}), tmp_path)
+    assert load_state(tmp_path).history == {"date": "2026-11-20", "events": []}
