@@ -107,9 +107,13 @@ def sample_history(base: str) -> dict:
                 "url": "https://en.wikipedia.org/wiki/November_20", "thumb": f"{base}{img}" if img else None,
                 "image": f"{base}{img}" if img else None}
     holidays = [{"text": {"tr": "Dünya Çocuk Günü", "en": "World Children's Day"},
-                 "url": "https://en.wikipedia.org/wiki/Universal_Children%27s_Day"},
-                {"text": {"tr": "Devrim Günü (Meksika)", "en": "Revolution Day (Mexico)"}, "url": None}]
-    return {"date": NOW.date().isoformat(), "v": 4, "holidays": holidays, "events": [
+                 "url": "https://en.wikipedia.org/wiki/Universal_Children%27s_Day",
+                 "extract": {"tr": "Çocuk haklarına dikkat çekmek için 1954'te BM tarafından ilan edildi.",
+                             "en": "Declared by the UN in 1954 to promote children's rights."}},
+                {"text": {"tr": "Devrim Günü (Meksika)", "en": "Revolution Day (Mexico)"}, "url": None,
+                 "extract": {"tr": "1910'da başlayan Meksika Devrimi'nin yıl dönümü.",
+                             "en": "Marks the start of the Mexican Revolution in 1910."}}]
+    return {"date": NOW.date().isoformat(), "v": 5, "holidays": holidays, "events": [
         it(1998, "Uluslararası Uzay İstasyonu'nun ilk parçası Zarya modülü fırlatıldı.",
            "Zarya, the first module of the International Space Station, is launched.", "sample3.svg",
            ctx=("Zarya, istasyonun ilk modülüdür. Kazakistan'daki Baykonur Uzay Üssü'nden bir Proton roketiyle fırlatıldı.",

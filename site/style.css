@@ -226,20 +226,31 @@ a.dev-title:hover { text-decoration: underline; text-underline-offset: 2px; }
   font: 400 0.82rem/1.45 var(--sans); color: var(--faint);
 }
 .hist-days {
-  margin: 1.6rem 0 0; padding: 0.9rem 1rem 0.4rem; border: 2px solid var(--ink); border-radius: 6px;
+  margin: 1.1rem 0 0; padding: 0.85rem 1rem 0.5rem; border: 2px solid var(--ink); border-radius: 6px;
+  background: var(--bg);
 }
-.hist-days-title { margin: 0 0 0.3rem; font: 800 1.15rem/1.2 var(--serif); }
+.hist-days-title { margin: 0 0 0.2rem; font: 800 1.15rem/1.2 var(--serif); }
 .hist-days-list { list-style: none; margin: 0; padding: 0; }
-.hist-days-list li {
-  padding: 0.6rem 0 0.6rem 0.9rem; border-top: 1px solid var(--rule); position: relative;
-  font: 600 1rem/1.35 var(--serif);
-}
+.hist-days-list li { padding: 0.6rem 0; border-top: 1px solid var(--rule); }
 .hist-days-list li:first-child { border-top: 0; }
-.hist-days-list li::before {
-  content: ""; position: absolute; left: 0; top: 1.05rem; width: 0.4rem; height: 0.4rem; border-radius: 50%;
-  background: var(--red);
+.hist-day-name { font: 700 1rem/1.3 var(--serif); }
+a.hist-day-name { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+.hist-day-info { margin: 0.25rem 0 0; font: 400 0.88rem/1.45 var(--sans); color: var(--muted); }
+/* wide screens: the box sits top right beside the page, and stays in view while scrolling */
+@media (min-width: 60rem) {
+  main:has(> .hist-has-days) { max-width: calc(var(--measure) + 21rem); }
+  .hist-has-days {
+    display: grid; column-gap: 2.5rem;
+    grid-template-columns: minmax(0, 1fr) 18.5rem;
+    grid-template-areas: "top top" "head days" "tabs days" "list days" "src days";
+  }
+  .hist-has-days > .hist-top { grid-area: top; }
+  .hist-has-days > .hist-head { grid-area: head; }
+  .hist-has-days > .hist-days { grid-area: days; align-self: start; position: sticky; top: 1rem; margin-top: 1.1rem; }
+  .hist-has-days > .hist-tabs { grid-area: tabs; }
+  .hist-has-days > .hist-list { grid-area: list; }
+  .hist-has-days > .hist-src { grid-area: src; }
 }
-.hist-days-list a { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
 .hist-map { margin: 1rem 0 0.2rem; }
 .hist-ctx { margin-top: 0.45rem; }
 .hist-ctx summary {

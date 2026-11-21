@@ -12,7 +12,7 @@ from .translate import translate_cached
 
 FEED = "https://en.wikipedia.org/api/rest_v1/feed/onthisday/all/{m:02d}/{d:02d}"
 DAY_ZONE = ZoneInfo("Europe/Istanbul")
-VERSION = 4  # bump when the stored shape changes: the day's list is then made again
+VERSION = 5  # bump when the stored shape changes: the day's list is then made again
 MAX_PEOPLE = 20  # deaths are not curated by Wikipedia: keep the newest with a photo
 MAX_HOLIDAYS = 6
 EXTRACT_SENTENCES, EXTRACT_MAX_CHARS = 3, 420
@@ -20,7 +20,7 @@ EXTRACT_SENTENCES, EXTRACT_MAX_CHARS = 3, 420
 _SKIP_HOLIDAY = re.compile(r"feast day|liturgical|commemoration|^christian|^eastern orthodox", re.I)
 _WIKI = re.compile(r"^https://[a-z\-]+\.wikipedia\.org/wiki/[^\s\"'<>]+$")
 # "…, American songwriter (born 1952)": the years are shown apart, with a dash
-_LIFE = re.compile(r"\s*\((born|died|b\.|d\.)\s+([^()]{1,30})\)\s*$", re.I)
+_LIFE = re.compile(r"\s*\((born|died|b\.?|d\.?)\s+([^()]{1,30})\)\s*$", re.I)
 _IMG = re.compile(r"^https://upload\.wikimedia\.org/[^\s\"'<>]+$")
 
 
@@ -32,16 +32,16 @@ def _first(pages: list, key) -> str | None:
     return None
 
 
-def _sentences(text: str) -> str:
+def _sentences(text: str, n: int = EXTRACT_SENTENCES, max_chars: int = EXTRACT_MAX_CHARS) -> str:
     """Background for "Ne olmuştu?": the first sentences of the article's summary."""
     from .summarize import _SENT_SPLIT
 
     out = ""
-    for sent in _SENT_SPLIT.split(" ".join(text.split()))[:EXTRACT_SENTENCES]:
-        if out and len(out) + 1 + len(sent) > EXTRACT_MAX_CHARS:
+    for sent in _SENT_SPLIT.split(" ".join(text.split()))[:n]:
+        if out and len(out) + 1 + len(sent) > max_chars:
             break
         out = f"{out} {sent}".strip()
-    return out[:EXTRACT_MAX_CHARS]
+    return out[:max_chars]
 
 
 def _item(raw: dict) -> dict:
@@ -85,7 +85,8 @@ def parse_onthisday(payload: dict) -> dict:
     for items in people.values():  # background is shown for events only: don't spend translation time on it
         for i in items:
             i["extract"] = None
-    holidays = [{"text": (r.get("text") or "").strip(), "url": _item(r)["url"]}
+    holidays = [{"text": (r.get("text") or "").strip(), "url": _item(r)["url"],
+                 "extract": _sentences(x, 2, 220) if (x := _first(r.get("pages") or [], lambda p: p.get("extract"))) else None}
                 for r in payload.get("holidays") or []
                 if r.get("text") and not _SKIP_HOLIDAY.search(r["text"])][:MAX_HOLIDAYS]
     return {"events": events, **people, "holidays": holidays}

@@ -303,7 +303,7 @@ async function viewHistory() {
     el("p", { class: "hist-sub", text: t("historySub", lang) }),
   ];
   if (!data) {
-    app.replaceChildren(el("main", { class: "hist" }, ...top, message(t("historyNotReady", lang))));
+    app.replaceChildren(el("div", { class: "hist" }, ...top, message(t("historyNotReady", lang))));
     return;
   }
   const listBox = el("div", { class: "hist-list" });
@@ -328,7 +328,7 @@ async function viewHistory() {
     const [lead, ...rest] = items;
     const located = historyTab === "events" ? items.filter((it) => it.location) : [];
     const mapBox = located.length ? el("div", { class: "map hist-map" }) : null;
-    listBox.replaceChildren(
+    listBox.replaceChildren(...[ // replaceChildren would print a null as the text "null"
       mapBox,
       lead ? el("section", { class: "hist-lead", id: lead.id },
         img(lead.image || lead.thumb, "hist-lead-img"),
@@ -344,7 +344,7 @@ async function viewHistory() {
             el("div", { class: "hist-main" }, el("p", { class: "hist-text", text: it.text[lang] }), life(it)),
             img(it.thumb, "hist-thumb")),
           ctx(it),
-          wiki(it))))));
+          wiki(it)))))].filter(Boolean));
     if (mapBox) {
       worldMap(mapBox, located, (id) => {
         const target = document.getElementById(id);
@@ -353,16 +353,20 @@ async function viewHistory() {
       }, { numbered: false, label: (e) => String(e.year), aria: (e) => `${e.year}: ${e.text[lang]}` });
     }
   }
-  // observances get a box of their own after the list
+  // observances: a box of their own, top right on wide screens, under the date on phones
   const daysBox = data.holidays?.length
-    ? el("section", { class: "hist-days", "aria-labelledby": "hist-days-title" },
+    ? el("aside", { class: "hist-days", "aria-labelledby": "hist-days-title" },
       el("h2", { id: "hist-days-title", class: "hist-days-title", text: t("holidaysTitle", lang) }),
       el("ul", { class: "hist-days-list" }, data.holidays.map((h) => el("li", {},
         safeUrl(h.url)
-          ? el("a", { href: safeUrl(h.url), target: "_blank", rel: "noopener noreferrer", text: h.text[lang] })
-          : el("span", { text: h.text[lang] })))))
+          ? el("a", { class: "hist-day-name", href: safeUrl(h.url), target: "_blank", rel: "noopener noreferrer",
+            text: h.text[lang] })
+          : el("span", { class: "hist-day-name", text: h.text[lang] }),
+        h.extract?.[lang] ? el("p", { class: "hist-day-info", text: h.extract[lang] }) : null))))
     : null;
-  app.replaceChildren(el("main", { class: "hist" }, ...top, tabBar, listBox, daysBox,
+  const [topBar, ...head] = top;
+  app.replaceChildren(el("div", { class: daysBox ? "hist hist-has-days" : "hist" },
+    topBar, el("header", { class: "hist-head" }, ...head), daysBox, tabBar, listBox,
     el("p", { class: "hist-src", text: t("historySource", lang) })));
   fill(); // after the page is on screen: the map measures its box
 }

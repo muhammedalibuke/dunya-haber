@@ -116,3 +116,18 @@ def test_context_holidays_and_places():
     assert ev["extract"]["tr"].startswith("[tr] The Mexican Revolution")
     assert ev["location"]["country"] == "MX"
     assert out["holidays"][0]["text"]["tr"] == "[tr] World Children's Day"
+
+
+def test_life_years_without_a_dot_and_holiday_background():
+    h = parse_onthisday({
+        "deaths": [{"text": "Bernard Rose, English organist and composer (b 1916)", "year": 1996, "pages": [page("Bernard Rose")]}],
+        "holidays": [{"text": "World Television Day (United Nations observance)", "pages": [
+            {**page("World Television Day"), "extract": "World Television Day is marked on 21 November. It was set up by "
+                                                        "the UN in 1996. It honours television. More text here."}]}],
+    })
+    assert h["deaths"][0]["text"] == "Bernard Rose, English organist and composer" and h["deaths"][0]["born"] == "1916"
+    assert h["holidays"][0]["extract"] == "World Television Day is marked on 21 November. It was set up by the UN in 1996."
+    out = refresh_history(None, datetime(2026, 11, 21, 9, tzinfo=timezone.utc), lambda u: {"holidays": [
+        {"text": "World Television Day", "pages": [{**page("World Television Day"), "extract": "A day. For TV."}]}]},
+        FakeTranslator())
+    assert out["holidays"][0]["extract"] == {"tr": "[tr] A day. For TV.", "en": "A day. For TV."}
