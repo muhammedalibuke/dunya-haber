@@ -35,12 +35,37 @@ def test_parse_keeps_selected_events_newest_first_with_safe_links():
     assert h["events"][3]["url"] is None
 
 
-def test_deaths_are_the_newest_twenty_with_a_photo_and_births_are_dropped():
+def test_parse_keeps_deaths_with_a_photo_and_drops_births():
     payload = {**PAYLOAD, "deaths": PAYLOAD["births"]}
     h = parse_onthisday(payload)
     years = [d["year"] for d in h["deaths"]]
-    assert len(years) == 20 and years[0] == 1848 and all(y % 2 == 0 for y in years)
+    assert len(years) == 25 and years[0] == 1848 and all(y % 2 == 0 for y in years)
     assert "births" not in h
+
+
+def test_without_wikidata_the_newest_twenty_people_are_kept():
+    payload = {**PAYLOAD, "deaths": PAYLOAD["births"]}
+    h = refresh_history(None, datetime(2026, 11, 21, 9, tzinfo=timezone.utc), lambda u: payload, FakeTranslator())
+    years = [d["year"] for d in h["deaths"]]
+    assert len(years) == 20 and years[0] == 1848
+
+
+def test_the_best_known_people_are_kept_newest_first():
+    people = [{"text": f"P{i}, actor", "year": 1900 + i, "pages": [{**page(f"P{i}"), "wikibase_item": f"Q{100 + i}"}]}
+              for i in range(30)]
+
+    def get_json(url):
+        if "props=claims" in url:  # sitelinks: how many Wikipedias have an article on the person
+            return {"entities": {f"Q{100 + i}": {"claims": {}, "sitelinks": {f"l{k}wiki": {} for k in range(i % 7)}}
+                                 for i in range(30)}}
+        if "wikiquote" in url or "props=labels" in url:
+            return {}
+        return {"deaths": people}
+
+    h = refresh_history(None, datetime(2026, 11, 21, 9, tzinfo=timezone.utc), get_json, FakeTranslator(), )
+    kept = [d["year"] - 1900 for d in h["deaths"]]
+    assert len(kept) == 20 and kept == sorted(kept, reverse=True)
+    assert all(i % 7 >= 2 for i in kept)  # the least known (0 or 1 Wikipedias) are the ones left out
 
 
 def test_refresh_uses_the_istanbul_date_and_translates():
@@ -218,8 +243,9 @@ def test_deaths_get_a_few_notable_works_from_wikidata():
         asked.append(url)
         if "wikidata" in url and "props=claims" in url:
             work = lambda q: {"mainsnak": {"datavalue": {"value": {"id": q}}}, "rank": "normal"}
-            return {"entities": {"Q8006": {"claims": {"P800": [work("Q1"), work("Q2"), work("Q3"), work("Q4")]}},
-                                 "Q5": {"claims": {}}}}
+            return {"entities": {"Q8006": {"claims": {"P800": [work("Q1"), work("Q2"), work("Q3"), work("Q4")]},
+                                           "sitelinks": {"enwiki": {}, "trwiki": {}}},
+                                 "Q5": {"claims": {}, "sitelinks": {}}}}
         if "wikidata" in url and "props=labels" in url:
             return {"entities": {"Q1": {"labels": {"en": {"value": "Ran"}}},
                                  "Q2": {"labels": {"en": {"value": "Seven Samurai"}, "tr": {"value": "Yedi Samuray"}}},

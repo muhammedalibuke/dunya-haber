@@ -28,8 +28,8 @@ _QUOTE_URL = re.compile(r"^https://[a-z]+\.wikiquote\.org/wiki/[^\s\"'<>]+$")
 _AUTHOR_LINE = re.compile(r"^[—–~\-]+\s*")
 _MARKS = "“”„\"«»‹›·' "
 DAY_ZONE = ZoneInfo("Europe/Istanbul")
-VERSION = 8  # bump when the stored shape changes: the day's list is then made again
-MAX_PEOPLE = 20  # deaths are not curated by Wikipedia: keep the newest with a photo
+VERSION = 9  # bump when the stored shape changes: the day's list is then made again
+MAX_PEOPLE = 20  # deaths are not curated by Wikipedia: keep the best known (see pick_people)
 MAX_HOLIDAYS = 6
 EXTRACT_SENTENCES, EXTRACT_MAX_CHARS = 3, 420
 # saints' days fill the holiday list every day; keep observances the whole world can relate to
@@ -98,7 +98,7 @@ def parse_onthisday(payload: dict) -> dict:
         return sorted(items, key=lambda x: x["year"], reverse=True)
 
     events = newest(_item(r) for r in payload.get("selected") or [] if r.get("text"))
-    people = {k: newest(i for i in (_item(r) for r in payload.get(k) or [] if r.get("text")) if i["thumb"])[:MAX_PEOPLE]
+    people = {k: newest(i for i in (_item(r) for r in payload.get(k) or [] if r.get("text")) if i["thumb"])
               for k in ("deaths",)}
     for items in people.values():  # background is shown for events only: don't spend translation time on it
         for i in items:
@@ -146,12 +146,16 @@ def _wikidata(get_json: Callable[[str], dict], ids: list[str], props: str) -> di
     return out
 
 
-def notable_works(get_json: Callable[[str], dict], qids: list[str]) -> dict[str, list[dict]]:
-    """{person qid: [{tr, en}, …]} – up to MAX_WORKS titles each, in Wikidata's order."""
-    people = _wikidata(get_json, qids, "claims")
+def people_facts(get_json: Callable[[str], dict], qids: list[str]) -> dict[str, dict]:
+    """{person qid: {"fame": how many Wikipedias have an article on them,
+                     "works": up to MAX_WORKS best-known works as [{tr, en}], in Wikidata's order}}"""
+    people = _wikidata(get_json, qids, "claims%7Csitelinks")
     picked: dict[str, list[str]] = {}
+    fame: dict[str, int] = {}
     for qid in qids:
-        claims = ((people.get(qid) or {}).get("claims") or {}).get("P800") or []
+        ent = people.get(qid) or {}
+        fame[qid] = sum(1 for k in (ent.get("sitelinks") or {}) if k.endswith("wiki"))
+        claims = (ent.get("claims") or {}).get("P800") or []
         works = [((c.get("mainsnak") or {}).get("datavalue") or {}).get("value", {}).get("id")
                  for c in claims if c.get("rank") != "deprecated"]
         picked[qid] = [w for w in works if w and _QID.match(w)][:MAX_WORKS]
@@ -165,8 +169,18 @@ def notable_works(get_json: Callable[[str], dict], qids: list[str]) -> dict[str,
             en = (lab.get("en") or {}).get("value")
             if en:
                 named.append({"tr": (lab.get("tr") or {}).get("value") or en, "en": en})
-        out[qid] = named
+        out[qid] = {"fame": fame[qid], "works": named}
     return out
+
+
+def pick_people(people: list[dict], facts: dict[str, dict]) -> list[dict]:
+    """The MAX_PEOPLE best known (by Wikidata) or, without that, the newest; newest first."""
+    if facts:
+        people = sorted(people, key=lambda d: -(facts.get(d.get("wikidata")) or {}).get("fame", 0))
+    kept = people[:MAX_PEOPLE]
+    for d in kept:
+        d["works"] = (facts.get(d.get("wikidata")) or {}).get("works", [])
+    return sorted(kept, key=lambda d: d["year"], reverse=True)
 
 
 def fetch_quotes(get_json: Callable[[str], dict], skip: set[str] = frozenset()) -> dict:
@@ -208,6 +222,15 @@ def refresh_history(current: dict | None, now: datetime, get_json: Callable[[str
     except Exception as e:  # noqa: BLE001 - a missing day is not worth failing the news update for
         print(f"on this day: fetch failed: {e}", flush=True)
         return current
+    # who to show among today's deaths: the best known, with a few of their works
+    qids = [d["wikidata"] for d in parsed.get("deaths", []) if d.get("wikidata")]
+    try:
+        facts = people_facts(get_json, qids) if qids else {}
+    except Exception as e:  # noqa: BLE001 - the list is fine without them
+        print(f"people facts: {e}", flush=True)
+        facts = {}
+    parsed["deaths"] = pick_people(parsed.get("deaths", []), facts)
+
     cache: dict = {}
 
     def both(en: str | None) -> dict | None:
@@ -224,14 +247,6 @@ def refresh_history(current: dict | None, now: datetime, get_json: Callable[[str
             it["text"] = both(it["text"])
             if "extract" in it:
                 it["extract"] = both(it["extract"])
-    qids = [d["wikidata"] for d in parsed.get("deaths", []) if d.get("wikidata")]
-    try:
-        works = notable_works(get_json, qids) if qids else {}
-    except Exception as e:  # noqa: BLE001 - the list is fine without them
-        print(f"notable works: {e}", flush=True)
-        works = {}
-    for d in parsed.get("deaths", []):
-        d["works"] = works.get(d.get("wikidata"), [])
     if gaz is not None:  # where it happened, for the map
         from dataclasses import asdict
 
