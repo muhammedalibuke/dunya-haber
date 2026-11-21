@@ -14,10 +14,10 @@ from .translate import translate_cached
 FEED = "https://en.wikipedia.org/api/rest_v1/feed/onthisday/all/{m:02d}/{d:02d}"
 # quote of the day: each language from its own Wikiquote (not translated)
 QUOTE_SOURCES = {
-    "tr": ("https://tr.wikiquote.org", "Ana_Sayfa", "Günün Sözü"),
+    "tr": ("https://tr.wikiquote.org", "Anasayfa", "Günün Sözü"),
     "en": ("https://en.wikiquote.org", "Main_Page", "Quote of the day"),
 }
-QUOTE_API = "{base}/w/api.php?action=parse&page={page}&prop=text&format=json&formatversion=2"
+QUOTE_API = "{base}/w/api.php?action=parse&page={page}&prop=text&redirects=1&format=json&formatversion=2"
 QUOTE_MAX_CHARS = 400
 QUOTE_RETRY = timedelta(hours=1)
 _QUOTE_URL = re.compile(r"^https://[a-z]+\.wikiquote\.org/wiki/[^\s\"'<>]+$")
@@ -106,13 +106,13 @@ def parse_onthisday(payload: dict) -> dict:
 
 def parse_quote(page_html: str, heading: str, base: str) -> dict | None:
     """The quote under `heading` on a Wikiquote main page: {text, author, url}, or None."""
-    m = re.search(r"<h[1-6][^>]*>(?:(?!</h[1-6]).)*?" + re.escape(heading) + r"(?:(?!</h[1-6]).)*?</h[1-6]>",
-                  page_html, re.S | re.I)
+    # the box title is a heading on some wikis and a styled <div> on others: find it as element text
+    m = re.search(r">(?:\s|&#32;|&nbsp;|<[^>]+>)*" + re.escape(heading) + r"(?:\s|&#32;|&nbsp;)*<", page_html, re.I)
     if not m:
         return None
-    rest = page_html[m.end():]
+    rest = page_html[m.end() - 1:]
     nxt = re.search(r"<h[1-6][\s>]", rest)
-    block = rest[:nxt.start() if nxt else 4000][:4000]
+    block = rest[:nxt.start() if nxt else 6000][:6000]
     text = re.sub(r"<br\s*/?>|</(p|td|tr|div|li|dd|dt|blockquote)>", "\n", block, flags=re.I)
     text = htmllib.unescape(re.sub(r"<[^>]+>", "", text))
     lines = [" ".join(line.split()) for line in text.split("\n")]

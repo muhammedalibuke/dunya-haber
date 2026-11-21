@@ -190,3 +190,19 @@ def test_missing_quotes_are_tried_again_later_the_same_day():
     assert all("wikiquote" in u for u in asked) and h["quote"]["tr"]["author"] == "Aldous Huxley"
     asked.clear()
     assert refresh_history(h, now, get_json, FakeTranslator()) is h and asked == []
+
+
+EN_MAIN_REAL = """<div style="box-shadow:0 0 0.2em #999999;"><div style="background-color: #a1080d;">&#32;Quote of the day</div>
+<div style="padding:0.5em 1em;"><table><tbody><tr><td align="center"><span typeof="mw:File"><img src="//x.jpg"/></span>
+</td><td align="center"><table class="cquote"><tbody><tr><td width="20" valign="top">“
+</td><td valign="top">There are <a href="/wiki/Truths" title="Truths">truths</a> which are not for all men.
+</td><td width="20" valign="bottom">”
+</td></tr><tr><td colspan="3">~ <a href="/wiki/Voltaire" title="Voltaire">Voltaire</a> ~</td></tr></tbody></table>
+</td></tr></tbody></table></div></div><div style="box-shadow:0 0 0.2em #999999;"><div>&#32;Selected pages</div></div>"""
+
+
+def test_quote_heading_can_be_any_element():
+    from pipeline.history import parse_quote
+    q = parse_quote(EN_MAIN_REAL, "Quote of the day", "https://en.wikiquote.org")
+    assert q == {"text": "There are truths which are not for all men.", "author": "Voltaire",
+                 "url": "https://en.wikiquote.org/wiki/Voltaire"}
