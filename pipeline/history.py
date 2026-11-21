@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import html as htmllib
 import re
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Callable
 from zoneinfo import ZoneInfo
 
@@ -19,6 +19,7 @@ QUOTE_SOURCES = {
 }
 QUOTE_API = "{base}/w/api.php?action=parse&page={page}&prop=text&format=json&formatversion=2"
 QUOTE_MAX_CHARS = 400
+QUOTE_RETRY = timedelta(hours=1)
 _QUOTE_URL = re.compile(r"^https://[a-z]+\.wikiquote\.org/wiki/[^\s\"'<>]+$")
 _AUTHOR_LINE = re.compile(r"^[—–~\-]+\s*")
 _MARKS = "“”„\"«»‹›·' "
@@ -132,18 +133,23 @@ def parse_quote(page_html: str, heading: str, base: str) -> dict | None:
     return {"text": quote, "author": author, "url": url}
 
 
-def fetch_quotes(get_json: Callable[[str], dict]) -> dict:
+def fetch_quotes(get_json: Callable[[str], dict], skip: set[str] = frozenset()) -> dict:
     out = {}
     for lang, (base, page, heading) in QUOTE_SOURCES.items():
+        if lang in skip:
+            continue
         try:
-            q = parse_quote(get_json(QUOTE_API.format(base=base, page=page))["parse"]["text"], heading, base)
+            page_html = get_json(QUOTE_API.format(base=base, page=page))["parse"]["text"]
+            q = parse_quote(page_html, heading, base)
         except Exception as e:  # noqa: BLE001 - no quote today is fine
             print(f"quote of the day ({lang}): {e}", flush=True)
             continue
         if q:
             out[lang] = q
-        else:
-            print(f"quote of the day ({lang}): not found on the main page", flush=True)
+        else:  # show what the page looks like, to adjust the reader
+            at = page_html.lower().find(heading.lower())
+            print(f"quote of the day ({lang}): not found; heading at {at}; "
+                  f"{page_html[max(0, at - 300):at + 1500] if at >= 0 else page_html[:600]!r}", flush=True)
     return out
 
 
@@ -153,7 +159,14 @@ def refresh_history(current: dict | None, now: datetime, get_json: Callable[[str
     A failed fetch keeps `current`; a failed translation leaves the English text."""
     day = now.astimezone(DAY_ZONE).date()
     if current and current.get("date") == day.isoformat() and current.get("v") == VERSION:
-        return current
+        quote = current.get("quote") or {}
+        checked = current.get("quote_checked")
+        if all(lang in quote for lang in QUOTE_SOURCES) or (
+                checked and now - datetime.fromisoformat(checked) < QUOTE_RETRY):
+            return current
+        # a quote is missing (site down, page changed): try again hourly, the rest stays as it is
+        return {**current, "quote": {**fetch_quotes(get_json, skip=set(quote)), **quote},
+                "quote_checked": now.isoformat()}
     try:
         parsed = parse_onthisday(get_json(FEED.format(m=day.month, d=day.day)))
     except Exception as e:  # noqa: BLE001 - a missing day is not worth failing the news update for
@@ -183,4 +196,5 @@ def refresh_history(current: dict | None, now: datetime, get_json: Callable[[str
         for it in parsed["events"]:
             loc = locate_event([it["text"]["en"]], [], gaz)
             it["location"] = asdict(loc) if loc else None
-    return {"date": day.isoformat(), "v": VERSION, "quote": fetch_quotes(get_json), **parsed}
+    return {"date": day.isoformat(), "v": VERSION, "quote": fetch_quotes(get_json), "quote_checked": now.isoformat(),
+            **parsed}

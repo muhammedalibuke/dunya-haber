@@ -174,3 +174,19 @@ def test_refresh_adds_each_languages_own_quote():
 
     h = refresh_history(None, datetime(2026, 11, 21, 9, tzinfo=timezone.utc), no_quotes, FakeTranslator())
     assert h["quote"] == {} and h["events"]
+
+
+def test_missing_quotes_are_tried_again_later_the_same_day():
+    now = datetime(2026, 11, 21, 9, tzinfo=timezone.utc)
+    from pipeline.history import VERSION
+    current = {"date": "2026-11-21", "v": VERSION, "quote": {}, "events": []}
+    asked = []
+
+    def get_json(url):
+        asked.append(url)
+        return {"parse": {"text": TR_MAIN if "tr.wikiquote" in url else EN_MAIN}}
+
+    h = refresh_history(current, now, get_json, FakeTranslator())
+    assert all("wikiquote" in u for u in asked) and h["quote"]["tr"]["author"] == "Aldous Huxley"
+    asked.clear()
+    assert refresh_history(h, now, get_json, FakeTranslator()) is h and asked == []
