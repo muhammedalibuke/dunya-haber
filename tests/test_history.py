@@ -206,3 +206,32 @@ def test_quote_heading_can_be_any_element():
     q = parse_quote(EN_MAIN_REAL, "Quote of the day", "https://en.wikiquote.org")
     assert q == {"text": "There are truths which are not for all men.", "author": "Voltaire",
                  "url": "https://en.wikiquote.org/wiki/Voltaire"}
+
+
+def test_deaths_get_a_few_notable_works_from_wikidata():
+    kurosawa = {**page("Akira Kurosawa"), "wikibase_item": "Q8006"}
+    payload = {"deaths": [{"text": "Akira Kurosawa, Japanese director (b. 1910)", "year": 1998, "pages": [kurosawa]},
+                          {"text": "Someone, farmer", "year": 1990, "pages": [{**page("Someone"), "wikibase_item": "Q5"}]}]}
+    asked = []
+
+    def get_json(url):
+        asked.append(url)
+        if "wikidata" in url and "props=claims" in url:
+            work = lambda q: {"mainsnak": {"datavalue": {"value": {"id": q}}}, "rank": "normal"}
+            return {"entities": {"Q8006": {"claims": {"P800": [work("Q1"), work("Q2"), work("Q3"), work("Q4")]}},
+                                 "Q5": {"claims": {}}}}
+        if "wikidata" in url and "props=labels" in url:
+            return {"entities": {"Q1": {"labels": {"en": {"value": "Ran"}}},
+                                 "Q2": {"labels": {"en": {"value": "Seven Samurai"}, "tr": {"value": "Yedi Samuray"}}},
+                                 "Q3": {"labels": {"en": {"value": "Rashomon"}}},
+                                 "Q4": {"labels": {"en": {"value": "Ikiru"}}}}}
+        if "wikiquote" in url:
+            raise RuntimeError("not today")
+        return payload
+
+    h = refresh_history(None, datetime(2026, 11, 21, 9, tzinfo=timezone.utc), get_json, FakeTranslator())
+    k = next(d for d in h["deaths"] if d["year"] == 1998)
+    assert k["works"] == [{"tr": "Ran", "en": "Ran"}, {"tr": "Yedi Samuray", "en": "Seven Samurai"},
+                          {"tr": "Rashomon", "en": "Rashomon"}]
+    assert next(d for d in h["deaths"] if d["year"] == 1990)["works"] == []
+    assert any("ids=Q8006%7CQ5" in u or "ids=Q8006|Q5" in u for u in asked)

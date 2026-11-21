@@ -155,3 +155,8 @@ test("observances count", () => {
 test("quote source strings", () => {
   assert.ok(STRINGS.tr.quoteSource.includes("Vikisöz") && STRINGS.en.quoteSource.includes("Wikiquote"));
 });
+
+test("notable works label", () => {
+  assert.equal(t("notableWorks", "tr"), "Bilinen eserleri");
+  assert.equal(t("notableWorks", "en"), "Known for");
+});

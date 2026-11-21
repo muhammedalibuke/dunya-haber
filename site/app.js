@@ -334,6 +334,9 @@ async function viewHistory() {
   const ctx = (it) => (it.extract?.[lang] ? el("details", { class: "hist-ctx" },
     el("summary", { text: t("whatHappened", lang) }),
     el("p", { text: it.extract[lang] })) : null);
+  const works = (it) => (it.works?.length ? el("p", { class: "hist-works" },
+    el("span", { class: "hist-works-label", text: `${t("notableWorks", lang)}: ` }),
+    it.works.map((w) => w[lang] || w.en).join(", ")) : null);
   function fill() {
     const items = (data[historyTab] || []).map((it, i) => ({ ...it, id: `h${i}` }));
     const located = historyTab === "events" ? items.filter((it) => it.location) : [];
@@ -345,7 +348,7 @@ async function viewHistory() {
         el("div", { class: "hist-y" }, String(it.year), el("span", { class: "hist-ago", text: ago(it.year) })),
         el("div", { class: "hist-body" },
           el("div", { class: "hist-row" },
-            el("div", { class: "hist-main" }, el("p", { class: "hist-text", text: it.text[lang] }), life(it)),
+            el("div", { class: "hist-main" }, el("p", { class: "hist-text", text: it.text[lang] }), life(it), works(it)),
             img(it.thumb, "hist-thumb")),
           ctx(it),
           wiki(it))))))].filter(Boolean));

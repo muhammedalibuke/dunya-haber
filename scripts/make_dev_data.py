@@ -100,8 +100,9 @@ def add_featured(state: State, base: str) -> None:
 
 def sample_history(base: str) -> dict:
     """A day's 'Tarihte bugün' list (20 November, written for previews)."""
-    def it(year, tr, en, img=None, born=None, died=None, ctx=None, loc=None):
+    def it(year, tr, en, img=None, born=None, died=None, ctx=None, loc=None, works=()):
         return {"year": year, "text": {"tr": tr, "en": en}, "title": None, "born": born, "died": died,
+                "works": [{"tr": w[0], "en": w[1]} for w in works],
                 "extract": {"tr": ctx[0], "en": ctx[1]} if ctx else None,
                 "location": dict(zip(("level", "name", "lat", "lon", "country"), loc)) if loc else None,
                 "url": "https://en.wikipedia.org/wiki/November_20", "thumb": f"{base}{img}" if img else None,
@@ -117,7 +118,7 @@ def sample_history(base: str) -> dict:
                     "url": "https://tr.wikiquote.org/wiki/Aldous_Huxley"},
              "en": {"text": "The only thing we have to fear is fear itself.", "author": "Franklin D. Roosevelt",
                     "url": "https://en.wikiquote.org/wiki/Franklin_D._Roosevelt"}}
-    return {"date": NOW.date().isoformat(), "v": 7, "quote": quote, "holidays": holidays, "events": [
+    return {"date": NOW.date().isoformat(), "v": 8, "quote": quote, "holidays": holidays, "events": [
         it(1998, "Uluslararası Uzay İstasyonu'nun ilk parçası Zarya modülü fırlatıldı.",
            "Zarya, the first module of the International Space Station, is launched.", "sample3.svg",
            ctx=("Zarya, istasyonun ilk modülüdür. Kazakistan'daki Baykonur Uzay Üssü'nden bir Proton roketiyle fırlatıldı.",
@@ -135,7 +136,8 @@ def sample_history(base: str) -> dict:
         it(1910, "Meksika Devrimi başladı.", "The Mexican Revolution begins.", "sample2.svg",
            loc=("country", "Mexico", 23.6, -102.5, "MX")),
     ],
-       "deaths": [it(1910, "Lev Tolstoy, Rus yazar", "Leo Tolstoy, Russian writer", "sample2.svg", born="1828"),
+       "deaths": [it(1910, "Lev Tolstoy, Rus yazar", "Leo Tolstoy, Russian writer", "sample2.svg", born="1828",
+                     works=[("Savaş ve Barış", "War and Peace"), ("Anna Karenina", "Anna Karenina")]),
                   it(2024, "Andy Paley, Amerikalı söz yazarı", "Andy Paley, American songwriter", "sample1.svg", born="1952")]}
 
 

@@ -35,6 +35,7 @@ export const STRINGS = {
     holidaysTitle: "Bugün kutlananlar",
     holidaysCount: "Dünyada {n} özel gün",
     quoteSource: "Günün sözü: Vikisöz (CC BY-SA).",
+    notableWorks: "Bilinen eserleri",
     whatHappened: "Ne olmuştu?",
   },
   en: {
@@ -71,6 +72,7 @@ export const STRINGS = {
     holidaysTitle: "Observed today",
     holidaysCount: "{n} special days around the world",
     quoteSource: "Quote of the day: Wikiquote (CC BY-SA).",
+    notableWorks: "Known for",
     whatHappened: "What happened?",
   },
 };

@@ -19,12 +19,16 @@ QUOTE_SOURCES = {
 }
 QUOTE_API = "{base}/w/api.php?action=parse&page={page}&prop=text&redirects=1&format=json&formatversion=2"
 QUOTE_MAX_CHARS = 400
+# a person's best-known works ("notable work", P800) from Wikidata: a few, not all
+WIKIDATA = "https://www.wikidata.org/w/api.php?action=wbgetentities&ids={ids}&props={props}&format=json"
+MAX_WORKS = 3
+_QID = re.compile(r"^Q\d+$")
 QUOTE_RETRY = timedelta(hours=1)
 _QUOTE_URL = re.compile(r"^https://[a-z]+\.wikiquote\.org/wiki/[^\s\"'<>]+$")
 _AUTHOR_LINE = re.compile(r"^[—–~\-]+\s*")
 _MARKS = "“”„\"«»‹›·' "
 DAY_ZONE = ZoneInfo("Europe/Istanbul")
-VERSION = 7  # bump when the stored shape changes: the day's list is then made again
+VERSION = 8  # bump when the stored shape changes: the day's list is then made again
 MAX_PEOPLE = 20  # deaths are not curated by Wikipedia: keep the newest with a photo
 MAX_HOLIDAYS = 6
 EXTRACT_SENTENCES, EXTRACT_MAX_CHARS = 3, 420
@@ -63,6 +67,7 @@ def _item(raw: dict) -> dict:
     url = url if url and _WIKI.match(url) else None
     thumb = thumb if thumb and _IMG.match(thumb) else None
     title = _first(pages, lambda p: (p.get("titles") or {}).get("normalized"))
+    qid = pages[0].get("wikibase_item") if pages else None
     text = (raw.get("text") or "").strip()
     born = died = None
     m = _LIFE.search(text)
@@ -75,6 +80,7 @@ def _item(raw: dict) -> dict:
     extract = _first(pages, lambda p: p.get("extract"))
     return {
         "extract": _sentences(extract) if extract else None,
+        "wikidata": qid if qid and _QID.match(qid) else None,
         "year": int(raw.get("year") or 0),
         "text": text,
         "born": born,
@@ -133,6 +139,36 @@ def parse_quote(page_html: str, heading: str, base: str) -> dict | None:
     return {"text": quote, "author": author, "url": url}
 
 
+def _wikidata(get_json: Callable[[str], dict], ids: list[str], props: str) -> dict:
+    out: dict = {}
+    for i in range(0, len(ids), 50):  # the API takes 50 ids at a time
+        out.update(get_json(WIKIDATA.format(ids="|".join(ids[i:i + 50]), props=props)).get("entities") or {})
+    return out
+
+
+def notable_works(get_json: Callable[[str], dict], qids: list[str]) -> dict[str, list[dict]]:
+    """{person qid: [{tr, en}, …]} – up to MAX_WORKS titles each, in Wikidata's order."""
+    people = _wikidata(get_json, qids, "claims")
+    picked: dict[str, list[str]] = {}
+    for qid in qids:
+        claims = ((people.get(qid) or {}).get("claims") or {}).get("P800") or []
+        works = [((c.get("mainsnak") or {}).get("datavalue") or {}).get("value", {}).get("id")
+                 for c in claims if c.get("rank") != "deprecated"]
+        picked[qid] = [w for w in works if w and _QID.match(w)][:MAX_WORKS]
+    all_works = list(dict.fromkeys(w for ws in picked.values() for w in ws))
+    labels = _wikidata(get_json, all_works, "labels&languages=en%7Ctr") if all_works else {}
+    out = {}
+    for qid, works in picked.items():
+        named = []
+        for w in works:
+            lab = (labels.get(w) or {}).get("labels") or {}
+            en = (lab.get("en") or {}).get("value")
+            if en:
+                named.append({"tr": (lab.get("tr") or {}).get("value") or en, "en": en})
+        out[qid] = named
+    return out
+
+
 def fetch_quotes(get_json: Callable[[str], dict], skip: set[str] = frozenset()) -> dict:
     out = {}
     for lang, (base, page, heading) in QUOTE_SOURCES.items():
@@ -188,6 +224,14 @@ def refresh_history(current: dict | None, now: datetime, get_json: Callable[[str
             it["text"] = both(it["text"])
             if "extract" in it:
                 it["extract"] = both(it["extract"])
+    qids = [d["wikidata"] for d in parsed.get("deaths", []) if d.get("wikidata")]
+    try:
+        works = notable_works(get_json, qids) if qids else {}
+    except Exception as e:  # noqa: BLE001 - the list is fine without them
+        print(f"notable works: {e}", flush=True)
+        works = {}
+    for d in parsed.get("deaths", []):
+        d["works"] = works.get(d.get("wikidata"), [])
     if gaz is not None:  # where it happened, for the map
         from dataclasses import asdict
 

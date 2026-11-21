@@ -321,3 +321,5 @@ a.hist-day-name { text-decoration: underline; text-decoration-thickness: 1px; te
 .hist-frame .hist-tl-rows { margin-top: 0; }
 .hist-frame .hist-tl-rows li:first-child { border-top: 0; }
 .hist-tl-rows .hist-thumb { border-radius: 8px; width: 3.4rem; height: 3.4rem; }
+.hist-works { margin: 0.3rem 0 0; font: 500 0.9rem/1.4 var(--sans); color: var(--ink); }
+.hist-works-label { font-weight: 700; color: var(--red); }
