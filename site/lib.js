@@ -33,6 +33,7 @@ export const STRINGS = {
     historySource: "Kaynak: İngilizce Vikipedi, \"On this day\". Metinler CC BY-SA lisanslıdır; Türkçeleri otomatik çeviridir.",
     historyNotReady: "Bugünün listesi henüz hazır değil. Birazdan tekrar bak.",
     holidaysTitle: "Bugün kutlananlar",
+    holidaysCount: "Dünyada {n} özel gün",
     whatHappened: "Ne olmuştu?",
   },
   en: {
@@ -67,6 +68,7 @@ export const STRINGS = {
     historySource: "Source: English Wikipedia, \"On this day\". Text available under CC BY-SA.",
     historyNotReady: "Today's list isn't ready yet. Check back shortly.",
     holidaysTitle: "Observed today",
+    holidaysCount: "{n} special days around the world",
     whatHappened: "What happened?",
   },
 };
@@ -75,6 +77,7 @@ export function t(key, lang, vars = {}) {
   let s = STRINGS[lang]?.[key] ?? STRINGS.tr[key] ?? key;
   if (key === "sourceCount" && lang === "en" && vars.n === 1) s = "{n} source";
   if (key === "yearsAgo" && lang === "en" && vars.n === 1) s = "{n} year ago";
+  if (key === "holidaysCount" && lang === "en" && vars.n === 1) s = "{n} special day around the world";
   return s.replace(/\{(\w+)\}/g, (_, k) => String(vars[k] ?? ""));
 }
 

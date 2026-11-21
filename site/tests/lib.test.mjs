@@ -146,3 +146,8 @@ test("history extras strings", () => {
   assert.equal(t("whatHappened", "tr"), "Ne olmuştu?");
   assert.ok(STRINGS.en.holidaysTitle && STRINGS.en.whatHappened);
 });
+
+test("observances count", () => {
+  assert.equal(t("holidaysCount", "tr", { n: 2 }), "Dünyada 2 özel gün");
+  assert.equal(t("holidaysCount", "en", { n: 1 }), "1 special day around the world");
+});

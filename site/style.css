@@ -269,3 +269,35 @@ a.hist-day-name { text-decoration: underline; text-decoration-thickness: 1px; te
   font: 400 0.93rem/1.5 var(--sans); color: var(--muted);
 }
 .hist-lead .hist-ctx p { font-size: 0.98rem; }
+
+/* observances, dressed up: bunting along the top, the day number in a wax seal */
+.hist-days { position: relative; overflow: hidden; padding-top: 1.7rem; }
+.hist-days-flags {
+  position: absolute; top: 0; left: 0; right: 0; height: 22px;
+  background: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI5NiIgaGVpZ2h0PSIyMiI+PHBhdGggZD0iTTAsNCBRNDgsOCA5Niw0IiBzdHJva2U9IiMxNDI2MkUiIHN0cm9rZS13aWR0aD0iMS4zIiBmaWxsPSJub25lIi8+PHBhdGggZD0iTTYsNSBMMjQsNSBMMTUsMTkgWiIgZmlsbD0iI0Q5NDUyQSIvPjxwYXRoIGQ9Ik0zMCw1IEw0OCw1IEwzOSwxOSBaIiBmaWxsPSIjNkU5QTYyIi8+PHBhdGggZD0iTTU0LDUgTDcyLDUgTDYzLDE5IFoiIGZpbGw9IiM1Qjg3QTYiLz48cGF0aCBkPSJNNzgsNSBMOTYsNSBMODcsMTkgWiIgZmlsbD0iI0UzQTkzQiIvPjwvc3ZnPg==) repeat-x 0 0 / 96px 22px;
+}
+.hist-days-head { display: flex; align-items: center; gap: 0.75rem; margin: 0.2rem 0 0.4rem; }
+.hist-days-seal {
+  flex: none; display: grid; place-items: center; width: 3.1rem; height: 3.1rem;
+  background: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cG9seWdvbiBwb2ludHM9IjEwMC4wLDUwLjAgOTguOCw1Mi43IDk1LjcsNTUuMiA5Mi42LDU3LjIgOTAuOSw1OS4zIDkxLjUsNjIuMCA5My40LDY1LjIgOTUuMSw2OC43IDk1LjAsNzEuNyA5Mi43LDczLjYgODguOSw3NC41IDg1LjIsNzUuMCA4Mi44LDc2LjIgODIuMiw3OC44IDgyLjUsODIuNSA4Mi41LDg2LjQgODEuMiw4OS4xIDc4LjMsODkuOCA3NC41LDg4LjkgNzAuOSw4Ny44IDY4LjIsODcuOCA2Ni41LDg5LjkgNjUuMiw5My40IDYzLjUsOTYuOSA2MS4xLDk4LjcgNTguMiw5OC4xIDU1LjIsOTUuNyA1Mi40LDkzLjEgNTAuMCw5Mi4wIDQ3LjYsOTMuMSA0NC44LDk1LjcgNDEuOCw5OC4xIDM4LjksOTguNyAzNi41LDk2LjkgMzQuOCw5My40IDMzLjUsODkuOSAzMS44LDg3LjggMjkuMSw4Ny44IDI1LjUsODguOSAyMS43LDg5LjggMTguOCw4OS4xIDE3LjUsODYuNCAxNy41LDgyLjUgMTcuOCw3OC44IDE3LjIsNzYuMiAxNC44LDc1LjAgMTEuMSw3NC41IDcuMyw3My42IDUuMCw3MS43IDQuOSw2OC43IDYuNiw2NS4yIDguNSw2Mi4wIDkuMSw1OS4zIDcuNCw1Ny4yIDQuMyw1NS4yIDEuMiw1Mi43IDAuMCw1MC4wIDEuMiw0Ny4zIDQuMyw0NC44IDcuNCw0Mi44IDkuMSw0MC43IDguNSwzOC4wIDYuNiwzNC44IDQuOSwzMS4zIDUuMCwyOC4zIDcuMywyNi40IDExLjEsMjUuNSAxNC44LDI1LjAgMTcuMiwyMy44IDE3LjgsMjEuMiAxNy41LDE3LjUgMTcuNSwxMy42IDE4LjgsMTAuOSAyMS43LDEwLjIgMjUuNSwxMS4xIDI5LjEsMTIuMiAzMS44LDEyLjIgMzMuNSwxMC4xIDM0LjgsNi42IDM2LjUsMy4xIDM4LjksMS4zIDQxLjgsMS45IDQ0LjgsNC4zIDQ3LjYsNi45IDUwLjAsOC4wIDUyLjQsNi45IDU1LjIsNC4zIDU4LjIsMS45IDYxLjEsMS4zIDYzLjUsMy4xIDY1LjIsNi42IDY2LjUsMTAuMSA2OC4yLDEyLjIgNzAuOSwxMi4yIDc0LjUsMTEuMSA3OC4zLDEwLjIgODEuMiwxMC45IDgyLjUsMTMuNiA4Mi41LDE3LjUgODIuMiwyMS4yIDgyLjgsMjMuOCA4NS4yLDI1LjAgODguOSwyNS41IDkyLjcsMjYuNCA5NS4wLDI4LjMgOTUuMSwzMS4zIDkzLjQsMzQuOCA5MS41LDM4LjAgOTAuOSw0MC43IDkyLjYsNDIuOCA5NS43LDQ0LjggOTguOCw0Ny4zIiBmaWxsPSIjRDk0NTJBIi8+PGNpcmNsZSBjeD0iNTAiIGN5PSI1MCIgcj0iMzUiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzlFMkExNyIgc3Ryb2tlLXdpZHRoPSIzIi8+PC9zdmc+) center / contain no-repeat;
+  font: 800 1.15rem/1 var(--serif); color: #fff; letter-spacing: -0.02em;
+}
+.hist-days-title { margin: 0; }
+.hist-days-count { margin: 0.1rem 0 0; font: 600 0.82rem/1.3 var(--sans); color: var(--muted); }
+.hist-days-list li { position: relative; padding-left: 1.05rem; }
+.hist-days-list li::before {
+  content: ""; position: absolute; left: 0; top: 1.02rem; width: 0.5rem; height: 0.5rem; border-radius: 50%;
+  background: var(--red);
+}
+.hist-days-list li:nth-child(4n+2)::before { background: #6E9A62; }
+.hist-days-list li:nth-child(4n+3)::before { background: #5B87A6; }
+.hist-days-list li:nth-child(4n+4)::before { background: #E3A93B; }
+
+/* the whole list in one framed box, like the observances box */
+.hist-frame {
+  margin-top: 1rem; padding: 0.2rem 1rem 0.4rem; border: 2px solid var(--ink); border-radius: 16px;
+  background: var(--card);
+}
+.hist-frame .hist-lead { margin-top: 0.9rem; }
+.hist-frame .hist-tl { margin-top: 0.6rem; }
+.hist-frame .hist-tl li:last-child { padding-bottom: 0.6rem; }

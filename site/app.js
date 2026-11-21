@@ -330,6 +330,7 @@ async function viewHistory() {
     const mapBox = located.length ? el("div", { class: "map hist-map" }) : null;
     listBox.replaceChildren(...[ // replaceChildren would print a null as the text "null"
       mapBox,
+      el("div", { class: "hist-frame" },
       lead ? el("section", { class: "hist-lead", id: lead.id },
         img(lead.image || lead.thumb, "hist-lead-img"),
         el("p", { class: "hist-year" }, el("b", { text: String(lead.year) }), el("span", { text: ago(lead.year) })),
@@ -344,7 +345,7 @@ async function viewHistory() {
             el("div", { class: "hist-main" }, el("p", { class: "hist-text", text: it.text[lang] }), life(it)),
             img(it.thumb, "hist-thumb")),
           ctx(it),
-          wiki(it)))))].filter(Boolean));
+          wiki(it))))))].filter(Boolean));
     if (mapBox) {
       worldMap(mapBox, located, (id) => {
         const target = document.getElementById(id);
@@ -356,7 +357,12 @@ async function viewHistory() {
   // observances: a box of their own, top right on wide screens, under the date on phones
   const daysBox = data.holidays?.length
     ? el("aside", { class: "hist-days", "aria-labelledby": "hist-days-title" },
-      el("h2", { id: "hist-days-title", class: "hist-days-title", text: t("holidaysTitle", lang) }),
+      el("div", { class: "hist-days-flags", "aria-hidden": "true" }),
+      el("div", { class: "hist-days-head" },
+        el("span", { class: "hist-days-seal", "aria-hidden": "true", text: String(Number(data.date.slice(8, 10))) }),
+        el("div", {},
+          el("h2", { id: "hist-days-title", class: "hist-days-title", text: t("holidaysTitle", lang) }),
+          el("p", { class: "hist-days-count", text: t("holidaysCount", lang, { n: data.holidays.length }) }))),
       el("ul", { class: "hist-days-list" }, data.holidays.map((h) => el("li", {},
         safeUrl(h.url)
           ? el("a", { class: "hist-day-name", href: safeUrl(h.url), target: "_blank", rel: "noopener noreferrer",
