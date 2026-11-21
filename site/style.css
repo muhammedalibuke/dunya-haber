@@ -316,8 +316,8 @@ a.hist-day-name { text-decoration: underline; text-decoration-thickness: 1px; te
 .hist-quote-by::before { content: "— "; }
 .hist-quote-by a { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
 
-/* history: the map framed like the other boxes; people's photos as small squares */
+/* history: the map framed like the other boxes; every row's photo a small square */
 .hist-map { border: 2px solid var(--ink); }
-.hist-frame .hist-tl-people { margin-top: 0; }
-.hist-frame .hist-tl-people li:first-child { border-top: 0; }
-.hist-tl-people .hist-thumb { border-radius: 8px; width: 3.4rem; height: 3.4rem; }
+.hist-frame .hist-tl-rows { margin-top: 0; }
+.hist-frame .hist-tl-rows li:first-child { border-top: 0; }
+.hist-tl-rows .hist-thumb { border-radius: 8px; width: 3.4rem; height: 3.4rem; }

@@ -336,21 +336,12 @@ async function viewHistory() {
     el("p", { text: it.extract[lang] })) : null);
   function fill() {
     const items = (data[historyTab] || []).map((it, i) => ({ ...it, id: `h${i}` }));
-    const people = historyTab === "deaths";
-    const [lead, ...rest] = people ? [null, ...items] : items;
     const located = historyTab === "events" ? items.filter((it) => it.location) : [];
     const mapBox = located.length ? el("div", { class: "map hist-map" }) : null;
     listBox.replaceChildren(...[ // replaceChildren would print a null as the text "null"
       mapBox,
       el("div", { class: "hist-frame" },
-      lead ? el("section", { class: "hist-lead", id: lead.id },
-        img(lead.image || lead.thumb, "hist-lead-img"),
-        el("p", { class: "hist-year" }, el("b", { text: String(lead.year) }), el("span", { text: ago(lead.year) })),
-        el("p", { class: "hist-lead-text", text: lead.text[lang] }),
-        life(lead),
-        ctx(lead),
-        wiki(lead)) : null,
-      el("ol", { class: people ? "hist-tl hist-tl-people" : "hist-tl" }, rest.map((it) => el("li", { id: it.id },
+      el("ol", { class: "hist-tl hist-tl-rows" }, items.map((it) => el("li", { id: it.id },
         el("div", { class: "hist-y" }, String(it.year), el("span", { class: "hist-ago", text: ago(it.year) })),
         el("div", { class: "hist-body" },
           el("div", { class: "hist-row" },
