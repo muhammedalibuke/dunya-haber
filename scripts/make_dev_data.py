@@ -117,7 +117,7 @@ def sample_history(base: str) -> dict:
                     "url": "https://tr.wikiquote.org/wiki/Aldous_Huxley"},
              "en": {"text": "The only thing we have to fear is fear itself.", "author": "Franklin D. Roosevelt",
                     "url": "https://en.wikiquote.org/wiki/Franklin_D._Roosevelt"}}
-    return {"date": NOW.date().isoformat(), "v": 6, "quote": quote, "holidays": holidays, "events": [
+    return {"date": NOW.date().isoformat(), "v": 7, "quote": quote, "holidays": holidays, "events": [
         it(1998, "Uluslararası Uzay İstasyonu'nun ilk parçası Zarya modülü fırlatıldı.",
            "Zarya, the first module of the International Space Station, is launched.", "sample3.svg",
            ctx=("Zarya, istasyonun ilk modülüdür. Kazakistan'daki Baykonur Uzay Üssü'nden bir Proton roketiyle fırlatıldı.",
