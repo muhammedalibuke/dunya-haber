@@ -22,13 +22,24 @@ QUOTE_MAX_CHARS = 400
 # a person's best-known works ("notable work", P800) from Wikidata: a few, not all
 WIKIDATA = "https://www.wikidata.org/w/api.php?action=wbgetentities&ids={ids}&props={props}&format=json"
 MAX_WORKS = 3
+SPARQL = "https://query.wikidata.org/sparql?format=json&query={q}"
+# works made by a person: author, director, composer, creator, performer, architect, lyricist, screenwriter;
+# plus what Wikidata lists as their "notable work". Ranked by how many Wikipedias cover the work.
+WORKS_QUERY = """SELECT ?person ?work ?n ?en ?tr WHERE {{
+  VALUES ?person {{ {people} }}
+  {{ ?person wdt:P800 ?work }} UNION
+  {{ VALUES ?p {{ wdt:P50 wdt:P57 wdt:P86 wdt:P170 wdt:P175 wdt:P84 wdt:P676 wdt:P58 }} ?work ?p ?person }}
+  ?work wikibase:sitelinks ?n . FILTER(?n >= 3)
+  OPTIONAL {{ ?work rdfs:label ?en FILTER(LANG(?en) = "en") }}
+  OPTIONAL {{ ?work rdfs:label ?tr FILTER(LANG(?tr) = "tr") }}
+}}"""
 _QID = re.compile(r"^Q\d+$")
 QUOTE_RETRY = timedelta(hours=1)
 _QUOTE_URL = re.compile(r"^https://[a-z]+\.wikiquote\.org/wiki/[^\s\"'<>]+$")
 _AUTHOR_LINE = re.compile(r"^[—–~\-]+\s*")
 _MARKS = "“”„\"«»‹›·' "
 DAY_ZONE = ZoneInfo("Europe/Istanbul")
-VERSION = 9  # bump when the stored shape changes: the day's list is then made again
+VERSION = 10  # bump when the stored shape changes: the day's list is then made again
 MAX_PEOPLE = 20  # deaths are not curated by Wikipedia: keep the best known (see pick_people)
 MAX_HOLIDAYS = 6
 EXTRACT_SENTENCES, EXTRACT_MAX_CHARS = 3, 420
@@ -146,31 +157,39 @@ def _wikidata(get_json: Callable[[str], dict], ids: list[str], props: str) -> di
     return out
 
 
-def people_facts(get_json: Callable[[str], dict], qids: list[str]) -> dict[str, dict]:
-    """{person qid: {"fame": how many Wikipedias have an article on them,
-                     "works": up to MAX_WORKS best-known works as [{tr, en}], in Wikidata's order}}"""
-    people = _wikidata(get_json, qids, "claims%7Csitelinks")
-    picked: dict[str, list[str]] = {}
-    fame: dict[str, int] = {}
-    for qid in qids:
-        ent = people.get(qid) or {}
-        fame[qid] = sum(1 for k in (ent.get("sitelinks") or {}) if k.endswith("wiki"))
-        claims = (ent.get("claims") or {}).get("P800") or []
-        works = [((c.get("mainsnak") or {}).get("datavalue") or {}).get("value", {}).get("id")
-                 for c in claims if c.get("rank") != "deprecated"]
-        picked[qid] = [w for w in works if w and _QID.match(w)][:MAX_WORKS]
-    all_works = list(dict.fromkeys(w for ws in picked.values() for w in ws))
-    labels = _wikidata(get_json, all_works, "labels&languages=en%7Ctr") if all_works else {}
+def top_works(get_json: Callable[[str], dict], qids: list[str]) -> dict[str, list[dict]]:
+    """{person qid: up to MAX_WORKS of their best-known works as [{tr, en}]}"""
+    from urllib.parse import quote
+
+    found: dict[str, dict[str, tuple[int, str, str]]] = {}
+    for i in range(0, len(qids), 25):
+        q = WORKS_QUERY.format(people=" ".join(f"wd:{x}" for x in qids[i:i + 25]))
+        for b in (get_json(SPARQL.format(q=quote(q))).get("results") or {}).get("bindings") or []:
+            person = b["person"]["value"].rsplit("/", 1)[-1]
+            work = b["work"]["value"].rsplit("/", 1)[-1]
+            en = (b.get("en") or {}).get("value")
+            if not en:
+                continue
+            found.setdefault(person, {})[work] = (int(b["n"]["value"]), en, (b.get("tr") or {}).get("value") or en)
     out = {}
-    for qid, works in picked.items():
-        named = []
-        for w in works:
-            lab = (labels.get(w) or {}).get("labels") or {}
-            en = (lab.get("en") or {}).get("value")
-            if en:
-                named.append({"tr": (lab.get("tr") or {}).get("value") or en, "en": en})
-        out[qid] = {"fame": fame[qid], "works": named}
+    for person, works in found.items():
+        seen, best = set(), []
+        for n, en, tr in sorted(works.values(), key=lambda w: -w[0]):
+            if en.casefold() in seen:
+                continue
+            seen.add(en.casefold())
+            best.append({"tr": tr, "en": en})
+            if len(best) == MAX_WORKS:
+                break
+        out[person] = best
     return out
+
+
+def people_facts(get_json: Callable[[str], dict], qids: list[str]) -> dict[str, dict]:
+    """{person qid: {"fame": how many Wikipedias have an article on them, "works": [{tr, en}]}}"""
+    people = _wikidata(get_json, qids, "sitelinks")
+    fame = {q: sum(1 for k in ((people.get(q) or {}).get("sitelinks") or {}) if k.endswith("wiki")) for q in qids}
+    return {q: {"fame": fame[q], "works": []} for q in qids}
 
 
 def pick_people(people: list[dict], facts: dict[str, dict]) -> list[dict]:
@@ -230,6 +249,14 @@ def refresh_history(current: dict | None, now: datetime, get_json: Callable[[str
         print(f"people facts: {e}", flush=True)
         facts = {}
     parsed["deaths"] = pick_people(parsed.get("deaths", []), facts)
+    shown = [d["wikidata"] for d in parsed["deaths"] if d.get("wikidata")]
+    try:
+        works = top_works(get_json, shown) if shown else {}
+    except Exception as e:  # noqa: BLE001
+        print(f"top works: {e}", flush=True)
+        works = {}
+    for d in parsed["deaths"]:
+        d["works"] = works.get(d.get("wikidata"), [])
 
     cache: dict = {}
 

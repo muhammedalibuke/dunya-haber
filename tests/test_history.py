@@ -55,10 +55,10 @@ def test_the_best_known_people_are_kept_newest_first():
               for i in range(30)]
 
     def get_json(url):
-        if "props=claims" in url:  # sitelinks: how many Wikipedias have an article on the person
-            return {"entities": {f"Q{100 + i}": {"claims": {}, "sitelinks": {f"l{k}wiki": {} for k in range(i % 7)}}
+        if "wikidata.org/w/api.php" in url:  # sitelinks: how many Wikipedias have an article on the person
+            return {"entities": {f"Q{100 + i}": {"sitelinks": {f"l{k}wiki": {} for k in range(i % 7)}}
                                  for i in range(30)}}
-        if "wikiquote" in url or "props=labels" in url:
+        if "wikiquote" in url or "query.wikidata.org" in url:
             return {}
         return {"deaths": people}
 
@@ -233,31 +233,37 @@ def test_quote_heading_can_be_any_element():
                  "url": "https://en.wikiquote.org/wiki/Voltaire"}
 
 
-def test_deaths_get_a_few_notable_works_from_wikidata():
+def test_deaths_get_their_best_known_works():
     kurosawa = {**page("Akira Kurosawa"), "wikibase_item": "Q8006"}
     payload = {"deaths": [{"text": "Akira Kurosawa, Japanese director (b. 1910)", "year": 1998, "pages": [kurosawa]},
                           {"text": "Someone, farmer", "year": 1990, "pages": [{**page("Someone"), "wikibase_item": "Q5"}]}]}
     asked = []
 
+    def row(person, work, n, en, tr=None):
+        r = {"person": {"value": f"http://www.wikidata.org/entity/{person}"},
+             "work": {"value": f"http://www.wikidata.org/entity/{work}"}, "n": {"value": str(n)},
+             "en": {"value": en}}
+        if tr:
+            r["tr"] = {"value": tr}
+        return r
+
     def get_json(url):
         asked.append(url)
-        if "wikidata" in url and "props=claims" in url:
-            work = lambda q: {"mainsnak": {"datavalue": {"value": {"id": q}}}, "rank": "normal"}
-            return {"entities": {"Q8006": {"claims": {"P800": [work("Q1"), work("Q2"), work("Q3"), work("Q4")]},
-                                           "sitelinks": {"enwiki": {}, "trwiki": {}}},
-                                 "Q5": {"claims": {}, "sitelinks": {}}}}
-        if "wikidata" in url and "props=labels" in url:
-            return {"entities": {"Q1": {"labels": {"en": {"value": "Ran"}}},
-                                 "Q2": {"labels": {"en": {"value": "Seven Samurai"}, "tr": {"value": "Yedi Samuray"}}},
-                                 "Q3": {"labels": {"en": {"value": "Rashomon"}}},
-                                 "Q4": {"labels": {"en": {"value": "Ikiru"}}}}}
+        if "query.wikidata.org" in url:
+            return {"results": {"bindings": [
+                row("Q8006", "Q1", 60, "Ran"), row("Q8006", "Q2", 90, "Seven Samurai", "Yedi Samuray"),
+                row("Q8006", "Q3", 70, "Rashomon"), row("Q8006", "Q4", 40, "Ikiru"),
+                row("Q8006", "Q2", 90, "Seven Samurai", "Yedi Samuray"),  # same work found two ways
+            ]}}
+        if "wikidata.org/w/api.php" in url:
+            return {"entities": {"Q8006": {"sitelinks": {"enwiki": {}, "trwiki": {}}}, "Q5": {"sitelinks": {}}}}
         if "wikiquote" in url:
             raise RuntimeError("not today")
         return payload
 
     h = refresh_history(None, datetime(2026, 11, 21, 9, tzinfo=timezone.utc), get_json, FakeTranslator())
     k = next(d for d in h["deaths"] if d["year"] == 1998)
-    assert k["works"] == [{"tr": "Ran", "en": "Ran"}, {"tr": "Yedi Samuray", "en": "Seven Samurai"},
-                          {"tr": "Rashomon", "en": "Rashomon"}]
+    assert k["works"] == [{"tr": "Yedi Samuray", "en": "Seven Samurai"}, {"tr": "Rashomon", "en": "Rashomon"},
+                          {"tr": "Ran", "en": "Ran"}]
     assert next(d for d in h["deaths"] if d["year"] == 1990)["works"] == []
-    assert any("ids=Q8006%7CQ5" in u or "ids=Q8006|Q5" in u for u in asked)
+    assert any("query.wikidata.org" in u and "Q8006" in u for u in asked)
