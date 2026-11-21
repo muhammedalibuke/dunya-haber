@@ -3,6 +3,7 @@
 stored copy is used."""
 from __future__ import annotations
 
+import html as htmllib
 import re
 from datetime import datetime
 from typing import Callable
@@ -11,8 +12,18 @@ from zoneinfo import ZoneInfo
 from .translate import translate_cached
 
 FEED = "https://en.wikipedia.org/api/rest_v1/feed/onthisday/all/{m:02d}/{d:02d}"
+# quote of the day: each language from its own Wikiquote (not translated)
+QUOTE_SOURCES = {
+    "tr": ("https://tr.wikiquote.org", "Ana_Sayfa", "Günün Sözü"),
+    "en": ("https://en.wikiquote.org", "Main_Page", "Quote of the day"),
+}
+QUOTE_API = "{base}/w/api.php?action=parse&page={page}&prop=text&format=json&formatversion=2"
+QUOTE_MAX_CHARS = 400
+_QUOTE_URL = re.compile(r"^https://[a-z]+\.wikiquote\.org/wiki/[^\s\"'<>]+$")
+_AUTHOR_LINE = re.compile(r"^[—–~\-]+\s*")
+_MARKS = "“”„\"«»‹›·' "
 DAY_ZONE = ZoneInfo("Europe/Istanbul")
-VERSION = 5  # bump when the stored shape changes: the day's list is then made again
+VERSION = 6  # bump when the stored shape changes: the day's list is then made again
 MAX_PEOPLE = 20  # deaths are not curated by Wikipedia: keep the newest with a photo
 MAX_HOLIDAYS = 6
 EXTRACT_SENTENCES, EXTRACT_MAX_CHARS = 3, 420
@@ -92,6 +103,50 @@ def parse_onthisday(payload: dict) -> dict:
     return {"events": events, **people, "holidays": holidays}
 
 
+def parse_quote(page_html: str, heading: str, base: str) -> dict | None:
+    """The quote under `heading` on a Wikiquote main page: {text, author, url}, or None."""
+    m = re.search(r"<h[1-6][^>]*>(?:(?!</h[1-6]).)*?" + re.escape(heading) + r"(?:(?!</h[1-6]).)*?</h[1-6]>",
+                  page_html, re.S | re.I)
+    if not m:
+        return None
+    rest = page_html[m.end():]
+    nxt = re.search(r"<h[1-6][\s>]", rest)
+    block = rest[:nxt.start() if nxt else 4000][:4000]
+    text = re.sub(r"<br\s*/?>|</(p|td|tr|div|li|dd|dt|blockquote)>", "\n", block, flags=re.I)
+    text = htmllib.unescape(re.sub(r"<[^>]+>", "", text))
+    lines = [" ".join(line.split()) for line in text.split("\n")]
+    lines = [line for line in lines if line]
+    author_at = next((i for i, line in enumerate(lines) if _AUTHOR_LINE.match(line)), None)
+    if not author_at:
+        return None
+    quote = " ".join(lines[:author_at]).strip(_MARKS)
+    author = _AUTHOR_LINE.sub("", lines[author_at]).strip(" ~—–-")
+    if not quote or not author or len(quote) > QUOTE_MAX_CHARS:
+        return None
+    url = None
+    for href, inner in re.findall(r'<a[^>]+href="([^"]+)"[^>]*>(.*?)</a>', block, re.S):
+        if " ".join(htmllib.unescape(re.sub(r"<[^>]+>", "", inner)).split()) == author:
+            full = href if href.startswith("http") else base + href
+            url = full if _QUOTE_URL.match(full) else None
+            break
+    return {"text": quote, "author": author, "url": url}
+
+
+def fetch_quotes(get_json: Callable[[str], dict]) -> dict:
+    out = {}
+    for lang, (base, page, heading) in QUOTE_SOURCES.items():
+        try:
+            q = parse_quote(get_json(QUOTE_API.format(base=base, page=page))["parse"]["text"], heading, base)
+        except Exception as e:  # noqa: BLE001 - no quote today is fine
+            print(f"quote of the day ({lang}): {e}", flush=True)
+            continue
+        if q:
+            out[lang] = q
+        else:
+            print(f"quote of the day ({lang}): not found on the main page", flush=True)
+    return out
+
+
 def refresh_history(current: dict | None, now: datetime, get_json: Callable[[str], dict],
                     translator, gaz=None) -> dict | None:
     """Today's list, fetched and translated when the Istanbul date changes; otherwise `current`.
@@ -128,4 +183,4 @@ def refresh_history(current: dict | None, now: datetime, get_json: Callable[[str
         for it in parsed["events"]:
             loc = locate_event([it["text"]["en"]], [], gaz)
             it["location"] = asdict(loc) if loc else None
-    return {"date": day.isoformat(), "v": VERSION, **parsed}
+    return {"date": day.isoformat(), "v": VERSION, "quote": fetch_quotes(get_json), **parsed}

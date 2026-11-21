@@ -288,6 +288,17 @@ async function viewEvent(id) {
     footer(null));
 }
 
+// Quote of the day, from each language's own Wikiquote
+function quoteBox(q) {
+  if (!q?.text || !q.author) return null;
+  const url = safeUrl(q.url);
+  return el("figure", { class: "hist-quote" },
+    el("blockquote", { class: "hist-quote-text", text: q.text }),
+    el("figcaption", { class: "hist-quote-by" },
+      url ? el("a", { href: url, target: "_blank", rel: "noopener noreferrer", text: q.author })
+        : el("span", { text: q.author })));
+}
+
 // "Tarihte bugün": world events and deaths on today's date (from Wikipedia)
 let historyTab = "events";
 async function viewHistory() {
@@ -301,6 +312,7 @@ async function viewHistory() {
     el("p", { class: "hist-kicker", text: t("historyLink", lang) }),
     el("h1", { class: "hist-date", text: data ? formatDayMonth(data.date, lang) : formatToday(now, lang) }),
     el("p", { class: "hist-sub", text: t("historySub", lang) }),
+    quoteBox(data?.quote?.[lang]),
   ];
   if (!data) {
     app.replaceChildren(el("div", { class: "hist" }, ...top, message(t("historyNotReady", lang))));
@@ -373,7 +385,8 @@ async function viewHistory() {
   const [topBar, ...head] = top;
   app.replaceChildren(el("div", { class: daysBox ? "hist hist-has-days" : "hist" },
     topBar, el("header", { class: "hist-head" }, ...head), daysBox, tabBar, listBox,
-    el("p", { class: "hist-src", text: t("historySource", lang) })));
+    el("p", { class: "hist-src" }, t("historySource", lang),
+      data.quote?.[lang] ? el("span", { class: "hist-src-quote", text: ` ${t("quoteSource", lang)}` }) : null)));
   fill(); // after the page is on screen: the map measures its box
 }
 

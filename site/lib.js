@@ -34,6 +34,7 @@ export const STRINGS = {
     historyNotReady: "Bugünün listesi henüz hazır değil. Birazdan tekrar bak.",
     holidaysTitle: "Bugün kutlananlar",
     holidaysCount: "Dünyada {n} özel gün",
+    quoteSource: "Günün sözü: Vikisöz (CC BY-SA).",
     whatHappened: "Ne olmuştu?",
   },
   en: {
@@ -69,6 +70,7 @@ export const STRINGS = {
     historyNotReady: "Today's list isn't ready yet. Check back shortly.",
     holidaysTitle: "Observed today",
     holidaysCount: "{n} special days around the world",
+    quoteSource: "Quote of the day: Wikiquote (CC BY-SA).",
     whatHappened: "What happened?",
   },
 };

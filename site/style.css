@@ -187,7 +187,7 @@ a.dev-title:hover { text-decoration: underline; text-underline-offset: 2px; }
 .hist-top .back { margin: 0; }
 .hist-kicker { margin: 1.1rem 0 0; font: 700 0.9rem/1.2 var(--sans); color: var(--red); }
 .hist-date {
-  margin: 0.1rem 0 0; font: 900 3.1rem/1 var(--serif); letter-spacing: -0.02em; 
+  margin: 0.15rem 0 0; font: 600 1.85rem/1.1 var(--serif); letter-spacing: -0.01em; color: var(--ink);
 }
 .hist-sub { margin: 0.45rem 0 0; font: 400 1rem/1.4 var(--sans); color: var(--muted); }
 .hist-tabs {
@@ -301,3 +301,17 @@ a.hist-day-name { text-decoration: underline; text-decoration-thickness: 1px; te
 .hist-frame .hist-lead { margin-top: 0.9rem; }
 .hist-frame .hist-tl { margin-top: 0.6rem; }
 .hist-frame .hist-tl li:last-child { padding-bottom: 0.6rem; }
+
+/* quote of the day: quiet, under the date */
+.hist-quote {
+  position: relative; margin: 1.1rem 0 0; padding: 0.95rem 1.1rem 0.9rem 3rem;
+  background: var(--card); border: 1px solid var(--rule); border-radius: 16px;
+}
+.hist-quote::before {
+  content: "“"; position: absolute; left: 0.85rem; top: 0.35rem;
+  font: 800 3.2rem/1 var(--serif); color: var(--red);
+}
+.hist-quote-text { margin: 0; font: 500 1.08rem/1.45 var(--serif); color: var(--ink); }
+.hist-quote-by { margin-top: 0.45rem; font: 600 0.86rem/1.3 var(--sans); color: var(--muted); }
+.hist-quote-by::before { content: "— "; }
+.hist-quote-by a { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }

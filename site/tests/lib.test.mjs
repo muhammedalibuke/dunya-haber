@@ -151,3 +151,7 @@ test("observances count", () => {
   assert.equal(t("holidaysCount", "tr", { n: 2 }), "Dünyada 2 özel gün");
   assert.equal(t("holidaysCount", "en", { n: 1 }), "1 special day around the world");
 });
+
+test("quote source strings", () => {
+  assert.ok(STRINGS.tr.quoteSource.includes("Vikisöz") && STRINGS.en.quoteSource.includes("Wikiquote"));
+});

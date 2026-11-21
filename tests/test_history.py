@@ -52,11 +52,12 @@ def test_refresh_uses_the_istanbul_date_and_translates():
 
     now = datetime(2026, 11, 19, 22, 30, tzinfo=timezone.utc)  # 01:30 on 20 Nov in Istanbul
     h = refresh_history(None, now, get_json, FakeTranslator())
-    assert urls == ["https://en.wikipedia.org/api/rest_v1/feed/onthisday/all/11/20"]
+    assert urls[0] == "https://en.wikipedia.org/api/rest_v1/feed/onthisday/all/11/20"
+    fetched = len(urls)
     assert h["date"] == "2026-11-20"
     assert h["events"][0]["text"] == {"tr": "[tr] Zarya, the first ISS module, is launched.",
                                       "en": "Zarya, the first ISS module, is launched."}
-    assert refresh_history(h, now, get_json, FakeTranslator()) is h and len(urls) == 1  # once a day
+    assert refresh_history(h, now, get_json, FakeTranslator()) is h and len(urls) == fetched  # once a day
 
 
 def test_refresh_keeps_old_data_when_fetch_fails_and_english_when_translation_fails():
@@ -131,3 +132,45 @@ def test_life_years_without_a_dot_and_holiday_background():
         {"text": "World Television Day", "pages": [{**page("World Television Day"), "extract": "A day. For TV."}]}]},
         FakeTranslator())
     assert out["holidays"][0]["extract"] == {"tr": "[tr] A day. For TV.", "en": "A day. For TV."}
+
+
+TR_MAIN = """<div class="mw-parser-output"><h2><span id="G.C3.BCn.C3.BCn_S.C3.B6z.C3.BC"></span>Günün Sözü</h2>
+<div class="quote"><p>“ · Büyük adam büyüklüğünü küçük adama davranışıyla gösterir. · „</p>
+<p>—<a href="/wiki/Aldous_Huxley" title="Aldous Huxley">Aldous Huxley</a></p></div>
+<h2>Kardeş projeler</h2><p>Vikisöz, kâr amacı gütmeyen …</p></div>"""
+
+EN_MAIN = """<div class="mw-parser-output"><table><tr><td><h2>Quote of the day</h2>
+<table><tr><td>Courage is not the absence of fear, but rather the judgment that something else is more important than fear.
+<br/></td></tr><tr><td>~ <a href="/wiki/Ambrose_Redmoon" title="Ambrose Redmoon">Ambrose Redmoon</a> ~</td></tr></table>
+</td></tr></table><h2>Selected pages</h2></div>"""
+
+
+def test_quote_of_the_day_from_wikiquote_main_pages():
+    from pipeline.history import parse_quote
+    tr = parse_quote(TR_MAIN, "Günün Sözü", "https://tr.wikiquote.org")
+    assert tr == {"text": "Büyük adam büyüklüğünü küçük adama davranışıyla gösterir.", "author": "Aldous Huxley",
+                  "url": "https://tr.wikiquote.org/wiki/Aldous_Huxley"}
+    en = parse_quote(EN_MAIN, "Quote of the day", "https://en.wikiquote.org")
+    assert en["text"].startswith("Courage is not the absence of fear") and en["text"].endswith("than fear.")
+    assert en["author"] == "Ambrose Redmoon" and en["url"] == "https://en.wikiquote.org/wiki/Ambrose_Redmoon"
+    assert parse_quote("<p>nothing here</p>", "Quote of the day", "https://en.wikiquote.org") is None
+
+
+def test_refresh_adds_each_languages_own_quote():
+    def get_json(url):
+        if "tr.wikiquote" in url:
+            return {"parse": {"text": TR_MAIN}}
+        if "en.wikiquote" in url:
+            return {"parse": {"text": EN_MAIN}}
+        return PAYLOAD
+
+    h = refresh_history(None, datetime(2026, 11, 21, 9, tzinfo=timezone.utc), get_json, FakeTranslator())
+    assert h["quote"]["tr"]["author"] == "Aldous Huxley" and h["quote"]["en"]["author"] == "Ambrose Redmoon"
+
+    def no_quotes(url):
+        if "wikiquote" in url:
+            raise RuntimeError("down")
+        return PAYLOAD
+
+    h = refresh_history(None, datetime(2026, 11, 21, 9, tzinfo=timezone.utc), no_quotes, FakeTranslator())
+    assert h["quote"] == {} and h["events"]
