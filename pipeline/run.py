@@ -179,7 +179,8 @@ def run(state_dir: Path, out_dir: Path, now: datetime, sources: list[Source],
     # most important first, within a time budget; leftovers are picked up by the next run.
     # only what the site will show: today's important events first, then the newest stories
     featured = select_featured(state.events, state.articles, now)
-    featured_first = list(dict.fromkeys(([featured] if featured else []) + select_today(state.events, state.articles, now)))
+    shown_today = select_today(state.events, state.articles, now, exclude={featured} if featured else None, even=True)
+    featured_first = list(dict.fromkeys(([featured] if featured else []) + shown_today))
     shown = published_events(state, featured_first, now)
     budget = Budget(translate_budget_s)
     for e in shown:
@@ -197,8 +198,8 @@ def run(state_dir: Path, out_dir: Path, now: datetime, sources: list[Source],
         find_covers(shown, state.articles, page_get)
 
     prune(state, now)
-    today = select_today(state.events, state.articles, now)
     featured = select_featured(state.events, state.articles, now)
+    today = select_today(state.events, state.articles, now, exclude={featured} if featured else None, even=True)
     report.today = len(today)
     if gemini_key:
         for eid in today:

@@ -121,6 +121,12 @@ jobs:
           cp -r site/index.html site/style.css site/app.js site/lib.js site/map.js \
                 site/manifest.webmanifest site/icon.svg site/icon-180.png site/icon-512.png \
                 site/map site/vendor build/
+          # browsers keep style.css / *.js for a while: name them by the site code's version, so a
+          # new look or feature shows up at once (data updates keep the same version)
+          V=$(git rev-parse --short HEAD:site)
+          sed -i "s#href=\"style.css\"#href=\"style.css?v=$V\"#; s#src=\"app.js\"#src=\"app.js?v=$V\"#" build/index.html
+          sed -i "s#from \"./lib.js\"#from \"./lib.js?v=$V\"#; s#from \"./map.js\"#from \"./map.js?v=$V\"#" build/app.js
+          grep -q "style.css?v=$V" build/index.html && grep -q "lib.js?v=$V" build/app.js
 
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3

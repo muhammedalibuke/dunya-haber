@@ -101,3 +101,28 @@ def test_featured_is_the_long_running_story_most_written_about_today():
     for gone in ("hot", "big"):
         del events[gone]
     assert select_featured(events, arts, NOW) is None
+
+
+def test_even_takes_the_next_story_to_fill_a_pair():
+    big = ev("big", ["US", "GB", "FR", "DE", "JP", "BR", "IN", "CN", "ZA", "AU"])
+    small = [ev(f"s{i}", ["US", "GB"], hours_ago=20) for i in range(6)]
+    events = {e.id: e for e in [big, *small]}
+    out = select_today(events, ARTS, NOW, even=True)
+    assert out[0] == "big" and len(out) == 6  # 5 would leave a hole in the two-column grid
+
+
+def test_even_drops_the_weakest_when_nothing_is_left_to_add():
+    events = {e.id: e for e in [ev(f"o{i}", ["US", "GB"], hours_ago=i) for i in range(3)]}
+    out = select_today(events, ARTS, NOW, even=True)
+    assert out == ["o0", "o1"]
+
+
+def test_featured_story_is_left_out_before_counting():
+    events = {e.id: e for e in [ev(f"x{i}", ["US", "GB", "FR"]) for i in range(7)]}
+    out = select_today(events, ARTS, NOW, exclude={"x0"}, even=True)
+    assert "x0" not in out and len(out) == 6
+
+
+def test_even_keeps_a_single_story():
+    events = {"solo": ev("solo", ["US", "GB"])}
+    assert select_today(events, ARTS, NOW, even=True) == ["solo"]

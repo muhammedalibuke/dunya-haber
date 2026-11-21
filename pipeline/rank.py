@@ -27,16 +27,28 @@ def _source_count(event: Event, articles: dict[str, Article]) -> int:
 
 
 def select_today(events: dict[str, Event], articles: dict[str, Article], now: datetime,
-                 min_n: int = 5, max_n: int = 10, rel_cutoff: float = 0.4) -> list[str]:
+                 min_n: int = 5, max_n: int = 10, rel_cutoff: float = 0.4,
+                 exclude: set[str] | None = None, even: bool = False) -> list[str]:
+    """Today's most important stories. `exclude`: shown elsewhere (the featured box).
+    `even`: an even number, so the two-column list has no hole: the next story is added,
+    or if there is none, the weakest one is left out (a single story stays)."""
+    exclude = exclude or set()
     cands = [
         e for e in events.values()
         if e.topic == "general" and e.updated_at >= now - TODAY_WINDOW and _source_count(e, articles) >= 2
+        and e.id not in exclude
     ]
-    ranked = sorted(cands, key=lambda e: (-score(e, articles, now), e.id))[:max_n]
+    ranked_all = sorted(cands, key=lambda e: (-score(e, articles, now), e.id))
+    ranked = ranked_all[:max_n]
     if not ranked:
         return []
     top = score(ranked[0], articles, now)
     keep = [e for i, e in enumerate(ranked) if i < min_n or score(e, articles, now) >= rel_cutoff * top]
+    if even and len(keep) % 2:
+        if len(keep) < len(ranked_all) and len(keep) < max_n:
+            keep.append(ranked_all[len(keep)])
+        elif len(keep) > 1:  # a lone story is still shown
+            keep.pop()
     return [e.id for e in keep]
 
 
